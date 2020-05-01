@@ -1,3 +1,4 @@
+%% TODO: [WORK-16] Add docs for windowed topographic position index
 \name{tpi_w}
 \alias{tpi_w}
 %- Also NEED an '\alias' for EACH other topic documented here.

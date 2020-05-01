@@ -1,3 +1,4 @@
+%% TODO: [WORK-9] Add docs for density igntion
 \name{density_ign}
 \alias{density_ign}
 %- Also NEED an '\alias' for EACH other topic documented here.

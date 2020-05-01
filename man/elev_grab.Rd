@@ -1,3 +1,4 @@
+%% TODO: [WORK-10] Add docs for elevation grabber
 \name{elev_grab}
 \alias{elev_grab}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -11,6 +12,7 @@
 elev_grab(x)
 }
 %- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{x}{
 %%     ~~Describe \code{x} here~~

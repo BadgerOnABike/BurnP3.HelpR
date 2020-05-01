@@ -1,3 +1,4 @@
+%% TODO: [WORK-14] Add docs for spatial data rasterization
 \name{spatdat_ign_rast}
 \alias{spatdat_ign_rast}
 %- Also NEED an '\alias' for EACH other topic documented here.

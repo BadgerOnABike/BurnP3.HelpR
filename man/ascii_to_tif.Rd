@@ -1,5 +1,6 @@
-\name{file_full_names}
-\alias{file_full_names}
+%% TODO: [WORK-11] Add docs for ascii to tif converter
+\name{ascii_to_tif}
+\alias{ascii_to_tif}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 %%  ~~function to do ... ~~
@@ -8,9 +9,10 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-file_full_names(x)
+ascii_to_tif(x)
 }
 %- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{x}{
 %%     ~~Describe \code{x} here~~

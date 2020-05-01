@@ -1,3 +1,4 @@
+%% TODO: [WORK-18] Add docs for topographic roughness index
 \name{TRI}
 \alias{TRI}
 %- Also NEED an '\alias' for EACH other topic documented here.

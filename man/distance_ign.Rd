@@ -1,3 +1,4 @@
+%% TODO: [WORK-8] Add docs for euclidean distance grids for igntion
 \name{distance_ign}
 \alias{distance_ign}
 %- Also NEED an '\alias' for EACH other topic documented here.

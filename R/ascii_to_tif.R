@@ -1,7 +1,6 @@
 # ASC To Tif Converter ----------------------------------------------------
 
-file_full_names <- list.files("E:/Thesis/prometheus/",pattern = ".asc",recursive = T,full.names = T)
-a_to_t <- function(file_full_names){
+ascii_to_tif <- function(file_full_names){
   
   files.tif <- gsub(".asc",".tif",file_full_names)
   

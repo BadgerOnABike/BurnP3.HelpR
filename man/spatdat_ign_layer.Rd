@@ -1,3 +1,4 @@
+%% TODO: [WORK-13] Add docs for spatial data layer loader
 \name{spatdat_ign_layer}
 \alias{spatdat_ign_layer}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -11,6 +12,7 @@
 spatdat_ign_layer(x)
 }
 %- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{x}{
 %%     ~~Describe \code{x} here~~

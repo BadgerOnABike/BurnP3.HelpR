@@ -1,3 +1,4 @@
+%%TODO: [WORK-3] Add in descriptions for AOI Documentation File
 \name{aoi}
 \alias{aoi}
 %- Also NEED an '\alias' for EACH other topic documented here.
