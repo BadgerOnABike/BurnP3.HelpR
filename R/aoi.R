@@ -2,16 +2,49 @@
 #'
 #' @author Brett Moore, \email{Brett.Moore@@canada.ca}
 #'
-#' @param area_of_interest_file Two element vector describing the location of the file (dsn) and the filename. The file is expected to follow a format readable by readOGR. - In the future may have automatic Parks Canada download
-#' TODO: [WORK-26] add PC functionality
+#' @param area_of_interest_file Two element vector describing the location of the file (dsn) and the filename. The file is expected to follow a format readable by readOGR.
+#' @param PC=F Parks Canada flag to define whether or not you want to download the Parks Canada data automatically. Leave area_of_interest_file blank if using PC=T and define a/many park_of_interest.
 #' @param reference_grid This is a reference raster to provide a projection as well as a graphic representation of your area of interest in order to see the weather stations within the area.
-#' @param buffer_width A width in meters to apply to the area of interest. If you are only interested in the area do not buffer.
+#' @param buffer_width=0 A width in meters to apply to the area of interest. If you are only interested in the area do not buffer.
 #' @param park_of_interest="" The english name of the park or parks of interest. Expects a vector of character strings.
 #' @param stns Dataframe containing the stations within and around your area of interest.
 #' @param stn_name_col A character string containing the column of the station names
 #' @param stn_id_col A character string containing the column of the station ids
 #'
-#'@import rgdal
+#' @details Area of interest generator that allows a systematic AOI generation. Automated system for Parks Canada.
+#'
+#' @return SpatialPolygonsDataFrame
+#'
+#' @examples
+#'
+#'# Load test data
+#'ref_grid <- raster(system.file("extdata/fuel.tif",package = "bp3inputs"))
+#'weather_stations <- readOGR(system.file("extdata/Weather_Station_List.shp", package="bp3inputs"))
+#'
+#'## Single Park
+#'#'aoi(area_of_interest_file = "",
+#'    PC=T,
+#'    reference_grid = ref_grid,
+#'    buffer_width = 15000,
+#'    park_of_interest=c("Banff"),
+#'    stns = weather_stations,
+#'    stn_name_col = "sttn_nm",
+#'    stn_id_col = "statn_d")
+#'
+#'##Multiple Parks
+#'aoi(area_of_interest_file = "",
+#'    PC=T,
+#'    reference_grid = ref_grid,
+#'    buffer_width = 15000,
+#'    park_of_interest=c("Banff|Jasper"),
+#'    stns = weather_stations,
+#'    stn_name_col = "sttn_nm",
+#'    stn_id_col = "statn_d")
+#'
+#' @import rgdal
+#' @import raster
+#' @export
+
 
 
 aoi <- function(area_of_interest_file,PC=F, reference_grid, buffer_width = 0, park_of_interest="",stns, stn_name_col,stn_id_col){
@@ -50,7 +83,6 @@ aoi <- function(area_of_interest_file,PC=F, reference_grid, buffer_width = 0, pa
   }
 
   aoi_poly <- spTransform(x = aoi_poly ,CRSobj = CRS(proj4string(grast)))
-  grast <- crop(extend(grast,extent(gBuffer(aoi_poly,width=buffer_width))),gBuffer(aoi_poly,width=buffer_width))
 
   ## Some basic plotting to visualize where stations are in relation to the AOI
 
@@ -58,7 +90,6 @@ aoi <- function(area_of_interest_file,PC=F, reference_grid, buffer_width = 0, pa
 
   x11()
   plot(gBuffer(aoi_poly,width=buffer_width),main=paste0("There are ",length(stns_within_aoi)," staions inside your area of interest"))
-  plot(grast,add=T,legend=F)
   plot(spTransform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],CRSobj = CRS(proj4string(aoi_poly))),add=T,pch=1)
   text(spTransform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],CRSobj = CRS(proj4string(grast))),data.frame(stns)[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,][,stn_id_col])
   plot(spTransform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],CRSobj = CRS(proj4string(aoi_poly))),add=T,pch=1)
