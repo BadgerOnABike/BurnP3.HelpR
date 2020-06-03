@@ -17,7 +17,7 @@
 #' @import raster
 #' @import rgdal
 #'
-#' @example
+#' @examples
 #' ## Load example data
 #' ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
 #' temp_dir <- tempdir()

@@ -13,7 +13,7 @@
 #' @return RasterLayer
 #' @export
 #'
-#' @example
+#' @examples
 #' ## Load example data
 #' ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
 #' load(system.file("data/spatdat_rast_out.rda",package = "BurnP3"))

@@ -7,7 +7,7 @@
 elev_grab(reference_grid, output_directory)
 }
 \arguments{
-\item{reference_grid}{This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.}
+\item{reference_grid}{This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project. Can be either the location of the raster or a raster object.}
 
 \item{output_directory}{Output directory where your elevation and Wind Ninja elevation grids will be stored.}
 }
@@ -20,10 +20,23 @@ This function uses your reference layer to define the NTS grids necessary to pul
 \details{
 The purpose of this function is to generate a common and rapid elevation layer that is sampled and masked to the reference grid for use within Burn-P3. A second elevation grid is also generated for use in Wind Ninja as that software will fail with NA values in the elevation grid.
 }
+\note{
+Requires an internet connection
+}
+\examples{
+## Load example data
+ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
+temp_dir <- tempdir()
+test <- elev_grab(reference_grid = ref_grid,
+                  output_directory = temp_dir)
+
+
+unlink(temp_dir, recursive = T)
+}
 \references{
 \href{https://open.canada.ca/data/en/dataset/7f245e4d-76c2-4caa-951a-45d1d2051333}{Open Data Canada}
 
-[Open Data Canada FTP]{http://ftp.maps.canada.ca/pub/nrcan_rncan/vector/index/}
+\href{http://ftp.maps.canada.ca/pub/nrcan_rncan/vector/index/}{Open Data Canada FTP}
 
-[Wind Ninja]{https://www.firelab.org/project/windninja}
+\href{https://www.firelab.org/project/windninja}{Wind Ninja}
 }
