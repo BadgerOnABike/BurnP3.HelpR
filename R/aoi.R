@@ -3,10 +3,10 @@
 #' @author Brett Moore, \email{Brett.Moore@@canada.ca}
 #'
 #' @param area_of_interest_file Two element vector describing the location of the file (dsn) and the filename. The file is expected to follow a format readable by readOGR.
-#' @param PC=F Parks Canada flag to define whether or not you want to download the Parks Canada data automatically. Leave area_of_interest_file blank if using PC=T and define a/many park_of_interest.
+#' @param PC Parks Canada flag to define whether or not you want to download the Parks Canada data automatically. area_of_interest_file must be "" when using PC=T **and** define a / many park_of_interest. (*_Default_* = F)
 #' @param reference_grid This is a reference raster to provide a projection.
-#' @param buffer_width=0 A width in meters to apply to the area of interest. If you are only interested in the area do not buffer.
-#' @param park_of_interest="" The english name of the park or parks of interest. Expects a vector of character strings.
+#' @param buffer_width A width in meters to apply to the area of interest. If you are only interested in the area do not buffer. (*_Default_* = 0)
+#' @param park_of_interest The english name of the park or parks of interest. Expects a vector of character strings. (*_Default_* = "")
 #' @param stns Dataframe containing the stations within and around your area of interest.
 #' @param stn_name_col A character string containing the column of the station names
 #' @param stn_id_col A character string containing the column of the station ids
@@ -18,8 +18,18 @@
 #' @examples
 #'
 #'# Load test data
-#'ref_grid <- raster(system.file("extdata/fuel.tif",package = "bp3inputs"))
-#'weather_stations <- readOGR(system.file("extdata/Weather_Station_List.shp", package="bp3inputs"))
+#'ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
+#'weather_stations <- readOGR(system.file("extdata/weather_stations.shp", package="BurnP3"))
+#'
+#'## Defined AOI
+#'aoi(area_of_interest_file = system.file("extdata/aoi.shp", package="BurnP3"),
+#'    PC=F,
+#'    reference_grid = ref_grid,
+#'    buffer_width = 15000,
+#'    park_of_interest="",
+#'    stns = weather_stations,
+#'    stn_name_col = "sttn_nm",
+#'    stn_id_col = "statn_d")
 #'
 #'## Single Park
 #'aoi(area_of_interest_file = "",
@@ -41,19 +51,20 @@
 #'    stn_name_col = "sttn_nm",
 #'    stn_id_col = "statn_d")
 #'
-#' @import rgdal
 #' @import raster
+#' @import rgdal
+#' @import rgeos
 #' @export
 
 
 
 aoi <- function(area_of_interest_file,PC=F, reference_grid, buffer_width = 0, park_of_interest="",stns, stn_name_col,stn_id_col){
 
-  if(class(reference_grid) != "character" | class(reference_grid) != "raster"){stop("reference_grid must be either a string to the location of the reference raster or a raster layer.")}
-  if(class(reference_grid) =="character"){
+  if(class(reference_grid)[1] != "character" & class(reference_grid)[1] != "RasterLayer"){stop("reference_grid must be either a string to the location of the reference raster or a raster layer.")}
+  if(class(reference_grid)[1] =="character"){
     grast <- raster(reference_grid)
   }
-  if(class(reference_grid) =="raster"){
+  if(class(reference_grid)[1] =="RasterLayer"){
     grast <- reference_grid
   }
 
@@ -74,7 +85,7 @@ aoi <- function(area_of_interest_file,PC=F, reference_grid, buffer_width = 0, pa
   if(PC == T & park_of_interest == ""){stop(paste0("You have declared that you are using Parks Canada data, however you have not defined a park or multiple parks. This will result in national data being used. Park/s of interest can be declared as a character vector.Park names are: ",aoi_poly$parkname_e))}
 
   if(area_of_interest_file != ""){
-    aoi_poly <- readOGR(dsn = area_of_interest_file[1],layer=area_of_interest_file[2])
+    aoi_poly <- readOGR(area_of_interest_file)
   }
 
 
