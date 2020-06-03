@@ -4,12 +4,12 @@
 \alias{density_ign}
 \title{Kernal Density Calculator}
 \usage{
-density_ign(reference_grid, layers_list, output_location, output_name)
+density_ign(reference_grid, layer, output_location, output_name)
 }
 \arguments{
 \item{reference_grid}{This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.}
 
-\item{layers_list}{A point layer or list of point layers of which you are interested in the point layer.}
+\item{layer}{A point layer for which you are interested in the density.}
 
 \item{output_location}{The location the output density rasters will be placed.}
 
@@ -25,6 +25,8 @@ Generate kernal density layers from a list of layers and write the rasters out
 This function utilizes the kernal density estimation algorithm from spatialEco to create raster layers for use in ignition grid calculation.
 }
 \seealso{
+\code{\link[BurnP3]{spatdat_ign_layer}}
+
 \code{\link[spatialEco]{sp.kde}}
 }
 \author{
