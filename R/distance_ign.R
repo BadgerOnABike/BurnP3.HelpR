@@ -1,8 +1,7 @@
 #' Euclidean Distance Calculator
 #'
-#' Generate kernal density layers from a list of layers and write the rasters out
+#' Generate euclidean distance layers from a list of rasters and write the rasters out
 #'
-#' @author Brett Moore, \email{Brett.Moore@@canada.ca}
 #'
 #' @param reference_grid This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.
 #' @param rasters_list    The location the output density rasters will be placed.
@@ -17,16 +16,16 @@
 #' @example
 #' ## Load example data
 #' ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
-#' roads <- readOGR(system.file("extdata/roads.shp",package = "BurnP3"))
+#' load(system.file("data/spatdat_rast_out.rda",package = "BurnP3"))
 #' temp_dir <- tempdir()
-#' density_test <- density_ign(reference_grid = ref_grid,
-#'                             layer = fires,
+#' distance_test <- distance_ign(reference_grid = ref_grid,
+#'                             rasters_list = raster_list$rasters,
 #'                             output_location = temp_dir,
-#'                             output_name = "density_test")
+#'                             output_name = "distance_test")
 #'
-#' plot(density_test)
+#' plot(distance_test)
 #'
-#' unlink(temp_dir)
+#' unlink(temp_dir,recursive = T)
 distance_ign <- function(reference_grid, rasters_list,output_location,output_name){
 
   if( grepl("RasterLayer", class(reference_grid)) ){ grast <- reference_grid }
