@@ -6,6 +6,7 @@
 \usage{
 aoi(
   area_of_interest_file,
+  PC = F,
   reference_grid,
   buffer_width = 0,
   park_of_interest = "",
@@ -15,23 +16,67 @@ aoi(
 )
 }
 \arguments{
-\item{area_of_interest_file}{Two element vector describing the location of the file (dsn) and the filename. The file is expected to follow a format readable by readOGR. - In the future may have automatic Parks Canada download
-TODO: [WORK-26] add PC functionality}
+\item{area_of_interest_file}{Two element vector describing the location of the file (dsn) and the filename. The file is expected to follow a format readable by readOGR.}
 
-\item{reference_grid}{This is a reference raster to provide a projection as well as a graphic representation of your area of interest in order to see the weather stations within the area.}
+\item{PC}{Parks Canada flag to define whether or not you want to download the Parks Canada data automatically. area_of_interest_file must be "" when using PC=T \strong{and} define a / many park_of_interest. (\emph{\emph{Default}} = F)}
 
-\item{buffer_width}{A width in meters to apply to the area of interest. If you are only interested in the area do not buffer.}
+\item{reference_grid}{This is a reference raster to provide a projection.}
+
+\item{buffer_width}{A width in meters to apply to the area of interest. If you are only interested in the area do not buffer. (\emph{\emph{Default}} = 0)}
+
+\item{park_of_interest}{The english name of the park or parks of interest. Expects a vector of character strings. (\emph{\emph{Default}} = "")}
 
 \item{stns}{Dataframe containing the stations within and around your area of interest.}
 
 \item{stn_name_col}{A character string containing the column of the station names}
 
 \item{stn_id_col}{A character string containing the column of the station ids}
-
-\item{park_of_interest=""}{The english name of the park or parks of interest. Expects a vector of character strings.}
+}
+\value{
+SpatialPolygonsDataFrame
 }
 \description{
 Area of Interest for Weather Stations - Designed for Parks Canada Data
+}
+\details{
+Area of interest generator that allows a systematic AOI generation. Automated system for Parks Canada.
+}
+\examples{
+
+# Load test data
+ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
+weather_stations <- readOGR(system.file("extdata/weather_stations.shp", package="BurnP3"))
+
+## Defined AOI
+aoi(area_of_interest_file = system.file("extdata/aoi.shp", package="BurnP3"),
+   PC=F,
+   reference_grid = ref_grid,
+   buffer_width = 15000,
+   park_of_interest="",
+   stns = weather_stations,
+   stn_name_col = "sttn_nm",
+   stn_id_col = "statn_d")
+
+## Single Park
+aoi(area_of_interest_file = "",
+   PC=T,
+   reference_grid = ref_grid,
+   buffer_width = 15000,
+   park_of_interest=c("Banff"),
+   stns = weather_stations,
+   stn_name_col = "sttn_nm",
+   stn_id_col = "statn_d")
+
+##Multiple Parks
+aoi(area_of_interest_file = "",
+   PC=T,
+   reference_grid = ref_grid,
+   buffer_width = 15000,
+   park_of_interest=c("Banff|Jasper"),
+   stns = weather_stations,
+   stn_name_col = "sttn_nm",
+   stn_id_col = "statn_d")
+
 }
 \author{
 Brett Moore, \email{Brett.Moore@canada.ca}
