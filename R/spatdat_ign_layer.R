@@ -2,7 +2,7 @@
 #'
 #' @param reference_grid This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.
 #' @param layer Names of the input layers for import, allows the system to function if there are multiple shapes at a single data source name.
-#' @param dsn Locations of the shapefiles to be loaded in and operated upon. Also accepts a list containing sf objects.
+#' @param dsn Locations of the shapefiles to be loaded in and operated upon. Also accepts a list containing sf objects. 2
 #'
 #' @return List
 #' @export
