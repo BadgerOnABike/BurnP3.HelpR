@@ -22,7 +22,7 @@
 #'weather_stations <- readOGR(system.file("extdata/Weather_Station_List.shp", package="bp3inputs"))
 #'
 #'## Single Park
-#'#'aoi(area_of_interest_file = "",
+#'aoi(area_of_interest_file = "",
 #'    PC=T,
 #'    reference_grid = ref_grid,
 #'    buffer_width = 15000,
