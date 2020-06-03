@@ -17,9 +17,9 @@
 #'
 #' @import raster
 #' @import rgdal
-#' @import SpatialEco
+#' @import spatialEco
 #'
-#' @example
+#' @examples
 #'
 #' ## Load example data
 #' ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))

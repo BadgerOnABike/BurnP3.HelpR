@@ -7,7 +7,7 @@
 distance_ign(reference_grid, rasters_list, output_location, output_name)
 }
 \arguments{
-\item{reference_grid}{This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.}
+\item{reference_grid}{This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.Can be either the location of the raster or a raster object.}
 
 \item{rasters_list}{The location the output density rasters will be placed.}
 
@@ -19,11 +19,22 @@ distance_ign(reference_grid, rasters_list, output_location, output_name)
 RasterLayer
 }
 \description{
-Generate kernal density layers from a list of layers and write the rasters out
+Generate euclidean distance layers from a list of rasters and write the rasters out
 }
 \details{
 This function generates a euclidean distance grid with the \code{distance} function.
 }
-\author{
-Brett Moore, \email{Brett.Moore@canada.ca}
+\examples{
+## Load example data
+ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
+load(system.file("data/spatdat_rast_out.rda",package = "BurnP3"))
+temp_dir <- tempdir()
+distance_test <- distance_ign(reference_grid = ref_grid,
+                            rasters_list = raster_list$rasters,
+                            output_location = temp_dir,
+                            output_name = "distance_test")
+
+plot(distance_test)
+
+unlink(temp_dir,recursive = T)
 }
