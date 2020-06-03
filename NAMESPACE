@@ -2,6 +2,11 @@
 
 export(aoi)
 export(distance_ign)
+export(elev_grab)
+export(spatdat_ign_layer)
+export(spatdat_ign_rast)
+import(SpatialEco)
 import(raster)
 import(rgdal)
 import(rgeos)
+import(sf)
