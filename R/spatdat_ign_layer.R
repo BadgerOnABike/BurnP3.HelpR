@@ -1,8 +1,12 @@
 #' Spatial Data Importer
 #'
+#' Import spatial data for rasterization in the ignition grid development process.
+#'
 #' @param reference_grid This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.
 #' @param layer Names of the input layers for import, allows the system to function if there are multiple shapes at a single data source name.
-#' @param dsn Locations of the shapefiles to be loaded in and operated upon. Also accepts a list containing sf objects. 2
+#' @param dsn Locations of the shapefiles to be loaded in and operated upon. Also accepts a list containing sf objects.
+#'
+#' @details This tool imports the spatial data for use within the spatial data rasterizer, it can perform on points, lines and polygons.
 #'
 #' @return List
 #' @export
@@ -17,8 +21,9 @@
 #' ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
 #'
 #' out <- spatdat_ign_layer(reference_grid = ref_grid,
-#'                          layer = "roads",
+#'                          layer = "road",
 #'                          dsn = system.file("extdata",package="BurnP3"))
+#'
 spatdat_ign_layer <- function(reference_grid,layer,dsn){
 
   if( grepl("RasterLayer", class(reference_grid)) ){grast <- reference_grid}
