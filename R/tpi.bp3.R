@@ -34,9 +34,6 @@ tpi.bp3 <- function(input, window_size = 5){
 }
 
 #' Function to actually calculate topographic position index with a window
-#'
-#' Windowed TPI
-#'
 #' @param input The elevation grid that will be used during modelling. It may also be larger in order to avoid edge effects if necessary.
 #' @param window_size Must be an odd number
 tpi_w <- function(input, window_size=5) {
@@ -46,9 +43,6 @@ tpi_w <- function(input, window_size=5) {
   x - f
 }
 #' Function calculate topographic roughness index with a window
-#'
-#' Windowed TRI
-#'
 #' @param input The elevation grid that will be used during modelling. It may also be larger in order to avoid edge effects if necessary.
 #' @param window_size Must be an odd number
 TRI <- function(input,window_size){
