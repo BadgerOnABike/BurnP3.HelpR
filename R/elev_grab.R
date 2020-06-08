@@ -40,8 +40,8 @@ elev_grab <- function(reference_grid,output_directory){
   ## Download and extract the NTS grid specified by user (will be removed after use), uses the 250k grid as that is what CDEM is based on
   nts_temp <- tempfile(fileext = '.zip')
   download.file(destfile = nts_temp,url = "http://ftp.maps.canada.ca/pub/nrcan_rncan/vector/index/nts_snrc.zip")
-  nts_files <- unzip(nts_temp)
-  unzip(zipfile = nts_temp,files = gsub("./","",nts_files),exdir = gsub(".zip","",nts_temp))
+  nts_files <- unzip(nts_temp,list = T)
+  unzip(zipfile = nts_temp,files = nts_files$Name,exdir = gsub(".zip","",nts_temp))
   nts_grid <- readOGR(dsn = gsub(".zip","",nts_temp),layer = "nts_snrc_250k")
 
   ## Determine the NTS grids the data exists across
@@ -66,7 +66,7 @@ elev_grab <- function(reference_grid,output_directory){
 
   elev_layers <- lapply(elevation,function(x) projectRaster(from = x, to = grast))
 
-  if(nlayers(elev_layers) > 1){
+  if(length(elev_layers) > 1){
     mosaic.r <- do.call(merge,elev_layers)
   } else{
     mosaic.r <- elev_layers[[1]]
