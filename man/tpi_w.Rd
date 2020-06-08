@@ -4,7 +4,7 @@
 \alias{tpi_w}
 \title{Function to actually calculate topographic position index with a window}
 \usage{
-tpi_w(x, w = 5)
+tpi_w(input, window_size = 5)
 }
 \arguments{
 \item{input}{The elevation grid that will be used during modelling. It may also be larger in order to avoid edge effects if necessary.}
