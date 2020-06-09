@@ -1,8 +1,20 @@
-# Ignition Grids ----------------------------------------------------------
-
 #TODO: Add in boosted regression tree assessment
-## Updated the train/test split method
-
+#' Ignition Grids
+#'
+#' @param fire_data Spatial Points Data Frame containing wildfire location data, this should be cropped to the area of interest or it will take a very long time to write NA values into the data.
+#' @param indicator_stack Raster Stack of explanatory variables within the area of interest.
+#' @param indicators_1 Character vector describing the layer name from the indicator stack that should be used when calculating ignition probability for the first cause.
+#' @param indicators_2 Character vector describing the layer name from the indicator stack that should be used when calculating ignition probability for the second cause.
+#' @param causes Character vector describing the causes within the data, typically H (human) and L (lightning), used for naming files and filtering wildfire data.
+#' @param season_description Character vector with the descriptive names of the factor seasons within the wildfire data.
+#' @param output_location Directory for the rasters that will be calculated.
+#' @param min_fire_size A minimum fire size that may be defined to filter the wildfire data provided. _(Default = "")_
+#' @param model A character string defining the model to be used during the ignition gridding process. Can be one of: rf_stock, rf, gbm. The models are: stock random forest - run without any tuning. Random forest, an automatically tuned random forest run. Gradient Boosted Model - a gbm that is run in its default mode.
+#'
+#' @return
+#' @export
+#'
+#' @examples
 ign_grid <- function(fire_data,indicator_stack,indicators_1,indicators_2,causes,season_description,output_location,min_fire_size = "",model=""){
   ## Perform a randomForest on each season and each cause as well as one with all season within.
 
