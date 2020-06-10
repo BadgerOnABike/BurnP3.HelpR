@@ -1,10 +1,10 @@
 #' Fire Rate Distribution
 #'
 #' @param input Location of a binary file containing fire data, requires a date column
-#' @param date_col
-#' @param date_format
+#' @param date_col Character string defining the name of the column containing date information.
+#' @param date_format Format of the dates within the date column that will enable the function to transition the date to a julian day. _(Default = "%Y/%m/%d")_
 #' @param aoi A spatial object do be used for its CRS and extent. Data will be cropped to this aoi.
-#' @param output_location Folder location for fire rate distribution to be exported to. NOTE: Only requries the base directory, assumes the directory generator was used.
+#' @param output_location Folder location for fire rate distribution to be exported to. NOTE: Only requires the base directory, assumes the directory generator was used.
 #' @param seasonal Declaration of the use of seasons in the weather data set. _(Default = F)_
 #' @param seasons If seasonal is True, a two column data.frame that contains the seasons numerical identifier and the description.
 #' @param zonal Declaration of the use of weather zones. _(Default = F)_
@@ -13,6 +13,8 @@
 #'
 #' @return
 #' @export
+#'
+#' @seealso \link {bp3_dir_gen}[BurnP3]
 #'
 #' @examples
 fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", aoi, output_location, seasonal=F, zonal=F, seasons = season_df, zones, zone_names = c("Alpine-E","Montane-E","Alpine-W","Montane-W","IDF")){
@@ -60,4 +62,5 @@ fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", ao
 
   colnames(fire_rate) <- tolower(colnames(fire_rate))
   fire_rate$cause <- as.numeric(fire_rate$cause)
-  write.csv(fire_rate, paste0(output_location,"Inputs/2. Modules/Distribution Tables/Fire_Rate_Distribution.csv"),row.names=F)}
+  write.csv(fire_rate, paste0(output_location,"Inputs/2. Modules/Distribution Tables/Fire_Rate_Distribution.csv"),row.names=F)
+}
