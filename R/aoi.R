@@ -19,10 +19,10 @@
 #'
 #'# Load test data
 #'ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
-#'weather_stations <- readOGR(system.file("extdata/weather_stations.shp", package="BurnP3"))
+#'weather_stations <- readOGR(dsn=system.file("extdata/extdata.gpkg", package="BurnP3"),layer="weather_stations")
 #'
 #'## Defined AOI
-#'aoi(area_of_interest_file = system.file("extdata/aoi.shp", package="BurnP3"),
+#'aoi(area_of_interest_file = c(system.file("extdata/extdata.gpkg", package="BurnP3"),"aoi"),
 #'    PC=F,
 #'    reference_grid = ref_grid,
 #'    buffer_width = 15000,
@@ -60,13 +60,9 @@
 
 aoi <- function(area_of_interest_file,PC=F, reference_grid, buffer_width = 0, park_of_interest="",stns, stn_name_col,stn_id_col){
 
-  if(class(reference_grid)[1] != "character" & class(reference_grid)[1] != "RasterLayer"){stop("reference_grid must be either a string to the location of the reference raster or a raster layer.")}
-  if(class(reference_grid)[1] =="character"){
-    grast <- raster(reference_grid)
-  }
-  if(class(reference_grid)[1] =="RasterLayer"){
-    grast <- reference_grid
-  }
+  if( grepl("RasterLayer", class(reference_grid)) ){grast <- reference_grid}
+  if( grepl("character", class(reference_grid)) ){grast <- raster(reference_grid)}
+  if( !grepl("RasterLayer|character", class(reference_grid)) ){message("Reference Grid must be the directory of the raster or a raster object.")}
 
   if(area_of_interest_file == "" & PC == F){stop("Please input an area of interest file or delcare PC (Parks Canada) as true to automatically load the Parks Canada layer")}
 
@@ -85,7 +81,11 @@ aoi <- function(area_of_interest_file,PC=F, reference_grid, buffer_width = 0, pa
   if(PC == T & park_of_interest == ""){stop(paste0("You have declared that you are using Parks Canada data, however you have not defined a park or multiple parks. This will result in national data being used. Park/s of interest can be declared as a character vector.Park names are: ",aoi_poly$parkname_e))}
 
   if(area_of_interest_file != ""){
-    aoi_poly <- readOGR(area_of_interest_file)
+    if(length(area_of_interest_file) > 1){
+      aoi_poly <- readOGR(dsn=area_of_interest_file[1],layer=area_of_interest_file[2])
+    } else {
+      aoi_poly <- readOGR(area_of_interest_file)
+    }
   }
 
 

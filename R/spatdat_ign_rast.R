@@ -16,7 +16,7 @@
 #'
 #' ## Load example data
 #' ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
-#' layers_list <- list(readOGR(system.file("extdata/layer_list.shp",package = "BurnP3")))
+#' layers_list <- list(readOGR(dsn=system.file("extdata/extdata.gpkg",package = "BurnP3"),layer="layers_list"))
 #' out <- spatdat_ign_rast(reference_grid = ref_grid,
 #'                         layers_list = layers_list)
 #'

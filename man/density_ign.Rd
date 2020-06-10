@@ -7,7 +7,7 @@
 density_ign(reference_grid, layer, output_location, output_name)
 }
 \arguments{
-\item{reference_grid}{This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.Can be either the location of the raster or a raster object.}
+\item{reference_grid}{Reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.Can be either the location of the raster or a raster object.}
 
 \item{layer}{A point layer for which you are interested in the density.}
 

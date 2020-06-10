@@ -45,10 +45,10 @@ Area of interest generator that allows a systematic AOI generation. Automated sy
 
 # Load test data
 ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
-weather_stations <- readOGR(system.file("extdata/weather_stations.shp", package="BurnP3"))
+weather_stations <- readOGR(dsn=system.file("extdata/extdata.gpkg", package="BurnP3"),layer="weather_stations")
 
 ## Defined AOI
-aoi(area_of_interest_file = system.file("extdata/aoi.shp", package="BurnP3"),
+aoi(area_of_interest_file = c(system.file("extdata/extdata.gpkg", package="BurnP3"),"aoi"),
    PC=F,
    reference_grid = ref_grid,
    buffer_width = 15000,
