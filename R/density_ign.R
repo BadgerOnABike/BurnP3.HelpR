@@ -3,7 +3,7 @@
 #' Generate kernal density layers from a list of layers and write the rasters out
 #'
 #'
-#' @param reference_grid This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.Can be either the location of the raster or a raster object.
+#' @param reference_grid Reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.Can be either the location of the raster or a raster object.
 #' @param layer A point layer for which you are interested in the density.
 #' @param output_location The location the output density rasters will be placed.
 #' @param output_name The name of the files to be output. Typically these will be a vector of the names of your list of layers.
