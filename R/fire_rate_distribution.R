@@ -1,10 +1,25 @@
-# Fire Rate Distribution --------------------------------------------------
+#' Fire Rate Distribution
+#'
+#' @param input Location of a binary file containing fire data, requires a date column
+#' @param date_col
+#' @param date_format
+#' @param aoi A spatial object do be used for its CRS and extent. Data will be cropped to this aoi.
+#' @param output_location Folder location for fire rate distribution to be exported to. NOTE: Only requries the base directory, assumes the directory generator was used.
+#' @param seasonal Declaration of the use of seasons in the weather data set. _(Default = F)_
+#' @param seasons If seasonal is True, a two column data.frame that contains the seasons numerical identifier and the description.
+#' @param zonal Declaration of the use of weather zones. _(Default = F)_
+#' @param zones A raster containing the fire zones to be used.
+#' @param zone_names If zonal is True, identify the descriptive names of the zones for use during mapping and output.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", aoi, output_location, seasonal=F, zonal=F, seasons = season_df, zones, zone_names = c("Alpine-E","Montane-E","Alpine-W","Montane-W","IDF")){
 
-fire_rate_distribution <- function(fire_data, date_col, date_format = "%Y/%m/%d", aoi, output_location, seasonal=F, zonal=F, seasons = season_df, zones, zone_names = c("Alpine-E","Montane-E","Alpine-W","Montane-W","IDF")){
+  x <- load(input,verbose=T) # Ignition points from the NFDB clipped to 100km from the NPs
 
-  x <- load(fire_data,verbose=T) # Ignition points from the NFDB clipped to 100km from the NPs
-
-  ## In the even the binary loaded is not called nfdb we coerce it
+  ## In the event the binary loaded is not called nfdb we coerce it
   nfdb <- get(x)
   ## Remove the non-nfdb named object
   if(x != "nfdb"){rm(list=c(x))}
