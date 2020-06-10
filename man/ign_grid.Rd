@@ -74,6 +74,7 @@ ign_grid(fire_data = fire_data,
          model = model,
          testing = T)
 
+print(paset0("Test files have been written to: ", output_location))
 
 unlink(tempdir(),recursive = T)
 
