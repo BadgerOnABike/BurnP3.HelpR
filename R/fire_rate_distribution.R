@@ -6,10 +6,12 @@
 #' @param aoi A spatial object do be used for its CRS and extent. Data will be cropped to this aoi.
 #' @param output_location Folder location for fire rate distribution to be exported to. NOTE: Only requires the base directory, assumes the directory generator was used.
 #' @param seasonal Declaration of the use of seasons in the weather data set. _(Default = F)_
-#' @param seasons If seasonal is True, a two column data.frame that contains the seasons numerical identifier and the description.
+#' @param seasons If seasonal is True, a two column data.frame that contains the seasons numerical identifier and the description. _(Default = "")_
 #' @param zonal Declaration of the use of weather zones. _(Default = F)_
 #' @param zones A raster containing the fire zones to be used.
-#' @param zone_names If zonal is True, identify the descriptive names of the zones for use during mapping and output.
+#' @param zone_names If zonal is True, identify the descriptive names of the zones for use during mapping and output. _(Default = "")_
+#' @param min_fire_size A minimum fire size to subset the fire information to for adjuste fire rate distribution depending on the question being asked. _(Default = 0.01)_
+#' @param causes A character vector defining the causes within the fire dataset. _(Default = c("H","L"))_
 #'
 #' @return
 #' @export
@@ -17,50 +19,111 @@
 #' @seealso \link {bp3_dir_gen}[BurnP3]
 #'
 #' @examples
-fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", aoi, output_location, seasonal=F, zonal=F, seasons = season_df, zones, zone_names = c("Alpine-E","Montane-E","Alpine-W","Montane-W","IDF")){
+#' ## Load relavent data
+#' data("fire_data")
+#' aoi <- readOGR(system.file("extdata","extdata.gpkg",package="BurnP3"),"aoi")
+#' output_location <- paste0(tempdir(),"\\")
+#' zones <- raster(system.file("extdata","zones.tif",package="BurnP3"))
+#' data("season_df")
+#' zone_names = c("Alpine-E","Montane-E","Alpine-W","Montane-W","IDF")
+#'
+#' fr <- fire_rate_distribution(input = fire_data,
+#'                              date_format = "%Y/%m/%d",
+#'                              aoi = aoi,
+#'                              output_location = output_location,
+#'                              date_col = "REP_DATE",
+#'                              seasonal = F,
+#'                              zonal = F,
+#'                              seasons = "",
+#'                              zones,
+#'                              zone_names = "",
+#'                              min_fire_size = 0.01,
+#'                              causes = c("H","L")
+#'                              )
+#' print(fr)
+#'
+#' fr <- fire_rate_distribution(input = fire_data,
+#'                              date_format = "%Y/%m/%d",
+#'                              aoi = aoi,
+#'                              output_location = output_location,
+#'                              date_col = "REP_DATE",
+#'                              seasonal = T,
+#'                              zonal = F,
+#'                              seasons = season_df,
+#'                              zones,
+#'                              zone_names = "",
+#'                              min_fire_size = 0.01,
+#'                              causes = c("H","L")
+#'                              )
+#' print(fr)
+#'
+#' fr <- fire_rate_distribution(input = fire_data,
+#'                              date_format = "%Y/%m/%d",
+#'                              aoi = aoi,
+#'                              output_location = output_location,
+#'                              date_col = "REP_DATE",
+#'                              seasonal = F,
+#'                              zonal = T,
+#'                              seasons = "",
+#'                              zones = zones,
+#'                              zone_names = zone_names,
+#'                              min_fire_size = 0.01,
+#'                              causes = c("H","L")
+#'                              )
+#'
+#' print(fr)
+#'
+#' unlink(output_location, recursive = T)
+#'
 
-  x <- load(input,verbose=T) # Ignition points from the NFDB clipped to 100km from the NPs
+fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", aoi, output_location, seasonal=F, zonal=F, seasons = "", zones, zone_names = "", min_fire_size = 0.01, causes = c("H","L")){
 
-  ## In the event the binary loaded is not called nfdb we coerce it
-  nfdb <- get(x)
-  ## Remove the non-nfdb named object
-  if(x != "nfdb"){rm(list=c(x))}
+  if(length(which(is.na(input@data[,date_col]))) >0){input <- input[-which(is.na(input@data[,date_col])),]}
+  if(length(which(duplicated(paste(input$LATITUDE,input$LONGITUDE,input$YEAR))))>0){input <- input[-which(duplicated(paste(input$LATITUDE,input$LONGITUDE,input$YEAR))),]}
+  # subset of the 100km_input to 3 ha minimum fire size
 
-  nfdb <- nfdb[-which(is.na(nfdb$date_col)),]
-  nfdb <- nfdb[-which(duplicated(paste(nfdb$LATITUDE,nfdb$LONGITUDE,nfdb$YEAR))),]
-  # subset of the 100km_nfdb to 3 ha minimum fire size
+  input <- subset(input, input@data$SIZE_HA >= min_fire_size)
+  input$jday <- as.numeric(format(as.Date(input@data[,date_col],date_format),"%j"))
 
-  nfdb <- subset(nfdb, nfdb@data$SIZE_HA >= 0.01)
-  nfdb$jday <- as.numeric(format(as.Date(nfdb$date_col,date_format),"%j"))
-
-  nfdb$season <- ifelse(as.numeric((nfdb$jday)) < season_df$jday[1], 1, NA)
-  for(i in season_df$season[1:(length(season_df$season)-1)]){
-    nfdb$season <- ifelse(as.numeric(nfdb$jday) >= season_df$jday[i] & as.numeric(nfdb$jday) < season_df$jday[i+1], season_df$season[i+1], nfdb$season)
-  }
-  nfdb$season <- ifelse(as.numeric((nfdb$jday)) >= season_df$jday[nrow(season_df)], max(season_df$season)+1, nfdb$season)
-
-  nfdb <- nfdb[-which(nfdb$season >= max(season_df$season)+1),]
   ## May throw an error about bad geometry, that's find it still projects.
-  nfdb <- spTransform(nfdb,CRSobj = CRS(proj4string(aoi)))
-  nfdb <- crop(nfdb, aoi)
-  nfdb <- nfdb[which(nfdb$CAUSE %in% c("H","L") & nfdb$season %in% season_df$season),]
-  nfdb$zone <- extract(zones,nfdb)
-  nfdb <- nfdb[-which(is.na(nfdb$zone)),]
-  x <- hist(nfdb$zone,breaks=seq(min(nfdb$zone)-0.5,max(nfdb$zone)+0.5,1))
-  barplot(height = x$counts,names=zone_names)
+  input <- spTransform(input,CRSobj = CRS(proj4string(aoi)))
+  input <- crop(input, aoi)
+  input <- input[input$CAUSE %in% causes,]
+
+  if(seasonal){
+
+    input$season <- ifelse(as.numeric((input$jday)) < season_df$jday[1], 1, NA)
+
+    for(i in season_df$season[1:(length(season_df$season)-1)]){
+      input$season <- ifelse(as.numeric(input$jday) >= season_df$jday[i] & as.numeric(input$jday) < season_df$jday[i+1], season_df$season[i+1], input$season)
+    }
+
+    input$season <- ifelse(as.numeric((input$jday)) >= season_df$jday[nrow(season_df)], max(season_df$season)+1, input$season)
+
+    input <- input[-which(input$season >= max(season_df$season)+1),]
+
+    input <- input[which(input$season %in% season_df$season),]
+  }
+
+  if(zonal){
+    input$zone <- extract(zones,input)
+    if(length(which(is.na(input$zone)))>0){input <- input[-which(is.na(input$zone)),]}
+  }
 
   vars <- c("CAUSE", if(seasonal){"season"},if(zonal){"zone"})
 
-  fire_rate <- ddply(.data = as.data.frame(nfdb),
-                     .variables = .(CAUSE, season, zone),
+  fire_rate <- ddply(.data = as.data.frame(input),
+                     .variables = c(vars),
                      .fun=function(x){
                        counts <- nrow(x)
-                       pct <- counts/nrow(nfdb)
+                       pct <- counts/nrow(input)
                        data.frame(esc_fires=round(pct*100,2))
                      }
   )
 
   colnames(fire_rate) <- tolower(colnames(fire_rate))
   fire_rate$cause <- as.numeric(fire_rate$cause)
-  write.csv(fire_rate, paste0(output_location,"Inputs/2. Modules/Distribution Tables/Fire_Rate_Distribution.csv"),row.names=F)
+  write.csv(fire_rate, paste0(output_location,"Fire_Rate_Distribution.csv"),row.names=F)
+  if(output_location == bp3_base){write.csv(fire_rate, paste0(output_location,"Inputs/2. Modules/Distribution Tables/Fire_Rate_Distribution.csv"),row.names=F)}
+  return(fire_rate)
 }
