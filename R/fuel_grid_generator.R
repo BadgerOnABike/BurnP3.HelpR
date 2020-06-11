@@ -1,5 +1,21 @@
-## Fuel Grid Generator
-
+#' Fuel Grid Generator
+#'
+#' Generate a fuel grid from spatial and raster fuel layers
+#'
+#' @param aoi Spatial data layer containing the area of interest to create a fuel grid for Burn-P3
+#' @param lut A look-up table containing the fuel information in order to convert the polygonal and raster information into the final fuel grid layer
+#' @param reference_grid Reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.Can be either the location of the raster or a raster object.
+#' @param fuel_layers Character vector defining spatial (shapefile) and gridded (raster) for injestion during use of the function.
+#' @param fuel_col Character vector defining the column that contains fuel calls in each shapefile in the same order they are called in the \code{fuel_layers} object
+#' @param desired_resolution The desired resolution of the final raster. _(Default = 100)_
+#' @param pc Character vector of logical values (T/F) defining whether or not percent conifer is to be calculated for mixedwood fuels based on a percent conifer column.
+#' @param pc_col A character vector defining the column for percent conifer in each spatial layer. If the corresponding \code{pc} value is false enter "".
+#' @param output_directory The directory to place the final fuel grid. If using the generated directories use \code{bp3_base} as the output directory.
+#'
+#' @return RasterLayer
+#' @export
+#'
+#' @examples
 fuel_grid_generator <- function(aoi, lut, reference_grid, fuel_layers,fuel_col,desired_resolution = 100, pc = F,pc_col, output_directory){
 
 
