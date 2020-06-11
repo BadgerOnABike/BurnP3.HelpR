@@ -2,8 +2,11 @@
 
 export(aoi)
 export(ascii_to_tif)
+export(bp3_dir_gen)
+export(bp3_dirs)
 export(distance_ign)
 export(elev_grab)
+export(fire_rate_distribution)
 export(ign_grid)
 export(spatdat_ign_layer)
 export(spatdat_ign_rast)
