@@ -15,7 +15,6 @@
 #' @param zone_names If zonal is True, identify the descriptive names of the zones for use during mapping and output.
 #' @param threshold For weather based spread event day assessments a threshold is necessary to minimize an excessive tail. This ensures a reasonable distribution for short to mid duration fires but excludes long durations. _(Default = 80)_
 #' @param min_fwi A minimum fire weather index is used to describe days where fires are more likely to spread and should be consecutively counted. 19 is common in the Canadian Boreal per Podur and Wotton, 2011 _(Default = 19)_
-#' @param prop_days A whole numeric value defining the proportion of spread event days to filter the spread event day distribution down from it's total value. For instance if the user is interested in the spread event distribution where 80% of spread events are occurring they would enter a value of 80.  _(Default = "")_
 #' @param directory Directory for files to be output when using the Burn-P3 directory generator. _(Default = "")_
 #'
 #' @return data.frame
@@ -40,7 +39,6 @@
 #' zone_names = c("Alpine","Montane","West Alpine","West Montane","West Interior Douglas Fir"),
 #' threshold = 80,
 #' min_fwi = 19,
-#' prop_days = 80,
 #' directory = "")
 #'
 #' spread_event_days(input = wx_input,
@@ -54,7 +52,6 @@
 #' zone_names = c("Alpine","Montane","West Alpine","West Montane","West Interior Douglas Fir"),
 #' threshold = 80,
 #' min_fwi = 19,
-#' prop_days = "",
 #' directory = "")
 #'
 #' spread_event_days(input = wx_input,
@@ -68,7 +65,6 @@
 #' zone_names = c("Alpine","Montane","West Alpine","West Montane","West Interior Douglas Fir"),
 #' threshold = 80,
 #' min_fwi = 19,
-#' prop_days = 95,
 #' directory = "")
 #'
 spread_event_days <- function(input,
@@ -82,7 +78,6 @@ spread_event_days <- function(input,
                               zone_names = "",
                               threshold = 80,
                               min_fwi = 19,
-                              prop_days = "",
                               directory = ""){
 
   if(length(season_names) != length(unique(input[,season_col]))){warning("There are not enough season names for the number of unique season in your data. The system will proceed and the remaining zones will be unnamed, names are assigned in order of occurrence and may have no meaning.")}
@@ -119,7 +114,7 @@ spread_event_days <- function(input,
 
     names(sed) <- season_names
 
-    lapply(sed, function(x){sum_thresh_sed(x,threshold)})
+    sed <- lapply(sed, function(x){sum_thresh_sed(x,threshold)})
     if(directory == "") {
       print(sed)
     } else{
@@ -167,16 +162,13 @@ spread_event_days <- function(input,
   x <- hist(sed_wx[,"counts"],breaks = 0:(max(sed_wx$counts)),freq=T)
   sed <- data.frame(days=x$breaks[-1] ,sp_ev_days=round(x$density*100,2))
 
-  if(prop_days != ""){
-  sed$cumsum <- cumsum(sed$sp_ev_days)
-  sed <- sed[which(sed$cumsum < prop_days),]
-  sed$sp_ev_days <- sed$sp_ev_days + sum(sed$sp_ev_days)/nrow(sed)}
+  sed <- sum_thresh_sed(sed,threshold)
 
   ## Write out the Spread Event Days
   if(directory == "") {
     print(sed)
   } else{
   write.csv(x = sed,paste0(directory,"/Inputs/2. Modules/Distribution Tables/SED.csv"),row.names=F)}
-  }
+}
 }
 
