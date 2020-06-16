@@ -5,8 +5,8 @@
 #' @details This is a calculator for spread event days when continuous fire data does not exist and/or fire information from MODIS cannot be used due to inconsistencies. The calculator will use the FWI threshold defined to define the number of consecutive days above that threshold and generate a probability distribution for use in Burn-P3.
 #'
 #' @param input Weather information file with fire weather index values, the year, and station ids at a minimum.
-#' @param yr_col Character delcaration of year column _(Default = "yr")_
-#' @param id_col Character delcaration of id column _(Default = "id")_
+#' @param yr_col Character declaration of year column _(Default = "yr")_
+#' @param id_col Character declaration of id column _(Default = "id")_
 #' @param seasonal Declaration of the use of seasons in the weather data set. _(Default = F)_
 #' @param season_col If seasonal is True, a season column must be declared.
 #' @param season_names If seasonal is True, identify the season descriptions for use during output.
@@ -82,6 +82,7 @@ spread_event_days <- function(input,
                               zone_names = "",
                               threshold = 80,
                               min_fwi = 19,
+                              prop_days = "",
                               directory = ""){
 
   if(length(season_names) != length(unique(input[,season_col]))){warning("There are not enough season names for the number of unique season in your data. The system will proceed and the remaining zones will be unnamed, names are assigned in order of occurrence and may have no meaning.")}
