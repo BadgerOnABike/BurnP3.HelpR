@@ -95,8 +95,8 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         data <- as.data.frame(modelling_stack)
         data <- data[-which(!complete.cases(data)),] # remove NA instances
         data <- data[-which(data$fuels %in% c(101:110)),] ## Remove Rock and Water
-        data$ecodistrict <- as.factor(data$ecodistrict) # factor ecozones
-        data$ign <- as.factor(data$ign) # factor ecozones
+        #data$ecodistrict <- as.factor(data$ecodistrict) # factor ecozones
+        data$ign <- as.factor(data$ign) # factor ignitions
 
         dat_part <- createDataPartition(y = data$ign,p = .8)[[1]]
         data_train <- data[dat_part,]
@@ -408,7 +408,7 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         data <- data[-which(!complete.cases(data)),] # remove NA instances
         data <- data[-which(data$fuels %in% c(101:110)),] ## Remove Rock and Water
         data$ecodistrict <- as.factor(data$ecodistrict) # factor ecozones
-        data$ign <- as.factor(data$ign) # factor ecozones
+        data$ign <- as.factor(data$ign) # factor ignitions
 
         dat_part <- createDataPartition(y = data$ign,p = .8)[[1]]
         data_train <- data[dat_part,]
