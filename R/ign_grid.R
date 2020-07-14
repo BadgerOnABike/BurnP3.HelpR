@@ -95,8 +95,11 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         data <- as.data.frame(modelling_stack)
         data <- data[-which(!complete.cases(data)),] # remove NA instances
         data <- data[-which(data$fuels %in% c(101:110)),] ## Remove Rock and Water
-        #data$ecodistrict <- as.factor(data$ecodistrict) # factor ecozones
+        data$ecodistrict <- as.factor(data$ecodistrict) # factor ecozones
         data$ign <- as.factor(data$ign) # factor ignitions
+        data$in_out_park <- as.factor(data$in_out_park)
+        data$town_boundary <- as.factor(data$town_boundary)
+        data$fuels <- as.factor(data$fuels)
 
         dat_part <- createDataPartition(y = data$ign,p = .8)[[1]]
         data_train <- data[dat_part,]
@@ -224,7 +227,7 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         #print(importance(prediction))
         confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"]
 
-        ign <- raster::predict(model=fit_rf,
+        ign <- raster::predict(model=rf_default,
                                object=indicator_stack,
                                type="prob",
                                index=2)
@@ -239,7 +242,7 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
                                         paste0("ign_randomforest_auto_over_",
                                                min_fire_size,
                                                ".tif"),
-                                        "ign_randomforest_auto.tif"),
+                                        "ign_randomforest_auto_test.tif"),
                                  sep = "_")
                     ),
                     overwrite = T)
@@ -462,7 +465,7 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
                     paste0(output_location,
                            paste(cause,
                                  season_description[season],
-                                 "ign_initial_randomforest.tif",
+                                 "ign_initial_randomforest_test.tif",
                                  sep = "_")
                     ),
                     overwrite = T)
