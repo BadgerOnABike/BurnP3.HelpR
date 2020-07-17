@@ -95,7 +95,7 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         data <- as.data.frame(modelling_stack)
         data <- data[-which(!complete.cases(data)),] # remove NA instances
         data <- data[-which(data$fuels %in% c(101:110)),] ## Remove Rock and Water
-        data$ecodistrict <- as.factor(data$ecodistrict) # factor ecozones
+        #data$ecodistrict <- as.factor(data$ecodistrict) # factor ecozones
         data$ign <- as.factor(data$ign) # factor ignitions
         data$in_out_park <- as.factor(data$in_out_park)
         data$town_boundary <- as.factor(data$town_boundary)
@@ -242,7 +242,7 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
                                         paste0("ign_randomforest_auto_over_",
                                                min_fire_size,
                                                ".tif"),
-                                        "ign_randomforest_auto_test.tif"),
+                                        "ign_randomforest_auto.tif"),
                                  sep = "_")
                     ),
                     overwrite = T)
@@ -465,7 +465,7 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
                     paste0(output_location,
                            paste(cause,
                                  season_description[season],
-                                 "ign_initial_randomforest_test.tif",
+                                 "ign_initial_randomforest.tif",
                                  sep = "_")
                     ),
                     overwrite = T)
