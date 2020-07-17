@@ -70,9 +70,11 @@ spatdat_ign_layer <- function(reference_grid,layer,dsn){
                                                       layer = x),
                                               crs = CRS(proj4string(grast)))
 
+                            x <- st_make_valid(x)
+
                             x <- st_zm(x)
                             y <- st_geometry_type(x)
-                            if (length(unique(y)) > 1 & gregexpr("SURFACE",unique(y))[[1]][1] == -1){
+                            if (length(unique(y)) > 1 & gregexpr("SURFACE",unique(y))[[1]][1] == 1){
                               x <- x[-which(y == "MULTISURFACE"),]
                             }
                             if (length(st_is_empty(x)) > 0){
