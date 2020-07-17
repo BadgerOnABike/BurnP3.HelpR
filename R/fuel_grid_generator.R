@@ -1,4 +1,20 @@
-## Fuel Grid Generator
+#' Fuel Grid Generator
+#'
+#' @param aoi This is a directory to the shapefile with the area of interest or and sf object containing area of interest information.
+#' @param aoi_buffer This is a buffer in meters to extend the AOI for use in clipping the gridded information.
+#' @param lut This is a look up table in the form of a CSV. _*Mandatory columns are:*_ export value, descriptive_name, fuel_type
+#' @param reference_grid This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project. Can be either the location of the raster or a raster object.
+#' @param fuel_layers This is a list of shape files containing fuels information to be rasterized. These shapes must have a column with fuel type.
+#' @param fuel_col This is a character vector defining the column where the fuel type information exists.
+#' @param desired_resolution A numeric vector defining the final resolution for the fuel grid.
+#' @param pc A boolean vector defining which layers should entertain percent conifer information.
+#' @param pc_col A character vector defining the columns where the percent conifer resides.
+#' @param output_directory A character string defining the directory where fuel grids will be output.
+#'
+#' @return
+#' @export
+#'
+#' @examples
 
 fuel_grid_generator <- function(aoi, aoi_buffer = 15000, lut, reference_grid, fuel_layers,fuel_col,desired_resolution = 100, pc = F,pc_col, output_directory){
 
