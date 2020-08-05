@@ -76,8 +76,8 @@ elev_grab <- function(reference_grid,output_directory){
   wn_elev <- crop(mosaic.r,e)
   mosaic.r <- mask(mosaic.r,grast)
 
-  writeRaster(wn_elev,paset0(output_directory,"/wind_ninja_elevation.tif"),datatype = "INT2S", NAflag = -9999,format="GTiff",overwrite=T)
-  writeRaster(mosaic.r,paset0(output_directory,"/elevation.tif"),datatype = "INT2S", NAflag = -9999,format="GTiff",overwrite=T)
+  writeRaster(wn_elev,paste0(output_directory,"wind_ninja_elevation.tif"),datatype = "INT2S", NAflag = -9999,format="GTiff",overwrite=T)
+  writeRaster(mosaic.r,paste0(output_directory,"elevation.tif"),datatype = "INT2S", NAflag = -9999,format="GTiff",overwrite=T)
 
 }
 

@@ -1,15 +1,15 @@
 #' Fuel Grid Generator
 #'
-#' @param aoi This is a directory to the shapefile with the area of interest or and sf object containing area of interest information.
+#' @param aoi Spatial data layer containing the area of interest to create a fuel grid for Burn-P3
 #' @param aoi_buffer This is a buffer in meters to extend the AOI for use in clipping the gridded information.
-#' @param lut This is a look up table in the form of a CSV. _*Mandatory columns are:*_ export value, descriptive_name, fuel_type
-#' @param reference_grid This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project. Can be either the location of the raster or a raster object.
-#' @param fuel_layers This is a list of shape files containing fuels information to be rasterized. These shapes must have a column with fuel type.
-#' @param fuel_col This is a character vector defining the column where the fuel type information exists.
-#' @param desired_resolution A numeric vector defining the final resolution for the fuel grid.
-#' @param pc A boolean vector defining which layers should entertain percent conifer information.
-#' @param pc_col A character vector defining the columns where the percent conifer resides.
-#' @param output_directory A character string defining the directory where fuel grids will be output.
+#' @param lut A look-up table containing the fuel information in order to convert the polygonal and raster information into the final fuel grid layer. _*Mandatory columns are:*_ export value, descriptive_name, fuel_type
+#' @param reference_grid Reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.Can be either the location of the raster or a raster object.
+#' @param fuel_layers Character vector defining spatial (shapefile) and gridded (raster) for ingestion during use of the function. These layers will be stacked from top to bottom, spatial layers first, then raster layers.
+#' @param fuel_col Character vector defining the column that contains fuel calls in each shapefile in the same order they are called in the \code{fuel_layers} object
+#' @param desired_resolution The desired resolution of the final raster. _(Default = 100)_
+#' @param pc A boolean vector of logical values (T/F) defining whether or not percent conifer is to be calculated for mixedwood fuels based on a percent conifer column.
+#' @param pc_col A character vector defining the column for percent conifer in each spatial layer. If the corresponding \code{pc} value is false enter "".
+#' @param output_directory The directory to place the final fuel grid. If using the generated directories use \code{bp3_base} as the output directory.
 #'
 #' @return
 #' @export
@@ -29,7 +29,7 @@ fuel_grid_generator <- function(aoi, aoi_buffer = 15000, lut, reference_grid, fu
 
   aoi_poly <- st_buffer(
     st_transform(
-      aoi_poly[grep("Jasper",aoi_poly$parkname_e,ignore.case = T),],
+      aoi_poly,
       crs(grast)
     ),
     dist = aoi_buffer

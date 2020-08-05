@@ -43,9 +43,9 @@ spatdat_ign_layer <- function(reference_grid,layer,dsn){
     layers_list <- as(x,"Spatial")
   }else{
 
-    if(!grepl("gdb",dsn,ignore.case = T)){
-      x <- st_transform(read_sf(dsn = dsn,
-                                layer = layer),
+    if(!grepl("gdb|gpkg",dsn,ignore.case = T)){
+
+      x <- st_transform(read_sf(x),
                         crs = CRS(proj4string(grast)))
 
       x <- st_zm(x)
@@ -59,21 +59,27 @@ spatdat_ign_layer <- function(reference_grid,layer,dsn){
       x <- as(x,"Spatial")
       x <- crop(x,grast)
       layers_list <- x
+
     }
 
-    if(grepl("gdb",dsn,ignore.case = T)){
+    if(grepl("gdb|gpkg",dsn,ignore.case = T)){
     layers_list <- lapply(ogrListLayers(dsn = dsn)[grep(layer,
                                                         ogrListLayers(dsn = dsn),
                                                         ignore.case = T)],
                           FUN = function(x){
+                            print(x)
                             x <- st_transform(read_sf(dsn = dsn,
                                                       layer = x),
                                               crs = CRS(proj4string(grast)))
 
-                            x <- st_make_valid(x)
-
                             x <- st_zm(x)
                             y <- st_geometry_type(x)
+
+                            if(length(unique(st_is_valid(x))) > 1 || unique(st_is_valid(x)) == F){
+                              x <- x[!is.na(st_is_valid(x)),]
+                              x <- st_make_valid(x)
+                            }
+
                             if (length(unique(y)) > 1 & gregexpr("SURFACE",unique(y))[[1]][1] == 1){
                               x <- x[-which(y == "MULTISURFACE"),]
                             }
@@ -83,7 +89,8 @@ spatdat_ign_layer <- function(reference_grid,layer,dsn){
                             x <- as(x,"Spatial")
                             x <- crop(x,grast)
                           }
-    )}
+    )
+    }
   }
   return(layers_list)
 }

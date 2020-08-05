@@ -28,6 +28,7 @@ spatdat_ign_rast <- function(reference_grid, layers_list){
 
   rasters_list <- lapply(X = layers_list,
                          FUN = function(x) {
+                           print(x)
                            out.r = setValues(grast,0)
                            if (grepl("line",class(x)[1],ignore.case = T)) {
                              cells_in <- unlist(
@@ -41,7 +42,7 @@ spatdat_ign_rast <- function(reference_grid, layers_list){
                                                p = x,
                                                weights = F)
                              )
-                             if (is.null(cells_in)) x <- SpatialPoints(centroid(x),proj4string = CRS(proj4string(grast)))
+                             if (is.null(cells_in)) x <- SpatialPoints(gCentroid(x),proj4string = CRS(proj4string(grast)))
                            }
 
                            if (grepl("point",class(x)[1],ignore.case = T)) {

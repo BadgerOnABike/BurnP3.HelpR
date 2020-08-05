@@ -33,13 +33,13 @@
 #' plot(density_test)
 #'
 #' unlink(temp_dir)
-density_ign <- function(reference_grid,layer,output_location,output_name){
+density_ign <- function(reference_grid,layers_list,width = 1000, output_location,output_name){
 
   if( grepl("RasterLayer", class(reference_grid)) ){ grast <- reference_grid }
   if( grepl("character", class(reference_grid)) ){ grast <- raster(reference_grid) }
   if( !grepl("RasterLayer|character", class(reference_grid)) ){ message("Reference Grid must be the directory of the raster or a raster object.") }
 
-  density.r <- sp.kde(crop(layer,grast),bw = 1000,newdata = grast)
+  density.r <- sp.kde(crop(layers_list,grast),bw = width,newdata = grast)
   writeRaster(mask(density.r, grast),
               paste0(output_location,"/",output_name,"_density.tif"),
               format="GTiff",
