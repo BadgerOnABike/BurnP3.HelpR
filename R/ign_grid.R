@@ -31,6 +31,8 @@
 #' @import sf
 #' @import rgeos
 #' @import doParallel
+#' @import dismo
+#' @import RandomForest
 #'
 #' @examples
 #'
@@ -537,6 +539,92 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
                            paste(cause,
                                  season_description[season],
                                  "ign_randomforest.tif",
+                                 sep = "_")
+                    ),
+                    overwrite = T)
+
+      }
+    }
+  }
+
+  ## Boosted Regression Tree
+  if(model == "brt"){
+    for(cause in causes){
+      for(season in min(unique(fire_data$season)):(max(unique(fire_data$season))+1)){
+        if(season == max(unique(fire_data$season))+1){
+          tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
+        }else{
+          tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])
+        }
+        print(paste0("Starting ",cause," - ",season_description[season]))
+        pres_abs = setValues(grast,0)
+        pres_abs[tab] <- 1
+        pres_abs <- mask(pres_abs,grast)
+        names(pres_abs) <- "ign"
+        modelling_stack <- stack(indicator_stack,pres_abs)
+        names(modelling_stack) <- tolower(names(modelling_stack))
+
+        # build ign dataframe
+        data <- as.data.frame(modelling_stack)
+        data <- data[-which(!complete.cases(data)),] # remove NA instances
+        data <- data[-which(data$fuels %in% c(101:110)),] ## Remove Rock and Water
+        #data$ecodistrict <- as.factor(data$ecodistrict) # factor ecozones
+        data$ign <- as.factor(data$ign) # factor ignitions
+        data$in_out_park <- as.factor(data$in_out_park)
+        data$town_boundary <- as.factor(data$town_boundary)
+        data$fuels <- as.factor(data$fuels)
+        data$weather_zones <- as.factor(data$weather_zones)
+
+        data_mod <- downSample(x = data[,-ncol(data)],
+                               y= data$ign,yname = "ign")
+
+        data_mod$ign <- as.integer(as.character(data_mod$ign))
+
+        if(testing == F){if(nrow(data_mod) <= 100){warning("Sample was less than 100 elements, skipping. There were, ",nrow(data[data$ign == 1,])," actual ignitions in the training data.");next}}
+
+        if(cause == causes[1]){predictors <- data_mod[,c("ign",indicators_1)]}
+        if(cause == causes[2]){predictors <- data_mod[,c("ign",indicators_2)]}
+
+        brt <- gbm.step(data = predictors,gbm.x = 2:length(predictors),gbm.y = 1,tree.complexity = 3,family = "bernoulli",n.folds = 20,n.trees = 500,step.size = 50,max.trees = 7500,learning.rate = 0.0025)
+
+        brt <- gbm.step(data = predictors,gbm.x = which(names(predictors) %in% brt$contributions[brt$contributions$rel.inf >= 1.0, "var"]),gbm.y = 1,tree.complexity = 3,family = "bernoulli",n.folds = 20,n.trees = 500,step.size = 50,max.trees = 7500,learning.rate = 0.0025,plot.main=T)
+
+        # model variable importance
+        imp <- summary(brt)
+
+        # build/name ign raster
+        ign <- raster::predict(model=brt,
+                               object=indicator_stack,
+                               type="response",
+                               index=2,
+                               n.trees = brt$n.trees,
+                               na.rm=T)
+
+        ign[][which(indicator_stack$fuels[] %in% c(101:110))] <- 0
+
+        plot(ign)
+
+        write(x = c(cause,
+                    season_description[season],
+                    paste("CV AUC: ",round(mean(brt$cv.roc.matrix),2)),
+                    paste(imp[,"var"],round(imp[,"rel.inf"],2),sep = ": ")
+                    ),
+              file = paste0(output_location,
+                            "BRT_Model_Inputs.txt"),
+              append = T,
+              sep = "\t",
+              ncolumns = length(c(cause,
+                                  season,
+                                  paste(imp[,"var"],round(imp[,"rel.inf"],2),sep = ": "),
+                                  mean(brt$cv.roc.matrix))
+              )
+        )
+
+        writeRaster(ign,
+                    paste0(output_location,
+                           paste(cause,
+                                 season_description[season],
+                                 "ign_boostedregressiontree.tif",
                                  sep = "_")
                     ),
                     overwrite = T)
