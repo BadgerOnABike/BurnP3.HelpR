@@ -92,7 +92,7 @@ fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", ao
 
   if(seasonal){
 
-    input$season <- ifelse(as.numeric((input$jday)) < season_df$jday[1], 1, NA)
+    input$season <- ifelse(as.numeric(input$jday) >= 75 & as.numeric((input$jday)) < season_df$jday[1], 1, NA)
 
     for(i in season_df$season[1:(length(season_df$season)-1)]){
       input$season <- ifelse(as.numeric(input$jday) >= season_df$jday[i] & as.numeric(input$jday) < season_df$jday[i+1], season_df$season[i+1], input$season)
