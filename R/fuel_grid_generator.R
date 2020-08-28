@@ -23,13 +23,13 @@ fuel_grid_generator <- function(aoi, aoi_buffer = 15000, lut, reference_grid, fu
   if( grepl("character", class(reference_grid)) ){ grast <- raster(reference_grid) }
   if( !grepl("RasterLayer|character", class(reference_grid)) ){ message("Reference Grid must be the directory of the raster or a raster object.") }
 
-  if( grepl("sf", class(aoi)) ){ aoi <- aoi }
-  if( grepl("character", class(aoi)) ){ aoi <- st_read(aoi) }
-  if( !grepl("sf|character", class(reference_grid)) ){ message("Reference Grid must be the location of the shapefile or an sf object.") }
+  if(is.element("sf",class(aoi)) ){ aoi <- aoi }
+  if( is.element("character",class(aoi)) ){ aoi <- st_read(aoi) }
+  if( !is.element("sf", class(aoi)) & !is.element("character",class(aoi)) ){ message("Area of Interest must be the location of the shapefile or an sf object.") }
 
-  aoi_poly <- st_buffer(
+  aoi <- st_buffer(
     st_transform(
-      aoi_poly,
+      aoi,
       crs(grast)
     ),
     dist = aoi_buffer
@@ -40,19 +40,13 @@ fuel_grid_generator <- function(aoi, aoi_buffer = 15000, lut, reference_grid, fu
 
   rsts <- lapply(rsts,function(x) {
 
+    print(x)
+
     rst.in <- rast(x)
     rst.in <- extend(rst.in,rast(vect(aoi)))
 
-    if(crs(rst.in) != crs(grast)){
-
-      rst.in <- project(rst.in,crs=crs(aoi),method="ngb")
-      rst.in <- crop(rst.in,rast(vect(aoi)),snap="in")
-
-    } else {
-
-      rst.in <- crop(rst.in,rast(vect(aoi)),snap="in")
-
-    }
+    rst.in <- project(rst.in,y=proj4string(crs(aoi)),method="ngb")
+    rst.in <- crop(rst.in,rast(vect(aoi)),snap="in")
 
     if(res(rst.in)[1] != res(grast)[1]){
 
@@ -78,7 +72,7 @@ fuel_grid_generator <- function(aoi, aoi_buffer = 15000, lut, reference_grid, fu
   print("Assessing Shapes")
 
   shps <- lapply(shps, function(x){
-    print(paste0("Working on...", x))
+    print(paste0("Working on... ", x))
     st_crop(
         st_make_valid(
           st_transform(

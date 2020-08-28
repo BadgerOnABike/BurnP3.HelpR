@@ -24,7 +24,7 @@
 #' aoi <- readOGR(system.file("extdata","extdata.gpkg",package="BurnP3"),"aoi")
 #' output_location <- paste0(tempdir(),"\\")
 #' zones <- raster(system.file("extdata","zones.tif",package="BurnP3"))
-#' data("season_df")
+#' data("seasons")
 #' zone_names = c("Alpine-E","Montane-E","Alpine-W","Montane-W","IDF")
 #'
 #' fr <- fire_rate_distribution(input = fire_data,
@@ -49,7 +49,7 @@
 #'                              date_col = "REP_DATE",
 #'                              seasonal = T,
 #'                              zonal = F,
-#'                              seasons = season_df,
+#'                              seasons = seasons,
 #'                              zones,
 #'                              zone_names = "",
 #'                              min_fire_size = 0.01,
@@ -90,19 +90,18 @@ fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", ao
   input <- crop(input, aoi)
   input <- input[input$CAUSE %in% causes,]
 
-  if(seasonal){
+  if(seasonal & !is.element("season",names(input))){
 
-    input$season <- ifelse(as.numeric(input$jday) >= 75 & as.numeric((input$jday)) < season_df$jday[1], 1, NA)
+    input$season <- NA
 
-    for(i in season_df$season[1:(length(season_df$season)-1)]){
-      input$season <- ifelse(as.numeric(input$jday) >= season_df$jday[i] & as.numeric(input$jday) < season_df$jday[i+1], season_df$season[i+1], input$season)
+    for(i in seasons$season[1:(length(seasons$season)-1)]){
+      input$season <- ifelse(as.numeric(input$jday) >= seasons$jday[i] & as.numeric(input$jday) < seasons$jday[i+1], seasons$season[i], input$season)
     }
 
-    input$season <- ifelse(as.numeric((input$jday)) >= season_df$jday[nrow(season_df)], max(season_df$season)+1, input$season)
+    if(length(unique(is.na(input$season)))>1)
+    {input <- input[-which(is.na(input$season)),]}
 
-    input <- input[-which(input$season >= max(season_df$season)+1),]
-
-    input <- input[which(input$season %in% season_df$season),]
+    input <- input[which(input$season %in% seasons$season),]
   }
 
   if(zonal){
@@ -122,7 +121,7 @@ fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", ao
   )
 
   colnames(fire_rate) <- tolower(colnames(fire_rate))
-  fire_rate$cause <- as.numeric(fire_rate$cause)
+  fire_rate$cause <- as.numeric(as.factor(fire_rate$cause))
   write.csv(fire_rate, paste0(output_location,"Fire_Rate_Distribution.csv"),row.names=F)
   if(output_location == bp3_base){write.csv(fire_rate, paste0(output_location,"Inputs/2. Modules/Distribution Tables/Fire_Rate_Distribution.csv"),row.names=F)}
   return(fire_rate)

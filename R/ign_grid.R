@@ -602,6 +602,8 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
 
         ign[][which(indicator_stack$fuels[] %in% c(101:110))] <- 0
 
+        ign <- (ign - min(ign[],na.rm=T))/(max(ign[],na.rm=T)-min(ign[],na.rm=T))
+
         plot(ign)
 
         write(x = c(cause,

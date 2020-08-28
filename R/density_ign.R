@@ -39,7 +39,13 @@ density_ign <- function(reference_grid,layers_list,width = 1000, output_location
   if( grepl("character", class(reference_grid)) ){ grast <- raster(reference_grid) }
   if( !grepl("RasterLayer|character", class(reference_grid)) ){ message("Reference Grid must be the directory of the raster or a raster object.") }
 
-  density.r <- sp.kde(crop(layers_list,grast),bw = width,newdata = grast)
+  # density.r <- sp.kde(crop(layers_list,grast),
+  #                     bw = width,
+  #                     newdata = grast,
+  #                     scale.factor = 10000)
+  density.r <- kde2d(coordinates(layers_list)[,1],coordinates(layers_list)[,2],n=c(ncol(grast),nrow(grast)),h=width)
+  density.r <- setValues(grast,raster(density.r)[])
+
   writeRaster(mask(density.r, grast),
               paste0(output_location,"/",output_name,"_density.tif"),
               format="GTiff",
