@@ -43,7 +43,7 @@ fuel_grid_generator <- function(aoi, aoi_buffer = 15000, lut, reference_grid, fu
     print(x)
 
     rst.in <- rast(x)
-    rst.in <- extend(rst.in,rast(vect(aoi)))
+    rst.in <- expand(rst.in,rast(vect(aoi)))
 
     rst.in <- project(rst.in,y=proj4string(crs(aoi)),method="ngb")
     rst.in <- crop(rst.in,rast(vect(aoi)),snap="in")
