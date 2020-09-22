@@ -30,9 +30,9 @@
 elev_grab <- function(reference_grid,output_directory){
 
 
-  if( grepl("RasterLayer", class(reference_grid)) ){ grast <- reference_grid }
-  if( grepl("character", class(reference_grid)) ){ grast <- raster(reference_grid) }
-  if( !grepl("RasterLayer|character", class(reference_grid)) ){ message("Reference Grid must be the directory of the raster or a raster object.") }
+  if ( grepl("RasterLayer", class(reference_grid)) ) { grast <- reference_grid }
+  if ( grepl("character", class(reference_grid)) ) { grast <- raster(reference_grid) }
+  if ( !grepl("RasterLayer|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the raster or a raster object.") }
 
   e <- as(extent(grast),"SpatialPolygons")
   proj4string(e) <- proj4string(grast)
@@ -66,7 +66,7 @@ elev_grab <- function(reference_grid,output_directory){
 
   elev_layers <- lapply(elevation,function(x) projectRaster(from = x, to = grast))
 
-  if(length(elev_layers) > 1){
+  if (length(elev_layers) > 1){
     mosaic.r <- do.call(merge,elev_layers)
   } else{
     mosaic.r <- elev_layers[[1]]
@@ -76,8 +76,8 @@ elev_grab <- function(reference_grid,output_directory){
   wn_elev <- crop(mosaic.r,e)
   mosaic.r <- mask(mosaic.r,grast)
 
-  writeRaster(wn_elev,paste0(output_directory,"wind_ninja_elevation.tif"),datatype = "INT2S", NAflag = -9999,format="GTiff",overwrite=T)
-  writeRaster(mosaic.r,paste0(output_directory,"elevation.tif"),datatype = "INT2S", NAflag = -9999,format="GTiff",overwrite=T)
+  writeRaster(wn_elev,paste0(output_directory,"wind_ninja_elevation.tif"),datatype = "INT2S", NAflag = -9999,format = "GTiff",overwrite = T)
+  writeRaster(mosaic.r,paste0(output_directory,"elevation.tif"),datatype = "INT2S", NAflag = -9999,format = "GTiff",overwrite = T)
 
 }
 
