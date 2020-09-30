@@ -22,9 +22,9 @@ spread_event_days(
 \arguments{
 \item{input}{Weather information file with fire weather index values, the year, and station ids at a minimum.}
 
-\item{yr_col}{Character delcaration of year column \emph{(Default = "yr")}}
+\item{yr_col}{Character declaration of year column \emph{(Default = "yr")}}
 
-\item{id_col}{Character delcaration of id column \emph{(Default = "id")}}
+\item{id_col}{Character declaration of id column \emph{(Default = "id")}}
 
 \item{seasonal}{Declaration of the use of seasons in the weather data set. \emph{(Default = F)}}
 

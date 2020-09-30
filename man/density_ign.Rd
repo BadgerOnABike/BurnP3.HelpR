@@ -4,16 +4,22 @@
 \alias{density_ign}
 \title{Kernal Density Calculator}
 \usage{
-density_ign(reference_grid, layer, output_location, output_name)
+density_ign(
+  reference_grid,
+  layers_list,
+  width = 1000,
+  output_location,
+  output_name
+)
 }
 \arguments{
 \item{reference_grid}{Reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.Can be either the location of the raster or a raster object.}
 
-\item{layer}{A point layer for which you are interested in the density.}
-
 \item{output_location}{The location the output density rasters will be placed.}
 
 \item{output_name}{The name of the files to be output. Typically these will be a vector of the names of your list of layers.}
+
+\item{layer}{A point layer for which you are interested in the density.}
 }
 \value{
 RasterLayer

@@ -32,7 +32,7 @@
 #' @import rgeos
 #' @import doParallel
 #' @import dismo
-#' @import RandomForest
+#' @import randomForest
 #'
 #' @examples
 #'

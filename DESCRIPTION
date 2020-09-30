@@ -1,12 +1,16 @@
 Package: BurnP3
 Type: Package
 Title: Burn-P3 Input Generation Package
-Version: 0.1.0
+Version: 0.2.0
 Author: Brett Moore
 Maintainer: Brett Moore <Brett.Moore@Canada.ca>
 Description: A series of functions intended to aid experience Burn-P3 operators in the generation of inputs for a modelling task.
-License: --
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

@@ -78,15 +78,15 @@
 
 fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", aoi, output_location, seasonal=F, zonal=F, seasons = "", zones, zone_names = "", min_fire_size = 0.01, causes = c("H","L")){
 
-  if(length(which(is.na(input@data[,date_col]))) >0){input <- input[-which(is.na(input@data[,date_col])),]}
-  if(length(which(duplicated(paste(input$LATITUDE,input$LONGITUDE,input$YEAR))))>0){input <- input[-which(duplicated(paste(input$LATITUDE,input$LONGITUDE,input$YEAR))),]}
+  if (length(which(is.na(input@data[,date_col]))) > 0) {input <- input[-which(is.na(input@data[,date_col])),]}
+  if (length(which(duplicated(paste(input$LATITUDE,input$LONGITUDE,input$YEAR)))) > 0) {input <- input[-which(duplicated(paste(input$LATITUDE,input$LONGITUDE,input$YEAR))),]}
   # subset of the 100km_input to 3 ha minimum fire size
 
   input <- subset(input, input@data$SIZE_HA >= min_fire_size)
   input$jday <- as.numeric(format(as.Date(input@data[,date_col],date_format),"%j"))
 
   ## May throw an error about bad geometry, that's find it still projects.
-  input <- spTransform(input,CRSobj = CRS(proj4string(aoi)))
+  input <- spTransform(input,CRSobj = crs(aoi))
   input <- crop(input, aoi)
   input <- input[input$CAUSE %in% causes,]
 

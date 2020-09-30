@@ -15,7 +15,8 @@ fire_rate_distribution(
   seasons = "",
   zones,
   zone_names = "",
-  min_fire_size = 0.01
+  min_fire_size = 0.01,
+  causes = c("H", "L")
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ fire_rate_distribution(
 \item{zone_names}{If zonal is True, identify the descriptive names of the zones for use during mapping and output. \emph{(Default = "")}}
 
 \item{min_fire_size}{A minimum fire size to subset the fire information to for adjuste fire rate distribution depending on the question being asked. \emph{(Default = 0.01)}}
+
+\item{causes}{A character vector defining the causes within the fire dataset. \emph{(Default = c("H","L"))}}
 }
 \value{
 
@@ -53,19 +56,51 @@ data("fire_data")
 aoi <- readOGR(system.file("extdata","extdata.gpkg",package="BurnP3"),"aoi")
 output_location <- paste0(tempdir(),"\\\\")
 zones <- raster(system.file("extdata","zones.tif",package="BurnP3"))
-data("season_df")
+data("seasons")
 zone_names = c("Alpine-E","Montane-E","Alpine-W","Montane-W","IDF")
 
 fr <- fire_rate_distribution(input = fire_data,
                              date_format = "\%Y/\%m/\%d",
                              aoi = aoi,
                              output_location = output_location,
+                             date_col = "REP_DATE",
                              seasonal = F,
                              zonal = F,
                              seasons = "",
                              zones,
                              zone_names = "",
-                             min_fire_size = 0.01
+                             min_fire_size = 0.01,
+                             causes = c("H","L")
+                             )
+print(fr)
+
+fr <- fire_rate_distribution(input = fire_data,
+                             date_format = "\%Y/\%m/\%d",
+                             aoi = aoi,
+                             output_location = output_location,
+                             date_col = "REP_DATE",
+                             seasonal = T,
+                             zonal = F,
+                             seasons = seasons,
+                             zones,
+                             zone_names = "",
+                             min_fire_size = 0.01,
+                             causes = c("H","L")
+                             )
+print(fr)
+
+fr <- fire_rate_distribution(input = fire_data,
+                             date_format = "\%Y/\%m/\%d",
+                             aoi = aoi,
+                             output_location = output_location,
+                             date_col = "REP_DATE",
+                             seasonal = F,
+                             zonal = T,
+                             seasons = "",
+                             zones = zones,
+                             zone_names = zone_names,
+                             min_fire_size = 0.01,
+                             causes = c("H","L")
                              )
 
 print(fr)
