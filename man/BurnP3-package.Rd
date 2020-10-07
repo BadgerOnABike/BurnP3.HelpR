@@ -9,7 +9,7 @@
 \description{
 The \code{BurnP3} package is a set of functions for streamlining the generations of inputs for burn probability modelling. As the package evolves it will also include a number of tools to aid in the combination and analysis of outputs.
 
-Burn-P3 is a modelling platform that can be found at \href{www.firegrowthmodel.ca}{www.firegrowthmodel.ca}. It is a monte carlo simulator that leverages the Prometheus The Canadian Fire Growth Simulation Model to burn numerous fires based on a series of stochastic inputs to derive a set of products ranging from burn probability to probabilistic secondary fbp outputs, see the cffdrs package function \link[cffdrs]{fbp}.
+Burn-P3 is a modelling platform that can be found at \href{www.firegrowthmodel.ca}{www.firegrowthmodel.ca}. It is a monte carlo simulator that leverages the Prometheus The Canadian Fire Growth Simulation Model to burn numerous fires based on a series of stochastic inputs to derive a set of products ranging from burn probability to probabilistic secondary fbp outputs, see the \link[cffdrs]{cffdrs} package function \link[cffdrs]{fbp}.
 
 Typical workflow will be described below if working from scratch however the package is fully modular and individual components can be used in isolation.
 }
@@ -18,10 +18,12 @@ While the package will be unable to do most of this work for you, we will descri
 
 The key inputs needed prior to use of this package:
 \itemize{
-\item Area of Interest
-\item Base raster for your area
-\item Dataframe of Weather Information
+\item Area of Interest - polygon
+\item Base raster for your area - raster
+\item Data frame of Weather Information - data.frame
 }
+
+*\strong{Note}: There is an \link{aoi} function that can assist in generating a polygon for use within the model, however if the Canadian National Parks are not the area of interest a polygon of the area is required.
 }
 
 \author{
