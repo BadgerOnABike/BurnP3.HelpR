@@ -8,8 +8,6 @@
 #' @return List containing points and raster layers.
 #' @export
 #'
-#' @import raster
-#'
 #' @seealso \code{\link[BurnP3]{spatdat_ign_layer}}
 #'
 #' @examples

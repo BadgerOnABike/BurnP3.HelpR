@@ -14,7 +14,41 @@
 #' @return
 #' @export
 #'
+#'
 #' @examples
+#'
+#' ## Load in requisite data
+#' fuel_shape_1 <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3"),
+#'                          layer = "Shape_Fuels_1")
+#' fuel_shape_2 <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3"),
+#'                          layer = "Shape_Fuels_2")
+#' fuel_shape_PC <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3"),
+#'                          layer = "Shape_Fuels_PC")
+#' fuel_raster <- raster(system.file("extdata/fuel.tif", package = "BurnP3"))
+#' reference_grid <- fuel_raster
+#'
+#' aoi_poly <- st_read(  dsn = system.file("extdata/extdata.gpkg", package = "BurnP3"),
+#'                          layer = "aoi_poly")
+#' data("lut")
+#'
+#'fuel_grid_generator(aoi_poly = aoi_poly,
+#'                    aoi_buffer = 0,
+#'                    lut = lut,
+#'                    reference_grid = reference_grid,
+#'                    fuel_layers = list(fuel_shape_1,
+#'                                    fuel_shape_2,
+#'                                    fuel_raster,
+#'                                    fuel_shape_PC),
+#'                    fuel_col = c("Fuel_type",
+#'                                 "Fuels",
+#'                                 NA,
+#'                                 "FBP"),
+#'                    pc = c(F,F,F,T),
+#'                    pc_col = c(NA,NA,NA,"PC"),
+#'                    output_directory = paste0(tempdir(),"\\")
+#'                    )
+#'  print(paste0("Fuel Grid has been output to ",output_directory))
+
 
 fuel_grid_generator <- function(aoi_poly, aoi_buffer = 15000, lut, reference_grid, fuel_layers,fuel_col,desired_resolution = 100, pc = F, pc_col, output_directory){
 
@@ -35,16 +69,22 @@ fuel_grid_generator <- function(aoi_poly, aoi_buffer = 15000, lut, reference_gri
     dist = aoi_buffer
   )
 
-  fuel.r <- lapply(fuel_layers, function(x) {
+  aoi_poly$name <- "thepoly"
 
-    i <- which(fuel_layers == x)
+  names(fuel_layers) <- 1:length(fuel_layers)
 
-    if (grepl(".asc$|.tif$",x)) {
+  fuel.r <- lapply(seq_along(fuel_layers), function(x) {
+
+    i <- x
+    x <- fuel_layers[[x]]
+
+    if (grepl(".asc$|.tif$",x) || grepl("SpatRaster", class(x))) {
 
 
-    print(paste0("Working on Raster... ",x))
+    print(paste0("Working on Raster... ",i))
 
-      rst.in <- rast(x)
+      if (class(x) == "character") {rst.in <- rast(x)} else {rst.in <- x}
+
       rst.in <- expand(rst.in,ext(vect(aoi_poly)))
 
       rst.in <- project(rst.in,y = proj4string(crs(aoi_poly)),method = "ngb")
@@ -64,13 +104,16 @@ fuel_grid_generator <- function(aoi_poly, aoi_buffer = 15000, lut, reference_gri
 
     }
 
-    if (grepl(".shp",x)) {
+    if (grepl(".shp",x) || is.element("sf",class(x))) {
 
-      print(paste0("Working on Shapefile... ", x))
+      print(paste0("Working on Shapefile... ", i))
+
+      if(class(x) == "character") {x <- read_sf(x)}
+
       shps <- st_crop(
                 st_make_valid(
                   st_transform(
-                    read_sf(x),
+                    x,
                     crs = crs(grast)
                     )
                   ),

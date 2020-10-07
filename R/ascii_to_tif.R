@@ -5,7 +5,6 @@
 #' @param file_full_names A vector of file names that are currently ascii to be converted into geotif files.
 #'
 #' @export
-#' @import raster
 #'
 #' @examples
 #'

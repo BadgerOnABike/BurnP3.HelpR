@@ -11,9 +11,6 @@
 #' @return List
 #' @export
 #'
-#' @import raster
-#' @import rgdal
-#' @import sf
 #'
 #' @examples
 #'

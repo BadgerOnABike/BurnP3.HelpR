@@ -17,12 +17,13 @@
 #' @param min_fwi A minimum fire weather index is used to describe days where fires are more likely to spread and should be consecutively counted. 19 is common in the Canadian Boreal per Podur and Wotton, 2011 _(Default = 19)_
 #' @param directory Directory for files to be output when using the Burn-P3 directory generator. _(Default = "")_
 #'
+#' @importFrom plyr ddply
+#'
 #' @return data.frame
 #' @export
 #'
 #' @references [Defining fire spread event days for fire-growth modelling. 2011. Podur,J.; Wotton, M. International Journal of Wildland Fire. 20:497-507](cfs.nrcan.gc.ca/publications?id=32563)
 #'
-#' @import plyr
 #' @examples
 #'
 #' ## Load example data

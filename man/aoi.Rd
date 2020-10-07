@@ -78,6 +78,3 @@ aoi(area_of_interest_file = "",
    stn_id_col = "statn_d")
 
 }
-\author{
-Brett Moore, \email{Brett.Moore@canada.ca}
-}

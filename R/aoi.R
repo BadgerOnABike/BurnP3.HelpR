@@ -1,6 +1,5 @@
 #' Area of Interest for Weather Stations - Designed for Parks Canada Data
 #'
-#' @author Brett Moore, \email{Brett.Moore@@canada.ca}
 #'
 #' @param area_of_interest_file Two element vector describing the location of the file (dsn) and the filename. The file is expected to follow a format readable by readOGR.
 #' @param PC Parks Canada flag to define whether or not you want to download the Parks Canada data automatically. area_of_interest_file must be "" when using PC=T **and** define a / many park_of_interest. (*_Default_* = F)
@@ -51,9 +50,6 @@
 #'    stn_name_col = "sttn_nm",
 #'    stn_id_col = "statn_d")
 #'
-#' @import raster
-#' @import rgdal
-#' @import rgeos
 #' @export
 
 

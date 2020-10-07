@@ -20,19 +20,6 @@
 #'
 #' @export
 #'
-#' @import dismo
-#' @import randomForest
-#' @import gbm
-#' @import caret
-#' @import ROCR
-#' @import DMwR
-#' @import raster
-#' @import rgdal
-#' @import sf
-#' @import rgeos
-#' @import doParallel
-#' @import dismo
-#' @import randomForest
 #'
 #' @examples
 #'

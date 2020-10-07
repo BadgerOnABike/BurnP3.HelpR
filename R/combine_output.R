@@ -8,9 +8,6 @@
 #' @return
 #' @export
 #'
-#' @import raster
-#' @import terra
-#' @import sf
 #'
 #' @examples
 #'

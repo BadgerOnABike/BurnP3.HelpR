@@ -109,5 +109,5 @@ unlink(output_location, recursive = T)
 
 }
 \seealso{
-\link {bp3_dir_gen}\link{BurnP3}
+\link[BurnP3]{bp3_dir_gen}
 }

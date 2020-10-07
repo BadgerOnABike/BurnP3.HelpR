@@ -14,8 +14,6 @@
 #' @references [Open Data Canada FTP](http://ftp.maps.canada.ca/pub/nrcan_rncan/vector/index/)
 #' @references [Wind Ninja](https://www.firelab.org/project/windninja)
 #'
-#' @import raster
-#' @import rgdal
 #'
 #' @examples
 #' ## Load example data

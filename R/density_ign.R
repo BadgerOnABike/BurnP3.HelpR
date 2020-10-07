@@ -15,10 +15,6 @@
 #' @seealso \code{\link[BurnP3]{spatdat_ign_layer}}
 #' @seealso \code{\link[spatialEco]{sp.kde}}
 #'
-#' @import raster
-#' @import rgdal
-#' @import spatialEco
-#'
 #' @examples
 #'
 #' ## Load example data

@@ -13,4 +13,17 @@ Roxygen: list(markdown = TRUE)
 Suggests: 
     knitr,
     rmarkdown
-VignetteBuilder: knitr
+VignetteBuilder: 
+	knitr
+Imports: 
+    rgdal,
+    sf,
+    terra,
+    fasterize,
+    rgeos,
+    raster,
+    dismo,
+    randomForest,
+    gbm,
+    ROCR,
+    doParallel

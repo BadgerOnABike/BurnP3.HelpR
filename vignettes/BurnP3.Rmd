@@ -1,0 +1,20 @@
+---
+title: "Burn-P3 Package"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Burn-P3}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+# Burn-P3 Input generation package
+### The key use of this package to generate inputs for use in the Burn-P3 model. There are some minor output collation and exploration tools also included.
+```{r setup}
+library(BurnP3)
+```

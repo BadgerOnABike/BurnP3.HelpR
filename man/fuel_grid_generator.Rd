@@ -44,3 +44,37 @@ fuel_grid_generator(
 \description{
 Fuel Grid Generator
 }
+\examples{
+
+## Load in requisite data
+fuel_shape_1 <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3"),
+                         layer = "Shape_Fuels_1")
+fuel_shape_2 <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3"),
+                         layer = "Shape_Fuels_2")
+fuel_shape_PC <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3"),
+                         layer = "Shape_Fuels_PC")
+fuel_raster <- raster(system.file("extdata/fuel.tif", package = "BurnP3"))
+reference_grid <- fuel_raster
+
+aoi_poly <- st_read(  dsn = system.file("extdata/extdata.gpkg", package = "BurnP3"),
+                         layer = "aoi_poly")
+data("lut")
+
+fuel_grid_generator(aoi_poly = aoi_poly,
+                   aoi_buffer = 0,
+                   lut = lut,
+                   reference_grid = reference_grid,
+                   fuel_layers = list(fuel_shape_1,
+                                   fuel_shape_2,
+                                   fuel_raster,
+                                   fuel_shape_PC),
+                   fuel_col = c("Fuel_type",
+                                "Fuels",
+                                NA,
+                                "FBP"),
+                   pc = c(F,F,F,T),
+                   pc_col = c(NA,NA,NA,"PC"),
+                   output_directory = paste0(tempdir(),"\\\\")
+                   )
+ print(paste0("Fuel Grid has been output to ",output_directory))
+}

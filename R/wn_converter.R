@@ -6,7 +6,6 @@
 #'
 #' @export
 #'
-#' @import raster
 #'
 wn_converter <- function(directory){
   if(length(grep("dir|speed|spd",list.dirs(directory,recursive = F))) > 0){

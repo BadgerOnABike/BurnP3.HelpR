@@ -16,7 +16,7 @@
 #' @return
 #' @export
 #'
-#' @seealso \link {bp3_dir_gen}[BurnP3]
+#' @seealso \link[BurnP3]{bp3_dir_gen}
 #'
 #' @examples
 #' ## Load relavent data
