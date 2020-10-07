@@ -12,9 +12,7 @@ Burn-P3 is a modelling platform that can be found at \href{www.firegrowthmodel.c
 
 Typical workflow will be described below if working from scratch however the package is fully modular and individual components can be used in isolation.
 }
-\details{
-\subsection{0. Establish Area of Interest and Question}{
-
+\section{0. Establish Area of Interest and Question}{
 While the package will be unable to do most of this work for you, we will describe the inputs you need ready to use this tool effectively.
 
 The key inputs needed prior to use of this package:
@@ -24,7 +22,7 @@ The key inputs needed prior to use of this package:
 \item Dataframe of Weather Information
 }
 }
-}
+
 \author{
 Brett Moore \email{Brett.Moore@canada.ca}
 }
