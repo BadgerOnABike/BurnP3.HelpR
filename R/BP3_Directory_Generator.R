@@ -5,7 +5,7 @@
 #' @param root The root directory where the full Burn-P3 directory will be generated.
 #' @param project_name The name of the project to generate a Burn-P3 project for.
 #'
-#' @return base_dir bp3_base
+#' @return
 #'
 #' @export
 #'

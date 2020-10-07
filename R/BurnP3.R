@@ -25,6 +25,8 @@
 #'
 #'  # 2. Fuel and Elevation File Generation
 #'
+#'  Fuel and elevation data are key to the operation of any fire growth model. In this case the elevation is automatically generated within Canada from the 30m - CDEM.
+#'
 #' @docType package
 #'
 #' @author Brett Moore \email{Brett.Moore@@canada.ca}

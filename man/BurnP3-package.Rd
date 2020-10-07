@@ -26,6 +26,14 @@ The key inputs needed prior to use of this package:
 *\strong{Note}: There is an \link{aoi} function that can assist in generating a polygon for use within the model, however if the Canadian National Parks are not the area of interest a polygon of the area is required.
 }
 
+\section{1. Establish Directory}{
+The \link{bp3_dir_gen} function is set up to generate a work space for Burn-P3 under the current generation windows build (2020-03-31). This will flesh out the basic requirements for any Burn-P3 project. This should be run every time as it will not overwrite or regenerate the directory but does create directory objects for later use. Specifically bp3_base and base_dir. The bp3_base is the directory where the project has been instantiated, base_dir is the working directory.
+}
+
+\section{2. Fuel and Elevation File Generation}{
+Fuel and elevation data are key to the operation of any fire growth model. In this case the elevation is automatically generated within Canada from the 30m - CDEM.
+}
+
 \author{
 Brett Moore \email{Brett.Moore@canada.ca}
 }
