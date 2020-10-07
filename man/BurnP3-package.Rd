@@ -3,6 +3,7 @@
 \docType{package}
 \name{BurnP3-package}
 \alias{BurnP3-package}
+\alias{_PACKAGE}
 \alias{BurnP3}
 \title{Burn-P3 Input/Output Assistance Package}
 \description{

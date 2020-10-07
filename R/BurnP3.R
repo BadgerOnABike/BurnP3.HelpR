@@ -7,7 +7,7 @@
 #' Typical workflow will be described below if working from scratch however the package is fully modular and individual components can be used in isolation.
 #'
 #' @details
-#' # 0. Establish Area of Interest and Question
+#' ## 0. Establish Area of Interest and Question
 #'
 #' While the package will be unable to do most of this work for you, we will describe the inputs you need ready to use this tool effectively.
 #'
@@ -27,4 +27,4 @@
 #'
 #'
 # Removed DMwR from import
-NULL
+"_PACKAGE"
