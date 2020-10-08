@@ -59,7 +59,7 @@
 #'
 #'  The fire rates table describes the number of fires that occur by cause and season. This table can be further descretized to the fire zone level, however it is not required. The function for fire rates is \link{fire_rate_distribution}.
 #'
-#'  #8. Outputs
+#'  # 8. Outputs
 #'
 #'  Upon completion of Bunr-P3 modeling the outputs will require some processing and presentation. Some tools for quick viewing are in development but are currently works in progress.
 #'
