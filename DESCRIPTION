@@ -1,7 +1,7 @@
 Package: BurnP3
 Type: Package
 Title: Burn-P3 Input Generation Package
-Version: 0.4.0
+Version: 0.4.1
 Author: Brett Moore
 Maintainer: Brett Moore <Brett.Moore@Canada.ca>
 Description: A series of functions intended to aid experience Burn-P3 operators in the generation of inputs for a modelling task.
