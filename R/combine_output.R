@@ -35,6 +35,29 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
                    "_Stats.csv"),
             row.names = F)
 
+
+  bp_stats_list <- lapply(X = list.files(path = directory,
+                                         pattern = "Replay",
+                                         recursive = T,
+                                         full.names = T),
+                          FUN = read.csv)
+
+  bp_rep <- bp_rep_list[[1]]
+
+  for (i in 2:length(bp_stats_list)) {
+
+    bp_rep[[i]]$fire <- bp_rep[[i]]$fire + max(bp_rep$fire,na.rm = T)
+    bp_rep <- rbind(bp_rep, bp_rep[[i]])
+
+  }
+
+  write.csv(x = bp_rep,
+            file = paste0(directory,
+                          "/",
+                          file_prefix,
+                          "_Replay.csv"),
+            row.names = F)
+
   if (polygon == T) {
   bp_shapes_list <- lapply(X = list.files(directory,
                                       pattern = ".shp$",
