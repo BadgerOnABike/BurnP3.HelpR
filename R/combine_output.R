@@ -44,10 +44,9 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
 
   bp_rep <- bp_rep_list[[1]]
 
-  for (i in 2:length(bp_stats_list)) {
+  for (i in 2:length(bp_rep_list)) {
 
-    bp_rep[[i]]$fire <- bp_rep[[i]]$fire + max(bp_rep$fire,na.rm = T)
-    bp_rep <- rbind(bp_rep, bp_rep[[i]])
+    bp_rep <- rbind(bp_rep, bp_rep_list[[i]])
 
   }
 
@@ -93,7 +92,8 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
   writeRaster(x = bp_list,
               filename = paste0(directory,"/",file_prefix,"_Burn_Probability.tif"),
               datatype = "INT2U",
-              format = "GTiff")
+              format = "GTiff",
+              overwrite = T)
   }
 
 
