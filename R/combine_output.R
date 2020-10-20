@@ -35,7 +35,7 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
                    "_Stats.csv"),
             row.names = F)
 
-  if (polyon == T) {
+  if (polygon == T) {
   bp_shapes_list <- lapply(X = list.files(directory,
                                       pattern = ".shp$",
                                       recursive = T,
