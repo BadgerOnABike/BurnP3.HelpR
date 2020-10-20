@@ -36,7 +36,7 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
             row.names = F)
 
 
-  bp_stats_list <- lapply(X = list.files(path = directory,
+  bp_rep_list <- lapply(X = list.files(path = directory,
                                          pattern = "Replay",
                                          recursive = T,
                                          full.names = T),
