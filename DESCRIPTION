@@ -1,6 +1,6 @@
-Package: BurnP3
+Package: BurnP3.HelpR
 Type: Package
-Title: Burn-P3 Input Generation Package
+Title: Burn-P3 Input Generation Helper Package
 Version: 0.4.6
 Author: Brett Moore
 Maintainer: Brett Moore <Brett.Moore@Canada.ca>
