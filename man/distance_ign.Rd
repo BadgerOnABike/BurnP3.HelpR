@@ -26,8 +26,8 @@ This function generates a euclidean distance grid with the \code{distance} funct
 }
 \examples{
 ## Load example data
-ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
-load(system.file("data/spatdat_rast_out.rda",package = "BurnP3"))
+ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+load(system.file("data/spatdat_rast_out.rda",package = "BurnP3.HelpR"))
 temp_dir <- tempdir()
 distance_test <- distance_ign(reference_grid = ref_grid,
                             rasters_list = raster_list$rasters,

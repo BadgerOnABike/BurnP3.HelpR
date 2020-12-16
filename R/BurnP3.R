@@ -3,7 +3,7 @@
 #' @description
 #' The \code{BurnP3.HelpR} package is a set of functions for streamlining the generations of inputs for burn probability modelling. As the package evolves it will also include a number of tools to aid in the combination and analysis of outputs.
 #'
-#' Burn-P3 is a modelling platform that can be found at \href{www.firegrowthmodel.ca}{www.firegrowthmodel.ca}. It is a monte carlo simulator that leverages the Prometheus The Canadian Fire Growth Simulation Model to burn numerous fires based on a series of stochastic inputs to derive a set of products ranging from burn probability to probabilistic secondary fbp outputs, see the \link[cffdrs]{cffdrs} package function \link[cffdrs]{fbp}.
+#' Burn-P3 is a modelling platform that can be found at \href{www.firegrowthmodel.ca}{www.firegrowthmodel.ca}. It is a Monte Carlo simulator that leverages the Prometheus The Canadian Fire Growth Simulation Model to burn numerous fires based on a series of stochastic inputs to derive a set of products ranging from burn probability to probabilistic secondary fbp outputs, see the \link[cffdrs]{cffdrs} package function \link[cffdrs]{fbp}.
 #'
 #' Typical workflow will be described below if working from scratch however the package is fully modular and individual components can be used in isolation.
 #'
@@ -19,7 +19,7 @@
 #' * Base raster for your area - raster
 #' * Data frame of Weather Information - data.frame
 #' * Data frame of wildfire ignitions in area of interest - data.frame
-#' * Explanatory variables for Ignition Grid generation - point, line, polgyon, and raster
+#' * Explanatory variables for Ignition Grid generation - point, line, polygon, and raster
 #'
 #' *__Note__: There is an \link{aoi} function that can assist in generating a polygon for use within the model, however if the Canadian National Parks are not the area of interest a polygon of the area is required.
 #'
@@ -61,7 +61,7 @@
 #'
 #'  # 8. Outputs
 #'
-#'  Upon completion of Bunr-P3 modeling the outputs will require some processing and presentation. Some tools for quick viewing are in development but are currently works in progress.
+#'  Upon completion of Burn-P3 modeling the outputs will require some processing and presentation. Some tools for quick viewing are in development but are currently works in progress.
 #'
 #' @docType package
 #'

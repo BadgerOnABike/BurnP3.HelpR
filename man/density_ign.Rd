@@ -33,8 +33,8 @@ This function utilizes the kernal density estimation algorithm from spatialEco t
 \examples{
 
 ## Load example data
-ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
-fires <- readOGR(system.file("extdata/fires.shp",package = "BurnP3"))
+ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+fires <- readOGR(system.file("extdata/fires.shp",package = "BurnP3.HelpR"))
 temp_dir <- tempdir()
 density_test <- density_ign(reference_grid = ref_grid,
                             layer = fires,
@@ -46,7 +46,7 @@ plot(density_test)
 unlink(temp_dir)
 }
 \seealso{
-\code{\link[BurnP3]{spatdat_ign_layer}}
+\code{\link[BurnP3.HelpR]{spatdat_ign_layer}}
 
 \code{\link[spatialEco]{sp.kde}}
 }

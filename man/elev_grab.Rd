@@ -25,7 +25,7 @@ Requires an internet connection
 }
 \examples{
 ## Load example data
-ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
+ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
 temp_dir <- tempdir()
 test <- elev_grab(reference_grid = ref_grid,
                   output_directory = temp_dir)
