@@ -16,14 +16,14 @@
 #' @return
 #' @export
 #'
-#' @seealso \link[BurnP3]{bp3_dir_gen}
+#' @seealso \link[BurnP3.HelpR]{bp3_dir_gen}
 #'
 #' @examples
 #' ## Load relavent data
 #' data("fire_data")
-#' aoi <- readOGR(system.file("extdata","extdata.gpkg",package="BurnP3"),"aoi")
+#' aoi <- readOGR(system.file("extdata","extdata.gpkg",package="BurnP3.HelpR"),"aoi")
 #' output_location <- paste0(tempdir(),"\\")
-#' zones <- raster(system.file("extdata","zones.tif",package="BurnP3"))
+#' zones <- raster(system.file("extdata","zones.tif",package="BurnP3.HelpR"))
 #' data("seasons")
 #' zone_names = c("Alpine-E","Montane-E","Alpine-W","Montane-W","IDF")
 #'

@@ -12,14 +12,14 @@
 #'
 #' @return RasterLayer
 #'
-#' @seealso \code{\link[BurnP3]{spatdat_ign_layer}}
+#' @seealso \code{\link[BurnP3.HelpR]{spatdat_ign_layer}}
 #' @seealso \code{\link[spatialEco]{sp.kde}}
 #'
 #' @examples
 #'
 #' ## Load example data
-#' ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
-#' fires <- readOGR(system.file("extdata/fires.shp",package = "BurnP3"))
+#' ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+#' fires <- readOGR(system.file("extdata/fires.shp",package = "BurnP3.HelpR"))
 #' temp_dir <- tempdir()
 #' density_test <- density_ign(reference_grid = ref_grid,
 #'                             layer = fires,

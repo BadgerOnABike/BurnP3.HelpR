@@ -15,11 +15,11 @@
 #' @examples
 #'
 #' ## Load example data
-#' ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
+#' ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
 #'
 #' out <- spatdat_ign_layer(reference_grid = ref_grid,
 #'                          layer = "road",
-#'                          dsn = system.file("extdata",package="BurnP3"))
+#'                          dsn = system.file("extdata",package="BurnP3.HelpR"))
 #'
 spatdat_ign_layer <- function(reference_grid,layer,dsn){
 

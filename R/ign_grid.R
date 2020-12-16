@@ -25,7 +25,7 @@
 #'
 #' ## Load in example data
 #' data("indicator_stack")
-#' fire_data <- readOGR(system.file("extdata/extdata.gpkg",package = "BurnP3"),layer="fires")
+#' fire_data <- readOGR(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
 #' indicators_1 <- c("elevation","road_distance","rail_distance","river_distance", "rail_density","river_density","topography_position_index","terrain_ruggedness_index")
 #' indicators_2 <- c("elevation","topography_position_index","solar_rad","Lightning_Density")
 #' causes <- c("H","L")
@@ -35,7 +35,7 @@
 #'
 #' ign_grid(fire_data = fire_data,
 #'          indicator_stack = indicator_stack,
-#'          reference_grid = raster(system.file("extdata","elev.tif",package="BurnP3")),
+#'          reference_grid = raster(system.file("extdata","elev.tif",package="BurnP3.HelpR")),
 #'          indicators_1 = indicators_1,
 #'          indicators_2 = indicators_2,
 #'          causes = causes,

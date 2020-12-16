@@ -1,7 +1,7 @@
 #' Burn-P3 Input/Output Assistance Package
 #'
 #' @description
-#' The \code{BurnP3} package is a set of functions for streamlining the generations of inputs for burn probability modelling. As the package evolves it will also include a number of tools to aid in the combination and analysis of outputs.
+#' The \code{BurnP3.HelpR} package is a set of functions for streamlining the generations of inputs for burn probability modelling. As the package evolves it will also include a number of tools to aid in the combination and analysis of outputs.
 #'
 #' Burn-P3 is a modelling platform that can be found at \href{www.firegrowthmodel.ca}{www.firegrowthmodel.ca}. It is a monte carlo simulator that leverages the Prometheus The Canadian Fire Growth Simulation Model to burn numerous fires based on a series of stochastic inputs to derive a set of products ranging from burn probability to probabilistic secondary fbp outputs, see the \link[cffdrs]{cffdrs} package function \link[cffdrs]{fbp}.
 #'
@@ -67,8 +67,8 @@
 #'
 #' @author Brett Moore \email{Brett.Moore@@canada.ca}
 #'
-#' @name BurnP3-package
-#' @aliases BurnP3 BurnP3-package
+#' @name BurnP3.HelpR-package
+#' @aliases BurnP3.HelpR BurnP3.HelpR-package
 #'
 #'
 # Removed DMwR from import

@@ -18,16 +18,16 @@
 #' @examples
 #'
 #' ## Load in requisite data
-#' fuel_shape_1 <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3"),
+#' fuel_shape_1 <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
 #'                          layer = "Shape_Fuels_1")
-#' fuel_shape_2 <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3"),
+#' fuel_shape_2 <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
 #'                          layer = "Shape_Fuels_2")
-#' fuel_shape_PC <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3"),
+#' fuel_shape_PC <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
 #'                          layer = "Shape_Fuels_PC")
-#' fuel_raster <- raster(system.file("extdata/fuel.tif", package = "BurnP3"))
+#' fuel_raster <- raster(system.file("extdata/fuel.tif", package = "BurnP3.HelpR"))
 #' reference_grid <- fuel_raster
 #'
-#' aoi_poly <- st_read(  dsn = system.file("extdata/extdata.gpkg", package = "BurnP3"),
+#' aoi_poly <- st_read(  dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
 #'                          layer = "aoi_poly")
 #' data("lut")
 #'
