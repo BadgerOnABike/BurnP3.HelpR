@@ -81,95 +81,119 @@ spread_event_days <- function(input,
                               min_fwi = 19,
                               directory = ""){
 
-  if(length(season_names) != length(unique(input[,season_col]))){warning("There are not enough season names for the number of unique season in your data. The system will proceed and the remaining zones will be unnamed, names are assigned in order of occurrence and may have no meaning.")}
-  if(length(zone_names) != length(unique(input[,zone_col]))){warning("There are not enough zone names for the number of unique zones in your data. The system will proceed and the remaining zones will be unnamed, names are assigned in order of occurrence and may have no meaning.")}
+  if (length(season_names) != length(unique(input[,season_col]))) {warning("There are not enough season names for the number of unique season in your data. The system will proceed and the remaining zones will be unnamed, names are assigned in order of occurrence and may have no meaning.")}
+  if (length(zone_names) != length(unique(input[,zone_col]))) {warning("There are not enough zone names for the number of unique zones in your data. The system will proceed and the remaining zones will be unnamed, names are assigned in order of occurrence and may have no meaning.")}
 
 
   sum_thresh_sed <- function(sed,thresh){
-    for(i in 1:nrow(sed)){
+    for (i in 1:nrow(sed)) {
       sed[i,"sed_sum"] <- sum(sed[1:i,"sp_ev_days"])
     }
     ## Set a threshold for the cumulative probability  to cut off the SED distribution\
-    sed <- sed[-which(sed$sed_sum >= thresh)[-1],]
+    if ( thresh == 100 ) {
+      sed <- sed } else {
+        sed <- sed[-which(sed$sed_sum >= thresh)[-1],]
+      }
 
     ## Add the difference to achieve 100 percent to the 1 day spread.
-    sed$sp_ev_days <- sed$sp_ev_days + (100-sum(sed$sp_ev_days))/nrow(sed)
+    sed$sp_ev_days <- sed$sp_ev_days + (100 - sum(sed$sp_ev_days))/nrow(sed)
 
     sed$sed_sum <- NULL
     return(sed)
   }
 
-  if (seasonal == T){
-    sed_wx <- ddply(input,c(season_col, yr_col,id_col),.fun=function(x){
+  if (seasonal == T) {
+    sed_wx <- ddply(input,c(season_col, yr_col,id_col),.fun = function(x) {
       over_thresh <- x$dmc >= 20 & x$fwi >= min_fwi
       runs <- rle(over_thresh)
       counts <- runs$lengths[runs$values == 1]
       gaps <- runs$lengths[runs$values == 0]
-      data.frame(counts=counts)
+      data.frame(counts = counts)
     })
     sed <- list()
-    for(i in unique(input[,season_col])){
-      x <- hist(sed_wx[sed_wx[,season_col] == i,"counts"],breaks = 0:(max(sed_wx$counts)),freq=T)
-      sed[[i]] <- data.frame(days=x$breaks[-1] ,sp_ev_days=round(x$density*100,2))
+    for (i in unique(input[,season_col])) {
+      x <- hist(sed_wx[sed_wx[,season_col] == i,"counts"],
+                breaks = 0:(max(sed_wx$counts,
+                                na.rm = T)),
+                freq = T)
+      sed[[i]] <- data.frame(days = x$breaks[-1] ,
+                             sp_ev_days = round(x$density*100,2))
     }
 
     names(sed) <- season_names
 
     sed <- lapply(sed, function(x){sum_thresh_sed(x,threshold)})
-    if(directory == "") {
+    if (directory == "") {
       print(sed)
     } else{
       lapply(seq_along(sed),function(x){
-        write.csv(x = sed[[x]],paste0(directory,"/Inputs/2. Modules/Distribution Tables/Seasonal_",names(sed)[x],"_SED_Seasonal.csv"),row.names=F)
+        write.csv(x = sed[[x]],
+                  paste0(directory,
+                         "/Inputs/2. Modules/Distribution Tables/Seasonal_",
+                         names(sed)[x],
+                         "_SED_Seasonal.csv"),
+                  row.names = F)
       })
   }
 
   }
 
-  if (zonal == T){
-    sed_wx <- ddply(input,c(zone_col, yr_col,id_col),.fun=function(x){
+  if (zonal == T) {
+    sed_wx <- ddply(input,c(zone_col, yr_col,id_col),.fun = function(x) {
       over_thresh <- x$dmc >= 20 & x$fwi >= min_fwi
       runs <- rle(over_thresh)
       counts <- runs$lengths[runs$values == 1]
       gaps <- runs$lengths[runs$values == 0]
-      data.frame(counts=counts)
+      data.frame(counts = counts)
     })
     sed <- list()
-    for(i in seq_along(unique(sed_wx[,zone_col]))){
-      x <- hist(sed_wx[sed_wx[,zone_col] == i,"counts"],breaks = 0:(max(sed_wx$counts)),freq=T)
-      sed[[i]] <- data.frame(days=x$breaks[-1] ,sp_ev_days=round(x$density*100,2))
+    for (i in seq_along(unique(sed_wx[,zone_col]))) {
+      x <- hist(sed_wx[sed_wx[,zone_col] == i,"counts"],
+                breaks = 0:(max(sed_wx$counts,
+                                na.rm = T)),
+                freq = T)
+      sed[[i]] <- data.frame(days = x$breaks[-1] ,sp_ev_days = round(x$density*100,
+                                                                     2))
     }
     names(sed) <- zone_names
 
 
     sed <- lapply(sed, function(x){sum_thresh_sed(x,threshold)})
 
-    if(directory == "") {
+    if (directory == "") {
       print(sed)
     } else{
       lapply(seq_along(sed),function(x){
-        write.csv(x = sed[[x]],paste0(directory,"/Inputs/2. Modules/Distribution Tables/Seasonal_",names(sed)[x],"_SED_Seasonal.csv"),row.names=F)
+        write.csv(x = sed[[x]],
+                  paste0(directory,
+                         "/Inputs/2. Modules/Distribution Tables/Seasonal_",
+                         names(sed)[x],
+                         "_SED_Seasonal.csv")
+                  ,row.names = F)
       })
     }
   }
 
-  if(seasonal ==F & zonal == F){sed_wx <- ddply(input,.(yr,id),.fun=function(x){
+  if ( seasonal == F & zonal == F) {sed_wx <- ddply(input,.(yr,id),.fun = function(x) {
     over_thresh <- x$dmc >= 20 & x$fwi >= min_fwi
     runs <- rle(over_thresh)
     counts <- runs$lengths[runs$values == 1]
     gaps <- runs$lengths[runs$values == 0]
-    data.frame(counts=counts)
+    data.frame(counts = counts)
   })
-  x <- hist(sed_wx[,"counts"],breaks = 0:(max(sed_wx$counts)),freq=T)
-  sed <- data.frame(days=x$breaks[-1] ,sp_ev_days=round(x$density*100,2))
+  x <- hist(sed_wx[,"counts"],breaks = 0:(max(sed_wx$counts ,na.rm = T)),freq = T)
+  sed <- data.frame(days = x$breaks[-1] ,sp_ev_days = round(x$density*100,2))
 
   sed <- sum_thresh_sed(sed,threshold)
 
   ## Write out the Spread Event Days
-  if(directory == "") {
+  if (directory == "") {
     print(sed)
   } else{
-  write.csv(x = sed,paste0(directory,"/Inputs/2. Modules/Distribution Tables/SED.csv"),row.names=F)}
+  write.csv(x = sed,
+            paste0(directory,
+                   "/Inputs/2. Modules/Distribution Tables/SED.csv"),
+            row.names = F)}
 }
 }
 

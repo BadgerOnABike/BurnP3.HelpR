@@ -44,7 +44,7 @@ spatdat_ign_rast <- function(reference_grid, layers_list){
                            }
 
                            if (grepl("point",class(x)[1],ignore.case = T)) {
-                             cells_in <- cellFromXY(setValues(grast,0), x)
+                             cells_in <- cellFromXY(setValues(grast,0), spTransform(x,CRSobj = proj4string(grast)))
                            }
                            out.r[cells_in] <- 1
                            out.r <- mask(out.r,grast)

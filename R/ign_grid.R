@@ -558,9 +558,9 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         #data$ecodistrict <- as.factor(data$ecodistrict) # factor ecozones
         data$ign <- as.factor(data$ign) # factor ignitions
         data$in_out_park <- as.factor(data$in_out_park)
-        data$town_boundary <- as.factor(data$town_boundary)
+        #data$town_boundary <- as.factor(data$town_boundary)
         data$fuels <- as.factor(data$fuels)
-        data$weather_zones <- as.factor(data$weather_zones)
+        #data$weather_zones <- as.factor(data$weather_zones)
 
         data_mod <- downSample(x = data[,-ncol(data)],
                                y= data$ign,yname = "ign")

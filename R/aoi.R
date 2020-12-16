@@ -54,52 +54,85 @@
 
 
 
-aoi <- function(area_of_interest_file,PC=F, reference_grid, buffer_width = 0, park_of_interest="",stns, stn_name_col,stn_id_col){
+aoi <- function(area_of_interest_file,
+                PC = F,
+                reference_grid,
+                buffer_width = 0,
+                park_of_interest = "",
+                stns,
+                stn_name_col,
+                stn_id_col){
 
-  if( grepl("RasterLayer", class(reference_grid)) ){grast <- reference_grid}
-  if( grepl("character", class(reference_grid)) ){grast <- raster(reference_grid)}
-  if( !grepl("RasterLayer|character", class(reference_grid)) ){message("Reference Grid must be the directory of the raster or a raster object.")}
+  if ( grepl("RasterLayer", class(reference_grid)) ) {grast <- reference_grid}
+  if ( grepl("character", class(reference_grid)) ) {grast <- raster(reference_grid)}
+  if ( !grepl("RasterLayer|character", class(reference_grid)) ) {message("Reference Grid must be the directory of the raster or a raster object.")}
 
-  if(area_of_interest_file == "" & PC == F){stop("Please input an area of interest file or delcare PC (Parks Canada) as true to automatically load the Parks Canada layer")}
+  if ( is.null(area_of_interest_file) ) {stop("Please input an area of interest file or delcare PC (Parks Canada) as true to automatically load the Parks Canada layer")}
 
-  if(PC == T & park_of_interest == ""){warning("You have declared that you are using Parks Canada data, however you have not defined a park or multiple parks. This will result in national data being used. Park/s of interest can be declared as a character vector.")}
+  if (PC == T & park_of_interest == "") {stop(paste0("You have declared that you are using Parks Canada data, however you have not defined a park or multiple parks. This will result in national data being used. Park/s of interest can be declared as a character vector.Park names are: ",aoi_poly$parkname_e))}
 
-  if(area_of_interest_file == "" & PC==T){
+  if ( is.null(area_of_interest_file) & park_of_interest != "") {
     pc_temp <- tempfile(fileext = '.zip')
-    download.file(destfile = pc_temp,url = "http://ftp.maps.canada.ca/pub/pc_pc/National-parks_Parc-national/national_parks_boundaries/national_parks_boundaries.shp.zip")
+    download.file(destfile = pc_temp,
+                  url = "http://ftp.maps.canada.ca/pub/pc_pc/National-parks_Parc-national/national_parks_boundaries/national_parks_boundaries.shp.zip")
     pc_files <- unzip(pc_temp)
-    unzip(zipfile = pc_temp,files = gsub("./","",pc_files),exdir = gsub(".zip","",pc_temp))
-    aoi_poly <- readOGR(dsn = gsub(".zip","",pc_temp),layer = "national_parks_boundaries")
+    unzip(zipfile = pc_temp,
+          files = gsub("./","",pc_files),
+          exdir = gsub(".zip","",pc_temp))
+    aoi_poly <- readOGR(dsn = gsub(".zip","",pc_temp),
+                        layer = "national_parks_boundaries")
 
     unlink(c(gsub(".zip","",pc_temp),list.files(tempdir(),pattern = ".zip",full.names = T)),recursive = T)
   }
 
-  if(PC == T & park_of_interest == ""){stop(paste0("You have declared that you are using Parks Canada data, however you have not defined a park or multiple parks. This will result in national data being used. Park/s of interest can be declared as a character vector.Park names are: ",aoi_poly$parkname_e))}
-
-  if(area_of_interest_file != ""){
-    if(length(area_of_interest_file) > 1){
-      aoi_poly <- readOGR(dsn=area_of_interest_file[1],layer=area_of_interest_file[2])
+  if (!is.null(area_of_interest_file)) {
+    if (length(area_of_interest_file) > 1) {
+      aoi_poly <- readOGR(dsn = area_of_interest_file[1],
+                          layer = area_of_interest_file[2])
     } else {
       aoi_poly <- readOGR(area_of_interest_file)
     }
   }
 
 
-  if(park_of_interest != ""){
-    aoi_poly <- aoi_poly[grep(park_of_interest,aoi_poly$parkname_e,ignore.case = T),]
+  if (park_of_interest != "") {
+     aoi_poly <- aoi_poly[grep(park_of_interest,aoi_poly$parkname_e,ignore.case = T),]
   }
 
   aoi_poly <- spTransform(x = aoi_poly ,CRSobj = CRS(proj4string(grast)))
 
   ## Some basic plotting to visualize where stations are in relation to the AOI
 
-  stns_within_aoi <- sort(as.data.frame(crop(spTransform(stns,CRSobj = CRS(proj4string(aoi_poly))),gBuffer(aoi_poly,width=buffer_width)))[,stn_name_col])
+  stns_within_aoi <- sort(
+    as.data.frame(
+      crop(
+        spTransform(
+          stns,
+          CRSobj = CRS(proj4string(aoi_poly)
+                       )
+          ),
+        gBuffer(aoi_poly,
+                width = buffer_width
+                )
+        )
+      )[,stn_name_col])
 
-  x11()
-  plot(gBuffer(aoi_poly,width=buffer_width),main=paste0("There are ",length(stns_within_aoi)," staions inside your area of interest"))
-  plot(spTransform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],CRSobj = CRS(proj4string(aoi_poly))),add=T,pch=1)
-  text(spTransform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],CRSobj = CRS(proj4string(grast))),data.frame(stns)[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,][,stn_id_col])
-  plot(spTransform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],CRSobj = CRS(proj4string(aoi_poly))),add=T,pch=1)
+  # x11();
+  # plot(gBuffer(aoi_poly,
+  #              width=buffer_width),
+  #      main=paste0("There are ",length(stns_within_aoi)," staions inside your area of interest")
+  #      )
+  # plot(spTransform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
+  #                  CRSobj = CRS(proj4string(aoi_poly))),
+  #      add = T,
+  #      pch = 1)
+  # text(spTransform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
+  #                  CRSobj = CRS(proj4string(grast))),
+  #      data.frame(stns)[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,][,stn_id_col])
+  # plot(spTransform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
+  #                  CRSobj = CRS(proj4string(aoi_poly))),
+  #      add = T,
+  #      pch = 1)
 
   return(stns_within_aoi)
 }
