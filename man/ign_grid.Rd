@@ -15,6 +15,8 @@ ign_grid(
   output_location,
   min_fire_size = "",
   model = "",
+  factor_vars = NULL,
+  non_fuel_vals = NULL,
   testing = F
 )
 }

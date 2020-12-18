@@ -15,6 +15,8 @@
 #' @param min_fire_size A minimum fire size that may be defined to filter the wildfire data provided. _(Default = "")_
 #' @param model A character string defining the model to be used during the ignition gridding process. Can be one of: rf_stock, rf, gbm. The models are: stock random forest - run without any tuning. Random forest, an automatically tuned random forest run. Gradient Boosted Model - a gbm that is run in its default mode.
 #' @param testing This flag turns off a minimum data check within the modelling process. 100 records are typically required for the model to proceed however the testing dataset is smaller, to improve performance, and as such the minimum data check must be ignored. _(Default = F)_
+#' @param factor_vars If there are layers that are factors they need to be added to a character vector for use in the function.
+#' @param non_fuel_vals If there are non-fuels that you want excluded from ignition grids they need to be in a numeric vector.
 #'
 #' @return rasterLayer
 #'
@@ -43,6 +45,8 @@
 #'          output_location = output_location,
 #'          min_fire_size = "",
 #'          model = model,
+#'          factor_vars =  c("ecodistrict","ign","in_out_park","fuels","town_boundary,"weather_zones"),
+#'          non_fuel_vals = 101:110,
 #'          testing = T)
 #'
 #' print(paset0("Test files have been written to: ", output_location))
@@ -51,7 +55,7 @@
 #'
 #'
 #'
-ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indicators_2,causes,season_description,output_location,min_fire_size = "",model="",testing = F){
+ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indicators_2,causes,season_description,output_location,min_fire_size = "",model="",factor_vars = NULL, non_fuel_vals = NULL, testing = F){
   ## Perform a randomForest on each season and each cause as well as one with all season within.
 
   if( grepl("RasterLayer", class(reference_grid)) ){ grast <- reference_grid }
@@ -105,13 +109,8 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         # build ign dataframe
         data <- as.data.frame(modelling_stack)
         data <- data[-which(!complete.cases(data)),] # remove NA instances
-        data <- data[-which(data$fuels %in% c(101:110)),] ## Remove Rock and Water
-        #data$ecodistrict <- as.factor(data$ecodistrict) # factor ecozones
-        data$ign <- as.factor(data$ign) # factor ignitions
-        data$in_out_park <- as.factor(data$in_out_park)
-        data$town_boundary <- as.factor(data$town_boundary)
-        data$fuels <- as.factor(data$fuels)
-        data$weather_zones <- as.factor(data$weather_zones)
+        if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
+        if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
 
         data_mod <- downSample(x = data[,-ncol(data)],
                    y= data$ign,yname = "ign")
@@ -323,13 +322,8 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         # build ign dataframe
         data <- as.data.frame(modelling_stack)
         data <- data[-which(!complete.cases(data)),] # remove NA instances
-        data <- data[-which(data$fuels %in% c(101:110)),] ## Remove Rock and Water
-        #data$ecodistrict <- as.factor(data$ecodistrict) # factor ecozones
-        data$ign <- as.factor(data$ign) # factor ignitions
-        data$in_out_park <- as.factor(data$in_out_park)
-        data$town_boundary <- as.factor(data$town_boundary)
-        data$fuels <- as.factor(data$fuels)
-        data$weather_zones <- as.factor(data$weather_zones)
+        if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
+        if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
 
         dat_part <- createDataPartition(y = data$ign,p = .8)[[1]]
         data_train <- data[dat_part,]
@@ -450,13 +444,8 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         # build ign dataframe
         data <- as.data.frame(modelling_stack)
         data <- data[-which(!complete.cases(data)),] # remove NA instances
-        data <- data[-which(data$fuels %in% c(101:110)),] ## Remove Rock and Water
-        #data$ecodistrict <- as.factor(data$ecodistrict) # factor ecozones
-        data$ign <- as.factor(data$ign) # factor ignitions
-        data$in_out_park <- as.factor(data$in_out_park)
-        data$town_boundary <- as.factor(data$town_boundary)
-        data$fuels <- as.factor(data$fuels)
-        data$weather_zones <- as.factor(data$weather_zones)
+        if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
+        if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
 
         data_mod <- downSample(x = data[,-ncol(data)],
                                y= data$ign,yname = "ign")
@@ -554,16 +543,11 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         # build ign dataframe
         data <- as.data.frame(modelling_stack)
         data <- data[-which(!complete.cases(data)),] # remove NA instances
-        data <- data[-which(data$fuels %in% c(101:110)),] ## Remove Rock and Water
-        #data$ecodistrict <- as.factor(data$ecodistrict) # factor ecozones
-        data$ign <- as.factor(data$ign) # factor ignitions
-        data$in_out_park <- as.factor(data$in_out_park)
-        #data$town_boundary <- as.factor(data$town_boundary)
-        data$fuels <- as.factor(data$fuels)
-        #data$weather_zones <- as.factor(data$weather_zones)
+        if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
+        if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
 
         data_mod <- downSample(x = data[,-ncol(data)],
-                               y= data$ign,yname = "ign")
+                               y = data$ign,yname = "ign")
 
         data_mod$ign <- as.integer(as.character(data_mod$ign))
 
