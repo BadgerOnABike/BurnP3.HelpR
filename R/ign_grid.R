@@ -107,7 +107,7 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         names(modelling_stack) <- tolower(names(modelling_stack))
 
         # build ign dataframe
-        data <- as.data.frame(modelling_stack)
+        data <- raster::as.data.frame(modelling_stack)
         data <- data[-which(!complete.cases(data)),] # remove NA instances
         if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
         if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
@@ -320,7 +320,7 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
 
 
         # build ign dataframe
-        data <- as.data.frame(modelling_stack)
+        data <- raster::as.data.frame(modelling_stack)
         data <- data[-which(!complete.cases(data)),] # remove NA instances
         if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
         if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
@@ -442,7 +442,7 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         names(modelling_stack) <- tolower(names(modelling_stack))
 
         # build ign dataframe
-        data <- as.data.frame(modelling_stack)
+        data <- raster::as.data.frame(modelling_stack)
         data <- data[-which(!complete.cases(data)),] # remove NA instances
         if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
         if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
@@ -541,7 +541,7 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         names(modelling_stack) <- tolower(names(modelling_stack))
 
         # build ign dataframe
-        data <- as.data.frame(modelling_stack)
+        data <- raster::as.data.frame(modelling_stack)
         data <- data[-which(!complete.cases(data)),] # remove NA instances
         if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
         if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
