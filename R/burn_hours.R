@@ -28,19 +28,19 @@
 #'
 #' print(paste0("Files can be found at: ",gsub("\\\\","/",out_dir)))
 #'
-burn_hrs <- function(reference_grid, season_df, out_dir){
+burn_hrs <- function(reference_grid, season_df, season_col, out_dir){
 
 midpt <- spTransform(
-            SpatialPoints(coords =  matrix(ncol = 2,c(mean(ext(elev)@ptr$vector[1:2]),
-                                          mean(ext(elev)@ptr$vector[3:4]))
+            SpatialPoints(coords =  matrix(ncol = 2,c(mean(ext(reference_grid)@ptr$vector[1:2]),
+                                          mean(ext(reference_grid)@ptr$vector[3:4]))
                                           ),
-                          proj4string = CRS(crs(elev))),
+                          proj4string = CRS(crs(reference_grid))),
             CRSobj = CRS("+init=EPSG:4326")
             )
 
 for (j in unique(season_df$season)) {
 
-x <- table(round(daylength(lat = midpt@coords[2],long = midpt@coords[1],tmz = -7,jd = season_df[which(season_df$season == j),"jstart"]:season_df[which(season_df$season == j),"jend"])[,"daylen"]/3,0))
+x <- table(round(daylength(lat = midpt@coords[2],long = midpt@coords[1],tmz = -7,jd = season_df[which(season_df[,season_col] == j),"jstart"]:season_df[which(season_df[,season_col] == j),"jend"])[,"daylen"]/3,0))
 
 burn_hrs <- data.frame(Hours = names(x),Percent = NA)
 
