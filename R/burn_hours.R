@@ -25,6 +25,7 @@
 #'
 #' burn_hrs( reference_grid = elev,
 #'           season_df = season_df,
+#'           season_col = "season",
 #'           out_dir = out_dir)
 #'
 #' print(paste0("Files can be found at: ",gsub("\\\\","/",out_dir)))
@@ -39,7 +40,7 @@ midpt <- spTransform(
             CRSobj = CRS("+init=EPSG:4326")
             )
 
-for (j in unique(season_df$season)) {
+for (j in unique(season_df[,season_col])) {
 
 x <- table(round(daylength(lat = midpt@coords[2],long = midpt@coords[1],tmz = -7,jd = season_df[which(season_df[,season_col] == j),"jstart"]:season_df[which(season_df[,season_col] == j),"jend"])[,"daylen"]/3,0))
 
