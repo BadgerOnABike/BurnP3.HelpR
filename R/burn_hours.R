@@ -5,7 +5,7 @@
 #' @param season_df A data.frame with 3 columns: season, jstart, jend
 #' @param out_dir Output directory
 #'
-#' @import insol
+#' @importFrom insol daylength
 #' @import terra
 #' @import rgdal
 #'
