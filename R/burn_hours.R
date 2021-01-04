@@ -4,6 +4,7 @@
 #' @param reference_grid A reference raster from the area of interest. This will provide the midpoint of the landscape for use when calculating the day length values
 #' @param season_df A data.frame with 3 columns: season, jstart, jend
 #' @param out_dir Output directory
+#' @param season_col The column containing the season names.
 #'
 #' @importFrom insol daylength
 #' @import terra
@@ -28,7 +29,7 @@
 #'
 #' print(paste0("Files can be found at: ",gsub("\\\\","/",out_dir)))
 #'
-burn_hrs <- function(reference_grid, season_df, season_col, out_dir){
+burn_hrs <- function(reference_grid, season_d○f, season_col, out_dir){
 
 midpt <- spTransform(
             SpatialPoints(coords =  matrix(ncol = 2,c(mean(ext(reference_grid)@ptr$vector[1:2]),

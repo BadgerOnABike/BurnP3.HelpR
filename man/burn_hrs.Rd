@@ -4,7 +4,7 @@
 \alias{burn_hrs}
 \title{Hours of Burning Function}
 \usage{
-burn_hrs(reference_grid, season_df, out_dir)
+burn_hrs(reference_grid, season_df, season_col, out_dir)
 }
 \arguments{
 \item{reference_grid}{A reference raster from the area of interest. This will provide the midpoint of the landscape for use when calculating the day length values}
