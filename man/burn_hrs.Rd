@@ -33,6 +33,7 @@ out_dir <- tempdir()
 
 burn_hrs( reference_grid = elev,
           season_df = season_df,
+          season_col = "season",
           out_dir = out_dir)
 
 print(paste0("Files can be found at: ",gsub("\\\\\\\\","/",out_dir)))
