@@ -14,7 +14,7 @@
 #'
 #' @examples
 #'
-#' elev <- rast("E:/Quarantine/BYK_February_2020/Inputs/1. Landscape/Elevation/elevation.tif")
+#' elev <- rast(system.file("extdata","elev.tif",package="BurnP3.HelpR"))
 #'
 #' season_df <- data.frame(season = c("Spring","Summer"),
 #'                         jstart = c(125,160),
