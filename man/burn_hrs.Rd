@@ -11,6 +11,8 @@ burn_hrs(reference_grid, season_df, season_col, out_dir)
 
 \item{season_df}{A data.frame with 3 columns: season, jstart, jend}
 
+\item{season_col}{The column containing the season names.}
+
 \item{out_dir}{Output directory}
 }
 \value{

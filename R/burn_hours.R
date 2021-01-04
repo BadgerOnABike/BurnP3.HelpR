@@ -29,7 +29,7 @@
 #'
 #' print(paste0("Files can be found at: ",gsub("\\\\","/",out_dir)))
 #'
-burn_hrs <- function(reference_grid, season_d○f, season_col, out_dir){
+burn_hrs <- function(reference_grid, season_df, season_col, out_dir){
 
 midpt <- spTransform(
             SpatialPoints(coords =  matrix(ncol = 2,c(mean(ext(reference_grid)@ptr$vector[1:2]),
