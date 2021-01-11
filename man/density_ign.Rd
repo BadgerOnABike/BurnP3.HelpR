@@ -15,6 +15,8 @@ density_ign(
 \arguments{
 \item{reference_grid}{Reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.Can be either the location of the raster or a raster object.}
 
+\item{width}{Distance around each point to take into the density calculation.}
+
 \item{output_location}{The location the output density rasters will be placed.}
 
 \item{output_name}{The name of the files to be output. Typically these will be a vector of the names of your list of layers.}
@@ -37,7 +39,8 @@ ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
 fires <- readOGR(system.file("extdata/fires.shp",package = "BurnP3.HelpR"))
 temp_dir <- tempdir()
 density_test <- density_ign(reference_grid = ref_grid,
-                            layer = fires,
+                            layers_list = fires,
+                            width = 1000,
                             output_location = temp_dir,
                             output_name = "density_test")
 
@@ -47,6 +50,4 @@ unlink(temp_dir)
 }
 \seealso{
 \code{\link[BurnP3.HelpR]{spatdat_ign_layer}}
-
-\code{\link[spatialEco]{sp.kde}}
 }

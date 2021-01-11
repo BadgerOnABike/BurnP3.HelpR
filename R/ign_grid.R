@@ -551,29 +551,52 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
 
         data_mod$ign <- as.integer(as.character(data_mod$ign))
 
-        if(testing == F){if(nrow(data_mod) <= 100){warning("Sample was less than 100 elements, skipping. There were, ",nrow(data[data$ign == 1,])," actual ignitions in the training data.");next}}
+        if (testing == F) {
+          if (nrow(data_mod) <= 100) {
+            warning("Sample was less than 100 elements, skipping. There were, ",nrow(data[data$ign == 1,])," actual ignitions in the training data.");next
+            }
+          }
 
-        if(cause == causes[1]){predictors <- data_mod[,c("ign",indicators_1)]}
-        if(cause == causes[2]){predictors <- data_mod[,c("ign",indicators_2)]}
+        if (cause == causes[1]) {predictors <- data_mod[,c("ign",indicators_1)] }
+        if (cause == causes[2]) {predictors <- data_mod[,c("ign",indicators_2)] }
 
-        brt <- gbm.step(data = predictors,gbm.x = 2:length(predictors),gbm.y = 1,tree.complexity = 3,family = "bernoulli",n.folds = 20,n.trees = 500,step.size = 50,max.trees = 7500,learning.rate = 0.0025)
+        brt <- gbm.step(data = predictors,
+                        gbm.x = 2:length(predictors),
+                        gbm.y = 1,
+                        tree.complexity = 3,
+                        family = "bernoulli",
+                        n.folds = 20,
+                        n.trees = 500,
+                        step.size = 50,
+                        max.trees = 7500,
+                        learning.rate = 0.0025)
 
-        brt <- gbm.step(data = predictors,gbm.x = which(names(predictors) %in% brt$contributions[brt$contributions$rel.inf >= 1.0, "var"]),gbm.y = 1,tree.complexity = 3,family = "bernoulli",n.folds = 20,n.trees = 500,step.size = 50,max.trees = 7500,learning.rate = 0.0025,plot.main=T)
+        brt <- gbm.step(data = predictors,
+                        gbm.x = which(names(predictors) %in% brt$contributions[brt$contributions$rel.inf >= 1.0, "var"]),
+                        gbm.y = 1,
+                        tree.complexity = 3,
+                        family = "bernoulli",
+                        n.folds = 20,
+                        n.trees = 500,
+                        step.size = 50,
+                        max.trees = 7500,
+                        learning.rate = 0.0025,
+                        plot.main = T)
 
         # model variable importance
         imp <- summary(brt)
 
         # build/name ign raster
-        ign <- raster::predict(model=brt,
-                               object=indicator_stack,
-                               type="response",
-                               index=2,
+        ign <- raster::predict(model = brt,
+                               object = indicator_stack,
+                               type = "response",
+                               index = 2,
                                n.trees = brt$n.trees,
-                               na.rm=T)
+                               na.rm = T)
 
         ign[][which(indicator_stack$fuels[] %in% c(101:110))] <- 0
 
-        ign <- (ign - min(ign[],na.rm=T))/(max(ign[],na.rm=T)-min(ign[],na.rm=T))
+        ign <- (ign - min(ign[],na.rm = T))/(max(ign[],na.rm = T) - min(ign[],na.rm = T))
 
         plot(ign)
 
