@@ -8,7 +8,7 @@
 \description{
 The \code{BurnP3.HelpR} package is a set of functions for streamlining the generations of inputs for burn probability modelling. As the package evolves it will also include a number of tools to aid in the combination and analysis of outputs.
 
-Burn-P3 is a modelling platform that can be found at \href{www.firegrowthmodel.ca}{www.firegrowthmodel.ca}. It is a Monte Carlo simulator that leverages the Prometheus The Canadian Fire Growth Simulation Model to burn numerous fires based on a series of stochastic inputs to derive a set of products ranging from burn probability to probabilistic secondary fbp outputs, see the \link[cffdrs]{cffdrs} package function \link[cffdrs]{fbp}.
+Burn-P3 is a modelling platform that can be found at \href{www.firegrowthmodel.ca}{www.firegrowthmodel.ca}. It is a Monte Carlo simulator that leverages the Prometheus The Canadian Fire Growth Simulation Model to burn numerous fires based on a series of stochastic inputs to derive a set of products ranging from burn probability to probabilistic secondary fbp outputs, see the \link[cffdrs]{cffdrs-package} package function \link[cffdrs]{fbp}.
 
 Typical workflow will be described below if working from scratch however the package is fully modular and individual components can be used in isolation.
 

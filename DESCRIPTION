@@ -16,15 +16,17 @@ Suggests:
 VignetteBuilder: 
 	knitr
 Imports: 
-    rgdal,
-    sf,
-    terra,
-    fasterize,
-    rgeos,
-    raster,
+    MASS,
+    caret,
     dismo,
-    randomForest,
-    gbm,
-    ROCR,
-    doParallel,
-    insol
+    fasterize,
+    plyr,
+    insol,
+    randomForest
+Depends: 
+    terra,
+    sf,
+    sp,
+    raster,
+    rgdal,
+    ggplot2

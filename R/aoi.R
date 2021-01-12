@@ -14,10 +14,6 @@
 #'
 #' @return SpatialPolygonsDataFrame
 #'
-#' @importFrom terra rast
-#' @importFrom sf st_read st_transform st_intersection st_buffer
-#' @import ggplot2
-#'
 #' @examples
 #'
 #'# Load test data

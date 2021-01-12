@@ -81,8 +81,12 @@ spread_event_days <- function(input,
                               min_fwi = 19,
                               directory = ""){
 
-  if (length(season_names) != length(unique(input[,season_col]))) {warning("There are not enough season names for the number of unique season in your data. The system will proceed and the remaining zones will be unnamed, names are assigned in order of occurrence and may have no meaning.")}
-  if (length(zone_names) != length(unique(input[,zone_col]))) {warning("There are not enough zone names for the number of unique zones in your data. The system will proceed and the remaining zones will be unnamed, names are assigned in order of occurrence and may have no meaning.")}
+  if (seasonal == T) {
+    if (length(season_names) != length(unique(input[,season_col]))) {warning("There are not enough season names for the number of unique season in your data. The system will proceed and the remaining zones will be unnamed, names are assigned in order of occurrence and may have no meaning.")}
+  }
+  if (zonal == T) {
+    if (length(zone_names) != length(unique(input[,zone_col]))) {warning("There are not enough zone names for the number of unique zones in your data. The system will proceed and the remaining zones will be unnamed, names are assigned in order of occurrence and may have no meaning.")}
+  }
 
 
   sum_thresh_sed <- function(sed,thresh){

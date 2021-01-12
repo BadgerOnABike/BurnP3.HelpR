@@ -10,12 +10,7 @@
 #' @param pc A boolean vector of logical values (T/F) defining whether or not percent conifer is to be calculated for mixedwood fuels based on a percent conifer column.
 #' @param pc_col A character vector defining the column for percent conifer in each spatial layer. If the corresponding \code{pc} value is false enter "".
 #' @param output_directory The directory to place the final fuel grid. If using the generated directories use \code{bp3_base} as the output directory.
-#'
-#' @importFrom terra rast ext vect project expand
-#' @importFrom sf st_read st_buffer st_transform read_sf st_crop st_make_valid crs bbox st_cast st_geometry_type
-#' @importFrom raster raster crop mask writeRaster resample extend
 #' @importFrom fasterize fasterize
-#' @importFrom sp proj4string
 #' @importFrom plyr ldply
 #'
 #' @return

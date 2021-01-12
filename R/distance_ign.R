@@ -10,7 +10,6 @@
 #'
 #' @details This function generates a euclidean distance grid with the \code{distance} function.
 #'
-#' @importFrom raster raster writeRaster mask distance
 #'
 #' @return RasterLayer
 #' @export

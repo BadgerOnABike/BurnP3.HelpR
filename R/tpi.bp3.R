@@ -10,7 +10,6 @@
 #' @return RasterStack
 #' @export
 #'
-#' @importFrom raster raster focal terrain
 #'
 #' @examples
 #'

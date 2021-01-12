@@ -8,10 +8,6 @@
 #'
 #' @details This tool imports the spatial data for use within the spatial data rasterizer, it can perform on points, lines and polygons.
 #'
-#' @importFrom raster raster crop
-#' @importFrom sf st_read st_transform st_geometry_type st_is_empty st_zm st_make_valid
-#' @importFrom rgdal OGRListLayers
-#'
 #' @return List
 #' @export
 #'
