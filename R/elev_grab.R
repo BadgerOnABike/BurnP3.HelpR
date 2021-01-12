@@ -71,10 +71,9 @@ elev_grab <- function(reference_grid,output_directory){
   }
 
   unlink(c(gsub(".zip","",nts_temp),list.files(tempdir(),pattern = ".zip",full.names = T)),recursive = T)
-  wn_elev <- crop(mosaic.r,e)
-  mosaic.r <- mask(mosaic.r,grast)
 
-  writeRaster(wn_elev,paste0(output_directory,"wind_ninja_elevation.tif"),datatype = "INT2S", NAflag = -9999,format = "GTiff",overwrite = T)
+  mosaic.r <- crop(mosaic.r,grast)
+
   writeRaster(mosaic.r,paste0(output_directory,"elevation.tif"),datatype = "INT2S", NAflag = -9999,format = "GTiff",overwrite = T)
 
 }

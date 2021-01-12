@@ -2,7 +2,7 @@
 % Please edit documentation in R/tpi.bp3.R
 \name{tpi_w}
 \alias{tpi_w}
-\title{Function to actually calculate topographic position index with a window}
+\title{Function to calculate topographic position index with a window}
 \usage{
 tpi_w(input, window_size = 5)
 }
@@ -11,6 +11,9 @@ tpi_w(input, window_size = 5)
 
 \item{window_size}{Must be an odd number}
 }
+\value{
+RasterLayer
+}
 \description{
-Function to actually calculate topographic position index with a window
+Function to calculate topographic position index with a window
 }

@@ -11,6 +11,9 @@ TRI(input, window_size)
 
 \item{window_size}{Must be an odd number}
 }
+\value{
+RasterLayer
+}
 \description{
 Function calculate topographic roughness index with a window
 }

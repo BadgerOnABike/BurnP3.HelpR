@@ -20,9 +20,9 @@
 
 tpi.bp3 <- function(input, window_size = 5){
 
-  if( grepl("RasterLayer", class(reference_grid)) ){ grast <- reference_grid }
-  if( grepl("character", class(reference_grid)) ){ grast <- raster(reference_grid) }
-  if( !grepl("RasterLayer|character", class(reference_grid)) ){ message("Reference Grid must be the directory of the raster or a raster object.") }
+  if( grepl("RasterLayer", class(input)) ){ grast <- input }
+  if( grepl("character", class(input)) ){ grast <- raster(input) }
+  if( !grepl("RasterLayer|character", class(input)) ){ message("Reference Grid must be the directory of the raster or a raster object.") }
 
   tpi <- tpi_w(input=grast,window_size)
   tri <- TRI(input=grast, window_size)
@@ -32,11 +32,15 @@ tpi.bp3 <- function(input, window_size = 5){
   return(out.r)
 }
 
-#' Function to actually calculate topographic position index with a window
+#' Function to calculate topographic position index with a window
 #' @param input The elevation grid that will be used during modelling. It may also be larger in order to avoid edge effects if necessary.
 #' @param window_size Must be an odd number
+#'
+#' @return RasterLayer
+#' @export
+#'
 tpi_w <- function(input, window_size=5) {
-  m <- matrix(1/(window_size^2-1), nc=window_size, nr=window_size)
+  m <- matrix(1/(window_size^2 - 1), nc = window_size, nr = window_size)
   m[ceiling(0.5 * length(m))] <- 0
   f <- focal(input, m)
   input - f
@@ -45,10 +49,14 @@ tpi_w <- function(input, window_size=5) {
 #' Function calculate topographic roughness index with a window
 #' @param input The elevation grid that will be used during modelling. It may also be larger in order to avoid edge effects if necessary.
 #' @param window_size Must be an odd number
+#'
+#' @return RasterLayer
+#' @export
+#'
 TRI <- function(input,window_size){
-  f <- matrix(1, nc=window_size, nr=window_size)
+  f <- matrix(1, nc = window_size, nr = window_size)
   f[ceiling(0.5 * length(f))] <- 0
-  focal(input, f, fun=function(x, ...) sum(abs(x[-5]-x[5]))/8, pad=TRUE, padValue=NA)
+  focal(input, f, fun = function(x, ...) sum(abs(x[-5]-x[5]))/8, pad = TRUE, padValue = NA)
 }
 
 
