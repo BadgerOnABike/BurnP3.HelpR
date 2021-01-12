@@ -7,8 +7,8 @@
 #' @param season_col The column containing the season names.
 #'
 #' @importFrom insol daylength
-#' @import terra
-#' @import rgdal
+#' @importFrom terra ext crs
+#' @importFrom sp spTransform SpatialPoints proj4string CRS
 #'
 #' @return
 #' @export
@@ -42,7 +42,9 @@ midpt <- spTransform(
 
 for (j in unique(season_df[,season_col])) {
 
-x <- table(round(daylength(lat = midpt@coords[2],long = midpt@coords[1],tmz = -7,jd = season_df[which(season_df[,season_col] == j),"jstart"]:season_df[which(season_df[,season_col] == j),"jend"])[,"daylen"]/3,0))
+x <- table(round(daylength(lat = midpt@coords[2],
+                           long = midpt@coords[1],tmz = -7,
+                           jd = season_df[which(season_df[,season_col] == j),"jstart"]:season_df[which(season_df[,season_col] == j),"jend"])[,"daylen"]/3,0))
 
 burn_hrs <- data.frame(Hours = names(x),Percent = NA)
 

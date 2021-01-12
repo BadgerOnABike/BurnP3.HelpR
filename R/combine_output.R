@@ -5,6 +5,9 @@
 #' @param polygon A logical flag for combination of fire polygons. _(Default: False)_
 #' @param raster A logical flag for combination of burn probability rasters. _(Default: True)_
 #'
+#' @importFrom sf st_read st_write
+#' @importFrom terra rast app writeRaster
+#'
 #' @return
 #' @export
 #'

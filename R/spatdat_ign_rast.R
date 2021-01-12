@@ -5,6 +5,10 @@
 #' @param reference_grid This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.
 #' @param layer A list containing at least one spatial layer from the \code{spatdat_ign_layer} function to be rasterized.
 #'
+#' @importFrom raster raster cellFromLine cellFromPolygon reclassify rasterToPoints setValues stack
+#' @importFrom sf SpatialPointsDataFrame proj4string
+#' @importFrom rgoes gCentroid
+#'
 #' @return List containing points and raster layers.
 #' @export
 #'
@@ -20,9 +24,9 @@
 #'
 spatdat_ign_rast <- function(reference_grid, layers_list){
 
-  if( grepl("RasterLayer", class(reference_grid)) ){grast <- reference_grid}
-  if( grepl("character", class(reference_grid)) ){grast <- raster(reference_grid)}
-  if( !grepl("RasterLayer|character", class(reference_grid)) ){message("Reference Grid must be the directory of the raster or a raster object.")}
+  if ( grepl("RasterLayer", class(reference_grid)) ) {grast <- reference_grid}
+  if ( grepl("character", class(reference_grid)) ) {grast <- raster(reference_grid)}
+  if ( !grepl("RasterLayer|character", class(reference_grid)) ) {message("Reference Grid must be the directory of the raster or a raster object.")}
 
   rasters_list <- lapply(X = layers_list,
                          FUN = function(x) {
@@ -51,7 +55,7 @@ spatdat_ign_rast <- function(reference_grid, layers_list){
                          }
   )
 
-  if(length(rasters_list) == 1){
+  if (length(rasters_list) == 1) {
     rasters.out <- reclassify(rasters_list[[1]],rcl = c(-Inf,0,NA))
   } else{
     rasters.out <- reclassify(

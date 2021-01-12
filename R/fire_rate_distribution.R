@@ -13,6 +13,10 @@
 #' @param min_fire_size A minimum fire size to subset the fire information to for adjuste fire rate distribution depending on the question being asked. _(Default = 0.01)_
 #' @param causes A character vector defining the causes within the fire dataset. _(Default = c("H","L"))_
 #'
+#' @importFrom rgdal spTransform
+#' @importFrom sp crs
+#' @importFrom raster crop extract
+#'
 #' @return
 #' @export
 #'
@@ -90,39 +94,42 @@ fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", ao
   input <- crop(input, aoi)
   input <- input[input$CAUSE %in% causes,]
 
-  if(seasonal & !is.element("season",names(input))){
+  if (seasonal & !is.element("season",names(input))) {
 
     input$season <- NA
 
-    for(i in seasons$season[1:(length(seasons$season)-1)]){
-      input$season <- ifelse(as.numeric(input$jday) >= seasons$jday[i] & as.numeric(input$jday) < seasons$jday[i+1], seasons$season[i], input$season)
+    for (i in seasons$season[1:(length(seasons$season) - 1)]) {
+      input$season <- ifelse(as.numeric(input$jday) >= seasons$jday[i] & as.numeric(input$jday) < seasons$jday[i + 1], seasons$season[i], input$season)
     }
 
-    if(length(unique(is.na(input$season)))>1)
+    if (length(unique(is.na(input$season))) > 1)
     {input <- input[-which(is.na(input$season)),]}
 
     input <- input[which(input$season %in% seasons$season),]
   }
 
-  if(zonal){
+  if (zonal) {
     input$zone <- extract(zones,input)
-    if(length(which(is.na(input$zone)))>0){input <- input[-which(is.na(input$zone)),]}
+    if (length(which(is.na(input$zone))) > 0) {input <- input[-which(is.na(input$zone)),]}
   }
 
-  vars <- c("CAUSE", if(seasonal){"season"},if(zonal){"zone"})
+  vars <- c("CAUSE", if (seasonal) {"season"},if (zonal) {"zone"})
 
   fire_rate <- ddply(.data = as.data.frame(input),
                      .variables = c(vars),
-                     .fun=function(x){
+                     .fun = function(x){
                        counts <- nrow(x)
                        pct <- counts/nrow(input)
-                       data.frame(esc_fires=round(pct*100,2))
+                       data.frame(esc_fires = round(pct*100,2))
                      }
   )
 
   colnames(fire_rate) <- tolower(colnames(fire_rate))
   fire_rate$cause <- as.numeric(as.factor(fire_rate$cause))
-  write.csv(fire_rate, paste0(output_location,"Fire_Rate_Distribution.csv"),row.names=F)
-  if(output_location == bp3_base){write.csv(fire_rate, paste0(output_location,"Inputs/2. Modules/Distribution Tables/Fire_Rate_Distribution.csv"),row.names=F)}
+  write.csv(fire_rate, paste0(output_location,"Fire_Rate_Distribution.csv"),row.names = F)
+  if (output_location == bp3_base) {
+    write.csv(fire_rate,
+              paste0(output_location,"Inputs/2. Modules/Distribution Tables/Fire_Rate_Distribution.csv"),
+              row.names = F)}
   return(fire_rate)
 }

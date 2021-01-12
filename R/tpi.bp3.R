@@ -10,6 +10,7 @@
 #' @return RasterStack
 #' @export
 #'
+#' @importFrom raster raster focal terrain
 #'
 #' @examples
 #'
@@ -20,15 +21,22 @@
 
 tpi.bp3 <- function(input, window_size = 5){
 
-  if( grepl("RasterLayer", class(input)) ){ grast <- input }
-  if( grepl("character", class(input)) ){ grast <- raster(input) }
-  if( !grepl("RasterLayer|character", class(input)) ){ message("Reference Grid must be the directory of the raster or a raster object.") }
+  if ( grepl("RasterLayer", class(input)) ) { grast <- input }
+  if ( grepl("character", class(input)) ) { grast <- raster(input) }
+  if ( !grepl("RasterLayer|character", class(input)) ) { message("Reference Grid must be the directory of the raster or a raster object.") }
 
-  tpi <- tpi_w(input=grast,window_size)
-  tri <- TRI(input=grast, window_size)
-  flow <- terrain(x=grast,opt="flowdir")
-  out.r <- stack(tpi,tri,flow)
-  names(out.r) <- c("tpi","tri","flowdir")
+  tpi <- tpi_w(input = grast,
+               window_size)
+  tri <- TRI(input = grast,
+             window_size)
+  flow <- terrain(x = grast,
+                  opt = "flowdir")
+  out.r <- stack(tpi,
+                 tri,
+                 flow)
+  names(out.r) <- c("tpi",
+                    "tri",
+                    "flowdir")
   return(out.r)
 }
 
@@ -40,9 +48,12 @@ tpi.bp3 <- function(input, window_size = 5){
 #' @export
 #'
 tpi_w <- function(input, window_size=5) {
-  m <- matrix(1/(window_size^2 - 1), nc = window_size, nr = window_size)
+  m <- matrix(1/(window_size^2 - 1),
+              nc = window_size,
+              nr = window_size)
   m[ceiling(0.5 * length(m))] <- 0
-  f <- focal(input, m)
+  f <- focal(input,
+             m)
   input - f
 }
 
@@ -54,9 +65,15 @@ tpi_w <- function(input, window_size=5) {
 #' @export
 #'
 TRI <- function(input,window_size){
-  f <- matrix(1, nc = window_size, nr = window_size)
+  f <- matrix(1,
+              nc = window_size,
+              nr = window_size)
   f[ceiling(0.5 * length(f))] <- 0
-  focal(input, f, fun = function(x, ...) sum(abs(x[-5]-x[5]))/8, pad = TRUE, padValue = NA)
+  focal(input,
+        f,
+        fun = function(x, ...) sum(abs(x[-5]-x[5]))/8,
+        pad = TRUE,
+        padValue = NA)
 }
 
 

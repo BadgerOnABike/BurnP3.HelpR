@@ -10,6 +10,9 @@
 #'
 #' @details This function utilizes the kernal density estimation algorithm from spatialEco to create raster layers for use in ignition grid calculation.
 #'
+#' @importFrom raster raster setValues writeRaster mask coordinates
+#' @importFrom MASS kde2d
+#'
 #' @return RasterLayer
 #' @export
 #'

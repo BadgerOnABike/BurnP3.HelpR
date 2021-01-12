@@ -18,6 +18,11 @@
 #' @param factor_vars If there are layers that are factors they need to be added to a character vector for use in the function.
 #' @param non_fuel_vals If there are non-fuels that you want excluded from ignition grids they need to be in a numeric vector.
 #'
+#' @importFrom raster raster cellFromXY mask setValues cellStatus writeRaster
+#' @importFrom caret rfeControl rfe downSample createDataPartition rfFuncs train resamples confusionMatrix varImp
+#' @importFrom randomForest tuneRF randomForest importance
+#' @importFrom dismo gbm.step
+#'
 #' @return rasterLayer
 #'
 #' @export
@@ -55,48 +60,42 @@
 #'
 #'
 #'
-ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indicators_2,causes,season_description,output_location,min_fire_size = "",model="",factor_vars = NULL, non_fuel_vals = NULL, testing = F){
-  ## Perform a randomForest on each season and each cause as well as one with all season within.
+ign_grid <- function(fire_data,
+                     indicator_stack,
+                     reference_grid,
+                     indicators_1,
+                     indicators_2,
+                     causes,
+                     season_description,
+                     output_location,
+                     min_fire_size = "",
+                     model = "",
+                     factor_vars = NULL,
+                     non_fuel_vals = NULL,
+                     testing = F){
 
-  if( grepl("RasterLayer", class(reference_grid)) ){ grast <- reference_grid }
-  if( grepl("character", class(reference_grid)) ){ grast <- raster(reference_grid) }
-  if( !grepl("RasterLayer|character", class(reference_grid)) ){ message("Reference Grid must be the directory of the raster or a raster object.") }
+  if ( grepl("RasterLayer", class(reference_grid)) ) { grast <- reference_grid }
+  if ( grepl("character", class(reference_grid)) ) { grast <- raster(reference_grid) }
+  if ( !grepl("RasterLayer|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the raster or a raster object.") }
 
-  if(model == ""){stop("Please define a model. Either rf for an automatically refined random forest, rf_stock for a baseline randomforest or gbm for gradient boosting machine.")}
-  if(min_fire_size != ""){fire_data <- fire_data[which(fire_data$SIZE_HA > min_fire_size),]}
+  if (model == "") {
+    stop("Please define a model. Either rf for an automatically refined random forest, rf_stock for a baseline randomforest, gbm for gradient boosting machine or brt for a boosted regression tree.")}
+  if (min_fire_size != "") {fire_data <- fire_data[which(fire_data$SIZE_HA > min_fire_size),]}
   season_description <- c(season_description,"All")
   indicators_1 <- tolower(indicators_1)
   indicators_2 <- tolower(indicators_2)
 
   ## Random Forest Model
-  if(model == "rf"){
+  if (model == "rf") {
 
-    # all_iter <- expand.grid(causes,c(unique(fire_data$season),max(unique(fire_data$season))+1))
-    # all_iter <- paste(all_iter$Var1,all_iter$Var2)
-    #
-    # cl <- makeCluster(length(all_iter))
-    # registerDoParallel(cl)
 
-    # foreach(i = all_iter,
-    #         .packages = c("dismo","randomForest","gbm","caret","ROCR","DMwR","raster","rgdal","sf","rgeos")) %dopar% {
-    for(cause in causes){
-      for(season in min(unique(fire_data$season)):(max(unique(fire_data$season))+1)){
-        if(season == max(unique(fire_data$season))+1){
+    for (cause in causes) {
+      for (season in min(unique(fire_data$season)):(max(unique(fire_data$season)) + 1)) {
+        if (season == max(unique(fire_data$season)) + 1) {
           tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
-        }else{
+        } else {
           tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])
         }
-
-        # causes <- unique(substr(all_iter,1,1))
-        #
-        # cause <- strsplit(i," ")[[1]][1]
-        # season <- strsplit(i," ")[[1]][2]
-#
-#         if(season == max(strsplit(i," ")[[1]][2])){
-#           tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
-#         }else{
-#           tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])
-#         }
 
         print(paste0("Starting ",cause," - ",season_description[season]))
         pres_abs = setValues(grast,0)
@@ -113,33 +112,39 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
 
         data_mod <- downSample(x = data[,-ncol(data)],
-                   y= data$ign,yname = "ign")
+                   y = data$ign,yname = "ign")
 
         dat_part <- createDataPartition(y = data_mod$ign,p = .8)[[1]]
         data_train <- data_mod[dat_part,]
         data_test <- data_mod[-dat_part,]
 
-        repeat{
+        repeat {
 
-          if(cause == causes[1]){predictors <- data_train[,c("ign",indicators_1)]}
-          if(cause == causes[2]){predictors <- data_train[,c("ign",indicators_2)]}
+          if (cause == causes[1]) {predictors <- data_train[,c("ign",indicators_1)]}
+          if (cause == causes[2]) {predictors <- data_train[,c("ign",indicators_2)]}
 
-          control <- rfeControl(functions = rfFuncs, method="cv",number = 10,repeats = 2)
-          results <- rfe(x=predictors[-1],y = predictors[,"ign"],sizes = c(1:length(predictors)),rfeControl = control, p =1, metric = "Accuracy")
+          control <- rfeControl(functions = rfFuncs, method = "cv",number = 10,repeats = 2)
+          results <- rfe(x = predictors[-1],y = predictors[,"ign"],sizes = c(1:length(predictors)),rfeControl = control, p = 1, metric = "Accuracy")
           print(results)
 
-          if( cause == "L" && max(results$results$Accuracy) > 0.65 ){ break }
-          if( cause == "H" && max(results$results$Accuracy) > 0.75 && results$results[which.max(results$results$Accuracy),"Variables"] > 3 ){ break }
+          if ( cause == "L" && max(results$results$Accuracy) > 0.65 ) { break }
+          if ( cause == "H" && max(results$results$Accuracy) > 0.75 && results$results[which.max(results$results$Accuracy),"Variables"] > 3 ) { break }
 
         }
 
-        control <- rfeControl(functions = rfFuncs, method="cv",number = 10)
-        results <- rfe(x=predictors,y = data_train[,"ign"],sizes = c(1:length(predictors)),rfeControl = control, p =0.8, metric = "Accuracy")
+        control <- rfeControl(functions = rfFuncs, method = "cv",number = 10)
+        results <- rfe(x = predictors,y = data_train[,"ign"],sizes = c(1:length(predictors)),rfeControl = control, p = 0.8, metric = "Accuracy")
         predictors <- predictors[,c("ign",results$optVariables)]
 
-        if(testing == F){if(nrow(data_train) <= 100){warning("Sample was less than 100 elements, skipping. There were, ",nrow(data[data$ign == 1,])," actual ignitions in the training data.");next}}
+        if (testing == F) {
+          if (nrow(data_train) <= 100) {
+            warning("Sample was less than 100 elements, skipping. There were, ",nrow(data[data$ign == 1,])," actual ignitions in the training data.");next
+            }
+          }
 
-        trControl <- trainControl(method="cv", number = 10, search = "grid")
+        trControl <- trainControl(method = "cv",
+                                  number = 10,
+                                  search = "grid")
         # Run the model
         rf_default <- train(ign~.,
                             data = predictors,
@@ -151,7 +156,7 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
 
         bestmtry <- tuneRF()
 
-        tuneGrid <- expand.grid(.mtry = c(1: 10))
+        tuneGrid <- expand.grid(.mtry = c(1:10))
         rf_mtry <- train(ign~.,
                          data = predictors,
                          method = "rf",
@@ -167,7 +172,7 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
 
         store_maxnode <- list()
         tuneGrid <- expand.grid(.mtry = best_mtry)
-        for (maxnodes in c(5: 15)) {
+        for (maxnodes in c(5:15)) {
           rf_maxnode <- train(ign~.,
                               data = predictors,
                               method = "rf",
@@ -184,11 +189,11 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         results_node <- resamples(store_maxnode)
         x <- summary(results_node)
         print(rf_maxnode)
-        if(x$statistics$Accuracy[,"Mean"][length(x$statistics$Accuracy[,"Mean"])]/x$statistics$Accuracy[,"Mean"][1] > 1){
+        if (x$statistics$Accuracy[,"Mean"][length(x$statistics$Accuracy[,"Mean"])]/x$statistics$Accuracy[,"Mean"][1] > 1) {
 
           store_maxnode <- list()
           tuneGrid <- expand.grid(.mtry = best_mtry)
-          for (maxnodes in c(20: 30)) {
+          for (maxnodes in c(20:30)) {
             rf_maxnode <- train(ign~.,
                                 data = predictors,
                                 method = "rf",
@@ -261,10 +266,10 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
 
         confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"]
 
-        ign <- raster::predict(model=rf_default,
-                               object=indicator_stack,
-                               type="prob",
-                               index=2)
+        ign <- raster::predict(model = rf_default,
+                               object = indicator_stack,
+                               type = "prob",
+                               index = 2)
 
         ign[][which(indicator_stack$fuels[] %in% c(101:110))] <- 0
 
@@ -301,12 +306,12 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
   }
 
   ## Gradient Boosting Machine
-  if(model == "gbm"){
-    for(cause in causes){
-      for(season in min(unique(fire_data$season)):(max(unique(fire_data$season))+1)){
-        if(season == max(unique(fire_data$season))+1){
+  if (model == "gbm") {
+    for (cause in causes) {
+      for (season in min(unique(fire_data$season)):(max(unique(fire_data$season)) + 1)) {
+        if (season == max(unique(fire_data$season)) + 1) {
           tab <- as.numeric(names(table(cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause,]))))
-        }else{
+        } else {
           tab <- as.numeric(names(table(cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,]))))
         }
 
@@ -329,22 +334,26 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         data_train <- data[dat_part,]
         data_test <- data[-dat_part,]
 
-        data_train <-downSample(x = data_train[,-ncol(data_train)],
-                                y= as.factor(data_train$ign),yname = "ign")
+        data_train <- downSample(x = data_train[,-ncol(data_train)],
+                                 y = as.factor(data_train$ign),yname = "ign")
 
-        data_test <-downSample(x = data_test[,-ncol(data_test)],
-                               y= as.factor(data_test$ign),yname = "ign")
+        data_test <- downSample(x = data_test[,-ncol(data_test)],
+                                y = as.factor(data_test$ign),yname = "ign")
 
-        if(cause == causes[1]){predictors <- indicators_1}
-        if(cause == causes[2]){predictors <- indicators_2}
+        if (cause == causes[1]) {predictors <- indicators_1}
+        if (cause == causes[2]) {predictors <- indicators_2}
         data_train <- data_train[,c("ign",predictors)]
 
-        if(testing == F){if(nrow(data_train) <= 100){warning("Sample was less than 100 elements, skipping. There were, ",nrow(data[data$ign == 1,])," actual ignitions in the training data.");next}}
+        if (testing == F) {
+          if (nrow(data_train) <= 100) {
+            warning("Sample was less than 100 elements, skipping. There were, ",nrow(data[data$ign == 1,])," actual ignitions in the training data.");next
+            }
+          }
 
         gbm_step <- gbm.step(data_train,
-                             gbm.y=1,
+                             gbm.y = 1,
                              #using the same subset of response variables
-                             gbm.x=c(2:ncol(data_train)),
+                             gbm.x = c(2:ncol(data_train)),
                              #how deep per tree? can lead to overfitting but need to fit more trees with less complexity
                              tree.complexity = 3,
                              n.folds = 10,
@@ -353,15 +362,15 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
                              #poisson data? I guess it looked poisson-ish... Can't use poisson with non-integer numbers though. Transform and use gaussian.
                              family = "bernoulli",
                              max.trees = 2000,
-                             bag.fraction= 0.5)
+                             bag.fraction = 0.5)
 
         data_train <- data_train[,c("ign",as.character(summary(gbm_step)[summary(gbm_step)$rel.inf > 2.5,"var"]))]
         data_test <- data_test[,c("ign",as.character(summary(gbm_step)[summary(gbm_step)$rel.inf > 2.5,"var"]))]
 
         gbm_step <- gbm.step(data_train,
-                             gbm.y=1,
+                             gbm.y = 1,
                              #using the same subset of response variables
-                             gbm.x=c(2:ncol(data_train)),
+                             gbm.x = c(2:ncol(data_train)),
                              #how deep per tree? can lead to overfitting but need to fit more trees with less complexity
                              tree.complexity = 3,
                              n.folds = 10,
@@ -370,14 +379,14 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
                              #poisson data? I guess it looked poisson-ish... Can't use poisson with non-integer numbers though. Transform and use gaussian.
                              family = "bernoulli",
                              max.trees = 2000,
-                             bag.fraction= 0.5)
+                             bag.fraction = 0.5)
 
         summary(gbm_step)
 
         predictions <- predict(gbm_step,
                                data_test,
                                n.trees = gbm_step$n.trees,
-                               type= "response")
+                               type = "response")
 
         gbm_testing <- prediction(predictions, data_test$ign)
         roc_test <- performance(gbm_testing, "tpr","fpr")
@@ -386,9 +395,12 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         print(gbm_auc)
 
 
-        ign <- predict(indicator_stack, gbm_step, n.trees=gbm_step$n.trees, type="response")
+        ign <- predict(indicator_stack,
+                       gbm_step,
+                       n.trees = gbm_step$n.trees,
+                       type = "response")
 
-        scaled_ign <- (ign - cellStats(ign, stat='min')) / (cellStats(ign, stat='max') - cellStats(ign, stat='min'))
+        scaled_ign <- (ign - cellStats(ign, stat = 'min')) / (cellStats(ign, stat = 'max') - cellStats(ign, stat = 'min'))
 
         scaled_ign[][which(indicator_stack$fuels[] %in% c(101:110))] <- 0
 
@@ -425,10 +437,10 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
   }
 
   ## Per Tom Swystun
-  if(model == "rf_stock"){
-    for(cause in causes){
-      for(season in min(unique(fire_data$season)):(max(unique(fire_data$season))+1)){
-        if(season == max(unique(fire_data$season))+1){
+  if (model == "rf_stock") {
+    for (cause in causes) {
+      for (season in min(unique(fire_data$season)):(max(unique(fire_data$season)) + 1)) {
+        if (season == max(unique(fire_data$season)) + 1) {
           tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
         }else{
           tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])
@@ -448,34 +460,57 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
 
         data_mod <- downSample(x = data[,-ncol(data)],
-                               y= data$ign,yname = "ign")
+                               y = data$ign,yname = "ign")
 
         dat_part <- createDataPartition(y = data_mod$ign,p = .8)[[1]]
         data_train <- data_mod[dat_part,]
         data_test <- data_mod[-dat_part,]
 
-        if(testing == F){if(nrow(data_train) <= 100){warning("Sample was less than 100 elements, skipping. There were, ",nrow(data[data$ign == 1,])," actual ignitions in the training data.");next}}
+        if (testing == F) {
+          if (nrow(data_train) <= 100) {
+            warning("Sample was less than 100 elements, skipping. There were, ",nrow(data[data$ign == 1,])," actual ignitions in the training data.");next
+            }
+          }
 
-        repeat{
+        repeat {
 
-        if(cause == causes[1]){predictors <- data_train[,c("ign",indicators_1)]}
-        if(cause == causes[2]){predictors <- data_train[,c("ign",indicators_2)]}
+        if (cause == causes[1]) {predictors <- data_train[,c("ign",indicators_1)]}
+        if (cause == causes[2]) {predictors <- data_train[,c("ign",indicators_2)]}
 
-        control <- rfeControl(functions = rfFuncs, method="cv",number = 10,repeats = 2)
-        results <- rfe(x=predictors[-1],y = predictors[,"ign"],sizes = c(1:length(predictors)),rfeControl = control, p =1, metric = "Accuracy")
+        control <- rfeControl(functions = rfFuncs,
+                              method = "cv",
+                              number = 10,
+                              repeats = 2)
+        results <- rfe(x = predictors[-1],
+                       y = predictors[,"ign"],
+                       sizes = c(1:length(predictors)),
+                       rfeControl = control,
+                       p = 1,
+                       metric = "Accuracy")
         print(results)
 
-        if( cause == "L" && max(results$results$Accuracy) > 0.65 ){ break }
-        if( cause == "H" && max(results$results$Accuracy) > 0.75 && results$results[which.max(results$results$Accuracy),"Variables"] > 3 ){ break }
+        if ( cause == "L" && max(results$results$Accuracy) > 0.65 ) { break }
+        if ( cause == "H" && max(results$results$Accuracy) > 0.75 && results$results[which.max(results$results$Accuracy),"Variables"] > 3 ) { break }
 
         }
 
         predictors <- predictors[,c("ign",results$optVariables)]
 
-        best_mtry <- tuneRF(predictors[-1],predictors$ign, ntree = 1500, stepFactor=1.5,improve=0.01, trace=TRUE, plot=TRUE)
+        best_mtry <- tuneRF(predictors[-1],
+                            predictors$ign,
+                            ntree = 1500,
+                            stepFactor = 1.5,
+                            improve = 0.01,
+                            trace = TRUE,
+                            plot = TRUE)
         best_mtry <- best_mtry[which.min(best_mtry[,2]),1]
 
-        rf <- randomForest(ign ~ ., data = predictors, ntree = 1500,mtry=best_mtry, importance = TRUE, response.type = "binary")
+        rf <- randomForest(ign ~ .,
+                           data = predictors,
+                           ntree = 1500,
+                           mtry = best_mtry,
+                           importance = TRUE,
+                           response.type = "binary")
 
         # model variable importance
         imp <- importance(rf)
@@ -483,13 +518,14 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
         # predict probability of pres (1) or abs (0)
         prediction <- predict(rf, data_test)
 
-        print(confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"])
+        print(confusionMatrix(prediction,
+                              data_test$ign)$byClass["Balanced Accuracy"])
 
         # build/name ign raster
-        ign <- raster::predict(model=rf,
-                               object=indicator_stack,
-                               type="prob",
-                               index=2)
+        ign <- raster::predict(model = rf,
+                               object = indicator_stack,
+                               type = "prob",
+                               index = 2)
 
         plot(ign)
 
@@ -524,10 +560,10 @@ ign_grid <- function(fire_data,indicator_stack,reference_grid, indicators_1,indi
   }
 
   ## Boosted Regression Tree
-  if(model == "brt"){
-    for(cause in causes){
-      for(season in min(unique(fire_data$season)):(max(unique(fire_data$season))+1)){
-        if(season == max(unique(fire_data$season))+1){
+  if (model == "brt") {
+    for (cause in causes) {
+      for (season in min(unique(fire_data$season)):(max(unique(fire_data$season)) + 1)) {
+        if (season == max(unique(fire_data$season)) + 1) {
           tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
         }else{
           tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])

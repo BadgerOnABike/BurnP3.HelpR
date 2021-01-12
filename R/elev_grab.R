@@ -14,6 +14,9 @@
 #' @references [Open Data Canada FTP](http://ftp.maps.canada.ca/pub/nrcan_rncan/vector/index/)
 #' @references [Wind Ninja](https://www.firelab.org/project/windninja)
 #'
+#' @importFrom raster raster crop merge writeRaster
+#' @importFrom sp proj4string
+#' @importFrom rgdal readOGR
 #'
 #' @examples
 #' ## Load example data
@@ -39,11 +42,15 @@ elev_grab <- function(reference_grid,output_directory){
   nts_temp <- tempfile(fileext = '.zip')
   download.file(destfile = nts_temp,url = "http://ftp.maps.canada.ca/pub/nrcan_rncan/vector/index/nts_snrc.zip")
   nts_files <- unzip(nts_temp,list = T)
-  unzip(zipfile = nts_temp,files = nts_files$Name,exdir = gsub(".zip","",nts_temp))
-  nts_grid <- readOGR(dsn = gsub(".zip","",nts_temp),layer = "nts_snrc_250k")
+  unzip(zipfile = nts_temp,
+        files = nts_files$Name,
+        exdir = gsub(".zip","",nts_temp))
+  nts_grid <- readOGR(dsn = gsub(".zip","",nts_temp),
+                      layer = "nts_snrc_250k")
 
   ## Determine the NTS grids the data exists across
-  layers <- crop(nts_grid,spTransform(e,CRSobj = CRS(proj4string(nts_grid))))$NTS_SNRC
+  layers <- crop(nts_grid,
+                 spTransform(e,CRSobj = CRS(proj4string(nts_grid))))$NTS_SNRC
 
   ## Extract the CDEM tiles needed to generate the grid.
   elevation <- lapply(layers,function(i){
@@ -64,7 +71,7 @@ elev_grab <- function(reference_grid,output_directory){
 
   elev_layers <- lapply(elevation,function(x) projectRaster(from = x, to = grast))
 
-  if (length(elev_layers) > 1){
+  if (length(elev_layers) > 1) {
     mosaic.r <- do.call(merge,elev_layers)
   } else{
     mosaic.r <- elev_layers[[1]]
@@ -74,7 +81,12 @@ elev_grab <- function(reference_grid,output_directory){
 
   mosaic.r <- crop(mosaic.r,grast)
 
-  writeRaster(mosaic.r,paste0(output_directory,"elevation.tif"),datatype = "INT2S", NAflag = -9999,format = "GTiff",overwrite = T)
+  writeRaster(mosaic.r,
+              paste0(output_directory,"elevation.tif"),
+              datatype = "INT2S",
+              NAflag = -9999,
+              format = "GTiff",
+              overwrite = T)
 
 }
 
