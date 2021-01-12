@@ -14,6 +14,9 @@
 #'
 #' @return SpatialPolygonsDataFrame
 #'
+#' @importFrom terra rast
+#' @importFrom sf st_read st_transform st_intersection st_buffer
+#'
 #' @examples
 #'
 #'# Load test data
@@ -64,7 +67,7 @@ aoi <- function(area_of_interest_file,
                 stn_id_col){
 
   if ( grepl("RasterLayer", class(reference_grid)) ) {grast <- reference_grid}
-  if ( grepl("character", class(reference_grid)) ) {grast <- raster(reference_grid)}
+  if ( grepl("character", class(reference_grid)) ) {grast <- rast(reference_grid)}
   if ( !grepl("RasterLayer|character", class(reference_grid)) ) {message("Reference Grid must be the directory of the raster or a raster object.")}
 
   if ( is.null(area_of_interest_file) ) {stop("Please input an area of interest file or delcare PC (Parks Canada) as true to automatically load the Parks Canada layer")}
@@ -79,7 +82,7 @@ aoi <- function(area_of_interest_file,
     unzip(zipfile = pc_temp,
           files = gsub("./","",pc_files),
           exdir = gsub(".zip","",pc_temp))
-    aoi_poly <- readOGR(dsn = gsub(".zip","",pc_temp),
+    aoi_poly <- st_read(dsn = gsub(".zip","",pc_temp),
                         layer = "national_parks_boundaries")
 
     unlink(c(gsub(".zip","",pc_temp),list.files(tempdir(),pattern = ".zip",full.names = T)),recursive = T)
@@ -87,10 +90,10 @@ aoi <- function(area_of_interest_file,
 
   if (!is.null(area_of_interest_file)) {
     if (length(area_of_interest_file) > 1) {
-      aoi_poly <- readOGR(dsn = area_of_interest_file[1],
+      aoi_poly <- st_read(dsn = area_of_interest_file[1],
                           layer = area_of_interest_file[2])
     } else {
-      aoi_poly <- readOGR(area_of_interest_file)
+      aoi_poly <- st_read(area_of_interest_file)
     }
   }
 
@@ -99,40 +102,38 @@ aoi <- function(area_of_interest_file,
      aoi_poly <- aoi_poly[grep(park_of_interest,aoi_poly$parkname_e,ignore.case = T),]
   }
 
-  aoi_poly <- spTransform(x = aoi_poly ,CRSobj = CRS(proj4string(grast)))
+  aoi_poly <- st_transform(x = aoi_poly ,crs = crs(grast))
 
   ## Some basic plotting to visualize where stations are in relation to the AOI
 
   stns_within_aoi <- sort(
     as.data.frame(
-      crop(
-        spTransform(
+      st_intersection(
+        st_transform(
           stns,
-          CRSobj = CRS(proj4string(aoi_poly)
-                       )
+          crs = crs(aoi_poly)
           ),
-        gBuffer(aoi_poly,
-                width = buffer_width
+        st_buffer(aoi_poly,
+                  dist = buffer_width
                 )
         )
       )[,stn_name_col])
 
-  # x11();
-  # plot(gBuffer(aoi_poly,
-  #              width=buffer_width),
-  #      main=paste0("There are ",length(stns_within_aoi)," staions inside your area of interest")
-  #      )
-  # plot(spTransform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
-  #                  CRSobj = CRS(proj4string(aoi_poly))),
-  #      add = T,
-  #      pch = 1)
-  # text(spTransform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
-  #                  CRSobj = CRS(proj4string(grast))),
-  #      data.frame(stns)[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,][,stn_id_col])
-  # plot(spTransform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
-  #                  CRSobj = CRS(proj4string(aoi_poly))),
-  #      add = T,
-  #      pch = 1)
+  x11();
+
+  p <- ggplot( st_buffer(aoi_poly,
+                    dist = buffer_width)[,1]) +
+    geom_sf(aes(fill = OBJECTID)) +
+    geom_sf_label(data = st_transform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
+                                     crs = crs(aoi_poly)),
+                  aes(label = sttn_nm),
+                 position = "identity") +
+    ggtitle(label = paste0("There are ",length(stns_within_aoi)," staions inside your area of interest")) +
+    theme_void() +
+    theme(legend.position = "none",
+          plot.title = element_text(hjust = 0.5))
+
+  print(p)
 
   return(stns_within_aoi)
 }
