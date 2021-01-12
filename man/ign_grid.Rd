@@ -58,53 +58,39 @@ Ignition grids are a probability surface describing the potential for any one ce
 }
 \examples{
 
+## Load in example data
 data("indicator_stack")
-fire_data <- readOGR(system.file("extdata/extdata.gpkg",
-                                package = "BurnP3.HelpR"),
-                    layer = "fires")
+fire_data <- readOGR(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
 indicators_1 <- c("elevation",
-                 "road_distance",
-                 "rail_distance",
-                 "river_distance",
-                 "rail_density",
-                 "river_density"
-                 ,"topography_position_index",
-                 "terrain_ruggedness_index")
-indicators_2 <- c("elevation",
-                 "topography_position_index",
-                 "solar_rad",
-                 "Lightning_Density")
-causes <- c("H",
-           "L")
-season_description <- c("Spring",
-                       "Summer",
-                       "Fall")
+                  "road_distance",
+                  "rail_distance",
+                  "river_distance",
+                  "rail_density",
+                  "river_density",
+                  "topography_position_index",
+                  "terrain_ruggedness_index")
+indicators_2 <- c("elevation","topography_position_index","solar_rad","Lightning_Density")
+causes <- c("H","L")
+season_description <- c("Spring","Summer","Fall")
 output_location <- paste0(tempdir(),"\\\\")
 model = "rf_stock"
 
 ign_grid(fire_data = fire_data,
-        indicator_stack = indicator_stack,
-        reference_grid = raster(system.file("extdata","elev.tif",package="BurnP3.HelpR")),
-        indicators_1 = indicators_1,
-        indicators_2 = indicators_2,
-        causes = causes,
-        season_description = season_description,
-        output_location = output_location,
-        min_fire_size = "",
-        model = model,
-        factor_vars =  c("ecodistrict",
-                         "ign",
-                         "in_out_park",
-                         "fuels",
-                         "town_boundary",
-                         "weather_zones"),
-        non_fuel_vals = 101:110,
-        testing = T)
+         indicator_stack = indicator_stack,
+         reference_grid = raster(system.file("extdata","elev.tif",package="BurnP3.HelpR")),
+         indicators_1 = indicators_1,
+         indicators_2 = indicators_2,
+         causes = causes,
+         season_description = season_description,
+         output_location = output_location,
+         min_fire_size = "",
+         model = model,
+         factor_vars =  c("ecodistrict","ign","in_out_park","fuels","town_boundary","weather_zones"),
+         non_fuel_vals = 101:110,
+         testing = T)
 
-print(paste0("Test files have been written to: ", output_location))
+print(paset0("Test files have been written to: ", output_location))
 
 unlink(tempdir(),recursive = T)
-
-
 
 }

@@ -32,7 +32,14 @@
 #' ## Load in example data
 #' data("indicator_stack")
 #' fire_data <- readOGR(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
-#' indicators_1 <- c("elevation","road_distance","rail_distance","river_distance", "rail_density","river_density","topography_position_index","terrain_ruggedness_index")
+#' indicators_1 <- c("elevation",
+#'                   "road_distance",
+#'                   "rail_distance",
+#'                   "river_distance",
+#'                   "rail_density",
+#'                   "river_density",
+#'                   "topography_position_index",
+#'                   "terrain_ruggedness_index")
 #' indicators_2 <- c("elevation","topography_position_index","solar_rad","Lightning_Density")
 #' causes <- c("H","L")
 #' season_description <- c("Spring","Summer","Fall")
@@ -49,7 +56,7 @@
 #'          output_location = output_location,
 #'          min_fire_size = "",
 #'          model = model,
-#'          factor_vars =  c("ecodistrict","ign","in_out_park","fuels","town_boundary,"weather_zones"),
+#'          factor_vars =  c("ecodistrict","ign","in_out_park","fuels","town_boundary","weather_zones"),
 #'          non_fuel_vals = 101:110,
 #'          testing = T)
 #'
@@ -72,7 +79,7 @@ ign_grid <- function(fire_data,
                      testing = F){
 
   if ( grepl("RasterLayer", class(reference_grid)) ) { grast <- reference_grid }
-  if ( grepl("character", class(reference_grid)) ) { grast <- raster(reference_grid) }
+  if ( grepl("character", class(reference_grid)) ) { grast <- raster::raster(reference_grid) }
   if ( !grepl("RasterLayer|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the raster or a raster object.") }
 
   if (model == "") {
@@ -561,14 +568,14 @@ ign_grid <- function(fire_data,
     for (cause in causes) {
       for (season in min(unique(fire_data$season)):(max(unique(fire_data$season)) + 1)) {
         if (season == max(unique(fire_data$season)) + 1) {
-          tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
+          tab <- raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
         }else{
-          tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])
+          tab <- raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])
         }
         print(paste0("Starting ",cause," - ",season_description[season]))
-        pres_abs = setValues(grast,0)
+        pres_abs = raster::setValues(grast,0)
         pres_abs[tab] <- 1
-        pres_abs <- mask(pres_abs,grast)
+        pres_abs <- raster::mask(pres_abs,grast)
         names(pres_abs) <- "ign"
         modelling_stack <- stack(indicator_stack,pres_abs)
         names(modelling_stack) <- tolower(names(modelling_stack))
@@ -579,7 +586,7 @@ ign_grid <- function(fire_data,
         if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
         if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
 
-        data_mod <- downSample(x = data[,-ncol(data)],
+        data_mod <- caret::downSample(x = data[,-ncol(data)],
                                y = data$ign,yname = "ign")
 
         data_mod$ign <- as.integer(as.character(data_mod$ign))
@@ -593,7 +600,7 @@ ign_grid <- function(fire_data,
         if (cause == causes[1]) {predictors <- data_mod[,c("ign",indicators_1)] }
         if (cause == causes[2]) {predictors <- data_mod[,c("ign",indicators_2)] }
 
-        brt <- gbm.step(data = predictors,
+        brt <- dismo::gbm.step(data = predictors,
                         gbm.x = 2:length(predictors),
                         gbm.y = 1,
                         tree.complexity = 3,
@@ -604,7 +611,7 @@ ign_grid <- function(fire_data,
                         max.trees = 7500,
                         learning.rate = 0.0025)
 
-        brt <- gbm.step(data = predictors,
+        brt <- dismo::gbm.step(data = predictors,
                         gbm.x = which(names(predictors) %in% brt$contributions[brt$contributions$rel.inf >= 1.0, "var"]),
                         gbm.y = 1,
                         tree.complexity = 3,
@@ -631,8 +638,6 @@ ign_grid <- function(fire_data,
 
         ign <- (ign - min(ign[],na.rm = T))/(max(ign[],na.rm = T) - min(ign[],na.rm = T))
 
-        plot(ign)
-
         write(x = c(cause,
                     season_description[season],
                     paste("CV AUC: ",round(mean(brt$cv.roc.matrix),2)),
@@ -649,7 +654,7 @@ ign_grid <- function(fire_data,
               )
         )
 
-        writeRaster(ign,
+        raster::writeRaster(ign,
                     paste0(output_location,
                            paste(cause,
                                  season_description[season],

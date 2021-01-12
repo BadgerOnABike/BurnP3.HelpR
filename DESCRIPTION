@@ -24,9 +24,10 @@ Imports:
     insol,
     randomForest
 Depends: 
-    terra,
-    sf,
-    sp,
-    raster,
+	R (>= 3.5.0),
     rgdal,
+	sp,
+	terra,
+    sf,
+    raster,
     ggplot2
