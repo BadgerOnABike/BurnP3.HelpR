@@ -20,7 +20,7 @@ A package for R that assists with Burn-P3 input generation.
 
   # 2. Fuel Grid Generation
 
-  Fuel and elevation data are key to the operation of any fire growth model. In this case the elevation is automatically generated within Canada from the 30m - CDEM. Fuels will be developed from a layering of polygonal and raster layers delivered to the \link{fuel_grid_generator} function. This function will layer the files in the order that they are given to the function and return a fuel raster. Upon receipt of the fuel layer an elevation layer can be developed.
+  Fuel and elevation data are key to the operation of any fire growth model. In this case the elevation is automatically generated within Canada from the 30m - CDEM. Fuels will be developed from a layering of polygonal and raster layers delivered to the [fuel_grid_generator](https://github.com/BadgerOnABike/BurnP3.HelpR/blob/master/R/fuel_grid_generator.R) function. This function will layer the files in the order that they are given to the function and return a fuel raster. Upon receipt of the fuel layer an elevation layer can be developed.
 
   # 3. Elevation Grid Generation
 
