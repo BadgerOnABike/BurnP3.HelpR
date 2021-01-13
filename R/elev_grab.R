@@ -78,7 +78,7 @@ elev_grab <- function(aoi = "", reference_grid,output_directory){
 
   mosaic.r <- raster::crop(mosaic.r,grast)
 
-  if (aoi == "") { warning("You did not declare an area of interest, the elevation file will work for Wind Ninja also.")}
+  if (class(aoi) == "character") { warning("You did not declare an area of interest, the elevation file will work for Wind Ninja also.")}
 
   writeRaster(mosaic.r,
               paste0(output_directory,"elevation.tif"),
@@ -87,8 +87,8 @@ elev_grab <- function(aoi = "", reference_grid,output_directory){
               format = "GTiff",
               overwrite = T)
 
-  if (aoi != "") {
-    writeRaster(mask(mosaic.r,aoi),
+  if (class(aoi) == "sf") {
+    writeRaster(raster::mask(mosaic.r,aoi),
                 paste0(output_directory,"elevation.tif"),
                 datatype = "INT2S",
                 NAflag = -9999,
