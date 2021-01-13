@@ -16,7 +16,7 @@ A package for R that assists with Burn-P3 input generation.
 
  # 1. Establish Directory
 
- The \link{bp3_dir_gen} function is set up to generate a work space for Burn-P3 under the current generation windows build (2020-03-31). This will flesh out the basic requirements for any Burn-P3 project. This should be run every time as it will not overwrite or regenerate the directory but does create directory objects for later use. Specifically bp3_base and base_dir. The bp3_base is the directory where the project has been instantiated, base_dir is the working directory.
+ The [bp3_dir_gen](https://github.com/BadgerOnABike/BurnP3.HelpR/blob/master/R/bp3_dir_gen.R) function is set up to generate a work space for Burn-P3 under the current generation windows build (2020-03-31). This will flesh out the basic requirements for any Burn-P3 project. This should be run every time as it will not overwrite or regenerate the directory but does create directory objects for later use. Specifically bp3_base and base_dir. The bp3_base is the directory where the project has been instantiated, base_dir is the working directory.
 
   # 2. Fuel Grid Generation
 
