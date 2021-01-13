@@ -25,7 +25,7 @@
 #'
 #' unlink(temp_dir, recursive = T)
 
-elev_grab <- function(reference_grid,output_directory){
+elev_grab <- function(aoi = "", reference_grid,output_directory){
 
 
   if ( grepl("RasterLayer", class(reference_grid)) ) { grast <- reference_grid }
@@ -42,11 +42,11 @@ elev_grab <- function(reference_grid,output_directory){
   unzip(zipfile = nts_temp,
         files = nts_files$Name,
         exdir = gsub(".zip","",nts_temp))
-  nts_grid <- readOGR(dsn = gsub(".zip","",nts_temp),
+  nts_grid <- rgdal::readOGR(dsn = gsub(".zip","",nts_temp),
                       layer = "nts_snrc_250k")
 
   ## Determine the NTS grids the data exists across
-  layers <- crop(nts_grid,
+  layers <- raster::crop(nts_grid,
                  spTransform(e,CRSobj = CRS(proj4string(nts_grid))))$NTS_SNRC
 
   ## Extract the CDEM tiles needed to generate the grid.
@@ -66,7 +66,7 @@ elev_grab <- function(reference_grid,output_directory){
   }
   )
 
-  elev_layers <- lapply(elevation,function(x) projectRaster(from = x, to = grast))
+  elev_layers <- lapply(elevation,function(x) raster::projectRaster(from = x, to = grast))
 
   if (length(elev_layers) > 1) {
     mosaic.r <- do.call(merge,elev_layers)
@@ -76,7 +76,9 @@ elev_grab <- function(reference_grid,output_directory){
 
   unlink(c(gsub(".zip","",nts_temp),list.files(tempdir(),pattern = ".zip",full.names = T)),recursive = T)
 
-  mosaic.r <- crop(mosaic.r,grast)
+  mosaic.r <- raster::crop(mosaic.r,grast)
+
+  if (aoi == "") { warning("You did not declare an area of interest, the elevation file will work for Wind Ninja also.")}
 
   writeRaster(mosaic.r,
               paste0(output_directory,"elevation.tif"),
@@ -84,6 +86,21 @@ elev_grab <- function(reference_grid,output_directory){
               NAflag = -9999,
               format = "GTiff",
               overwrite = T)
+
+  if (aoi != "") {
+    writeRaster(mask(mosaic.r,aoi),
+                paste0(output_directory,"elevation.tif"),
+                datatype = "INT2S",
+                NAflag = -9999,
+                format = "GTiff",
+                overwrite = T)
+    writeRaster(mosaic.r,
+                paste0(output_directory,"elevation_wn.tif"),
+                datatype = "INT2S",
+                NAflag = -9999,
+                format = "GTiff",
+                overwrite = T)
+  }
 
 }
 

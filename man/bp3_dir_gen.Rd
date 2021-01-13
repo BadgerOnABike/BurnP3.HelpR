@@ -12,13 +12,14 @@ bp3_dir_gen(root = "", project_name = "")
 \item{project_name}{The name of the project to generate a Burn-P3 project for.}
 }
 \value{
-
+list
 }
 \description{
 A common directory for Burn-P3 Projects
 }
 \examples{
 
-bp3_dir_gen(project_name = "Test_Project")
+dir_list <- bp3_dir_gen(project_name = "Test_Project")
+print(dir_list)
 
 }
