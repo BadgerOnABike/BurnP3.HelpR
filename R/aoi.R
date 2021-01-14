@@ -10,6 +10,10 @@
 #' @param stn_name_col A character string containing the column of the station names
 #' @param stn_id_col A character string containing the column of the station ids
 #'
+#' @importFrom terra rast
+#' @importFrom sf st_read st_transform st_intersection st_buffer
+#' @import ggplot2
+#' 
 #' @details Area of interest generator that allows a systematic AOI generation. Automated system for Parks Canada.
 #'
 #' @return SpatialPolygonsDataFrame

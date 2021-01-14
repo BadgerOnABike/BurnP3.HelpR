@@ -12,7 +12,13 @@
 #' @param zone_names If zonal is True, identify the descriptive names of the zones for use during mapping and output. _(Default = "")_
 #' @param min_fire_size A minimum fire size to subset the fire information to for adjuste fire rate distribution depending on the question being asked. _(Default = 0.01)_
 #' @param causes A character vector defining the causes within the fire dataset. _(Default = c("H","L"))_
+#' 
+#' @importFrom rgdal spTransform
+#' @importFrom sp crs
+#' @importFrom raster crop extract
+#' 
 #' @return
+#' 
 #' @export
 #'
 #' @seealso \link[BurnP3.HelpR]{bp3_dir_gen}

@@ -2,6 +2,8 @@
 #'
 #' A quick converter for ASCII wind ninja grids to GeoTiff for smaller storage and faster loading.
 #'
+#' @importFrom raster writeRaster raster
+#' 
 #' @param directory directory of wind ninja grids. The directory that contains the direction and velocity folders.
 #' @export
 #'

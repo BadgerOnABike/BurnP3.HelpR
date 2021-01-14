@@ -5,6 +5,8 @@
 #' @param reference_grid This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.
 #' @param layer A list containing at least one spatial layer from the \code{spatdat_ign_layer} function to be rasterized.
 #'
+#' @importFrom raster raster cellFromLine cellFromPolygon reclassify rasterToPoints setValues stack
+#' @importFrom sf SpatialPointsDataFrame proj4string
 #' @importFrom rgeos gCentroid
 #'
 #' @return List containing points and raster layers.

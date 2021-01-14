@@ -7,6 +7,8 @@
 #' @param input The elevation grid that will be used during modelling. It may also be larger in order to avoid edge effects if necessary.
 #' @param window_size Must be an odd number
 #'
+#' @importFrom raster raster focal terrain
+#' 
 #' @return RasterStack
 #' @export
 #'

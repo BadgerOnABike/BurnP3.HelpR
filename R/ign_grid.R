@@ -18,6 +18,7 @@
 #' @param factor_vars If there are layers that are factors they need to be added to a character vector for use in the function.
 #' @param non_fuel_vals If there are non-fuels that you want excluded from ignition grids they need to be in a numeric vector.
 #'
+#' @importFrom raster raster cellFromXY mask setValues cellStatus writeRaster
 #' @importFrom caret rfeControl rfe downSample createDataPartition rfFuncs train resamples confusionMatrix varImp
 #' @importFrom randomForest tuneRF randomForest importance
 #' @importFrom dismo gbm.step
