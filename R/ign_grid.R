@@ -18,9 +18,9 @@
 #' @param factor_vars If there are layers that are factors they need to be added to a character vector for use in the function.
 #' @param non_fuel_vals If there are non-fuels that you want excluded from ignition grids they need to be in a numeric vector.
 #'
-#' @importFrom raster raster cellFromXY mask setValues cellStatus writeRaster
+#' @importFrom raster raster cellFromXY mask setValues cellStats writeRaster
 #' @importFrom caret rfeControl rfe downSample createDataPartition rfFuncs train resamples confusionMatrix varImp
-#' @importFrom randomForest tuneRF randomForest importance
+#' @importFrom randomForest tuneRF rrandomForest importance
 #' @importFrom dismo gbm.step
 #'
 #' @return rasterLayer
@@ -84,7 +84,7 @@ ign_grid <- function(fire_data,
   if ( !grepl("RasterLayer|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the raster or a raster object.") }
 
   if (model == "") {
-    stop("Please define a model. Either rf for an automatically refined random forest, rf_stock for a baseline randomforest, gbm for gradient boosting machine or brt for a boosted regression tree.")}
+    stop("Please define a model. Either rf for an automatically refined random forest, rf_stock for a baseline randomForest::randomForest, gbm for gradient boosting machine or brt for a boosted regression tree.")}
   if (min_fire_size != "") {fire_data <- fire_data[which(fire_data$SIZE_HA > min_fire_size),]}
   season_description <- c(season_description,"All")
   indicators_1 <- tolower(indicators_1)
@@ -97,15 +97,15 @@ ign_grid <- function(fire_data,
     for (cause in causes) {
       for (season in min(unique(fire_data$season)):(max(unique(fire_data$season)) + 1)) {
         if (season == max(unique(fire_data$season)) + 1) {
-          tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
+          tab <- raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
         } else {
-          tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])
+          tab <- raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])
         }
 
         print(paste0("Starting ",cause," - ",season_description[season]))
-        pres_abs = setValues(grast,0)
+        pres_abs = raster::setValues(grast,0)
         pres_abs[tab] <- 1
-        pres_abs <- mask(pres_abs,grast)
+        pres_abs <- raster::mask(pres_abs,grast)
         names(pres_abs) <- "ign"
         modelling_stack <- stack(indicator_stack,pres_abs)
         names(modelling_stack) <- tolower(names(modelling_stack))
@@ -116,10 +116,10 @@ ign_grid <- function(fire_data,
         if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
         if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
 
-        data_mod <- downSample(x = data[,-ncol(data)],
+        data_mod <- caret::downSample(x = data[,-ncol(data)],
                    y = data$ign,yname = "ign")
 
-        dat_part <- createDataPartition(y = data_mod$ign,p = .8)[[1]]
+        dat_part <- caret::createDataPartition(y = data_mod$ign,p = .8)[[1]]
         data_train <- data_mod[dat_part,]
         data_test <- data_mod[-dat_part,]
 
@@ -128,8 +128,8 @@ ign_grid <- function(fire_data,
           if (cause == causes[1]) {predictors <- data_train[,c("ign",indicators_1)]}
           if (cause == causes[2]) {predictors <- data_train[,c("ign",indicators_2)]}
 
-          control <- rfeControl(functions = rfFuncs, method = "cv",number = 10,repeats = 2)
-          results <- rfe(x = predictors[-1],y = predictors[,"ign"],sizes = c(1:length(predictors)),rfeControl = control, p = 1, metric = "Accuracy")
+          control <- caret::rfeControl(functions = caret::rfFuncs, method = "cv",number = 10,repeats = 2)
+          results <- caret::rfe(x = predictors[-1],y = predictors[,"ign"],sizes = c(1:length(predictors)),caret::rfeControl = control, p = 1, metric = "Accuracy")
           print(results)
 
           if ( cause == "L" && max(results$results$Accuracy) > 0.65 ) { break }
@@ -137,8 +137,8 @@ ign_grid <- function(fire_data,
 
         }
 
-        control <- rfeControl(functions = rfFuncs, method = "cv",number = 10)
-        results <- rfe(x = predictors,y = data_train[,"ign"],sizes = c(1:length(predictors)),rfeControl = control, p = 0.8, metric = "Accuracy")
+        control <- caret::rfeControl(functions = caret::rfFuncs, method = "cv",number = 10)
+        results <- caret::rfe(x = predictors,y = data_train[,"ign"],sizes = c(1:length(predictors)),caret::rfeControl = control, p = 0.8, metric = "Accuracy")
         predictors <- predictors[,c("ign",results$optVariables)]
 
         if (testing == F) {
@@ -147,11 +147,11 @@ ign_grid <- function(fire_data,
             }
           }
 
-        trControl <- trainControl(method = "cv",
+        trControl <- caret::trainControl(method = "cv",
                                   number = 10,
                                   search = "grid")
         # Run the model
-        rf_default <- train(ign~.,
+        rf_default <- caret::train(ign~.,
                             data = predictors,
                             method = "rf",
                             metric = "Accuracy",
@@ -159,16 +159,16 @@ ign_grid <- function(fire_data,
         # Print the results
         print(rf_default)
 
-        bestmtry <- tuneRF()
+        bestmtry <- randomForest::tuneRF()
 
         tuneGrid <- expand.grid(.mtry = c(1:10))
-        rf_mtry <- train(ign~.,
+        rf_mtry <- caret::train(ign~.,
                          data = predictors,
                          method = "rf",
                          metric = "Accuracy",
                          tuneGrid = tuneGrid,
                          trControl = trControl,
-                         importance = TRUE,
+                         randomForest::importance = TRUE,
                          nodesize = 14,
                          ntree = 300)
         print(rf_mtry)
@@ -178,20 +178,20 @@ ign_grid <- function(fire_data,
         store_maxnode <- list()
         tuneGrid <- expand.grid(.mtry = best_mtry)
         for (maxnodes in c(5:15)) {
-          rf_maxnode <- train(ign~.,
+          rf_maxnode <- caret::train(ign~.,
                               data = predictors,
                               method = "rf",
                               metric = "Accuracy",
                               tuneGrid = tuneGrid,
                               trControl = trControl,
-                              importance = TRUE,
+                              randomForest::importance = TRUE,
                               nodesize = 14,
                               maxnodes = maxnodes,
                               ntree = 300)
           current_iteration <- toString(maxnodes)
           store_maxnode[[current_iteration]] <- rf_maxnode
         }
-        results_node <- resamples(store_maxnode)
+        results_node <- caret::resamples(store_maxnode)
         x <- summary(results_node)
         print(rf_maxnode)
         if (x$statistics$Accuracy[,"Mean"][length(x$statistics$Accuracy[,"Mean"])]/x$statistics$Accuracy[,"Mean"][1] > 1) {
@@ -199,20 +199,20 @@ ign_grid <- function(fire_data,
           store_maxnode <- list()
           tuneGrid <- expand.grid(.mtry = best_mtry)
           for (maxnodes in c(20:30)) {
-            rf_maxnode <- train(ign~.,
+            rf_maxnode <- caret::train(ign~.,
                                 data = predictors,
                                 method = "rf",
                                 metric = "Accuracy",
                                 tuneGrid = tuneGrid,
                                 trControl = trControl,
-                                importance = TRUE,
+                                randomForest::importance = TRUE,
                                 nodesize = 14,
                                 maxnodes = maxnodes,
                                 ntree = 300)
             key <- toString(maxnodes)
             store_maxnode[[key]] <- rf_maxnode
           }
-          results_node <- resamples(store_maxnode)
+          results_node <- caret::resamples(store_maxnode)
           summary(results_node)
         }
         x <- summary(results_node)
@@ -220,30 +220,30 @@ ign_grid <- function(fire_data,
 
         store_maxtrees <- list()
         for (ntree in c(250, 300, 350, 400, 450, 500, 550, 600, 800, 1000, 2000)) {
-          rf_maxtrees <- train(ign~.,
+          rf_maxtrees <- caret::train(ign~.,
                                data = predictors,
                                method = "rf",
                                metric = "Accuracy",
                                tuneGrid = tuneGrid,
                                trControl = trControl,
-                               importance = TRUE,
+                               randomForest::importance = TRUE,
                                nodesize = 14,
                                maxnodes = maxnodes,
                                ntree = ntree)
           key <- toString(ntree)
           store_maxtrees[[key]] <- rf_maxtrees
         }
-        results_tree <- resamples(store_maxtrees)
+        results_tree <- caret::resamples(store_maxtrees)
         x <- summary(results_tree)
         ntrees <- as.numeric(names(which.max(x$statistics$Accuracy[,"Mean"])))
 
-        fit_rf <- train(ign~.,
+        fit_rf <- caret::train(ign~.,
                         data = predictors,
                         method = "rf",
                         metric = "Accuracy",
                         tuneGrid = tuneGrid,
                         trControl = trControl,
-                        importance = TRUE,
+                        randomForest::importance = TRUE,
                         nodesize = 14,
                         maxnodes = maxnodes,
                         ntree = ntrees)
@@ -251,7 +251,7 @@ ign_grid <- function(fire_data,
         # model diagnostics
         print(fit_rf)
 
-        # model variable importance
+        # model variable randomForest::importance
 
         # predict probability of pres (1) or abs (0)
         prediction <- predict(fit_rf,
@@ -269,7 +269,7 @@ ign_grid <- function(fire_data,
               ncolumns = 1
               )
 
-        confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"]
+        caret::confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"]
 
         ign <- raster::predict(model = rf_default,
                                object = indicator_stack,
@@ -278,7 +278,7 @@ ign_grid <- function(fire_data,
 
         ign[][which(indicator_stack$fuels[] %in% c(101:110))] <- 0
 
-        writeRaster(ign,
+        raster::writeRaster(ign,
                     paste0(output_location,
                            paste(cause,
                                  season_description[season],
@@ -294,7 +294,7 @@ ign_grid <- function(fire_data,
         write(x = c(cause,
                     season_description[season],
                     results$optVariables,
-                    paste0("Balanced Accuracy: ",confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"])),
+                    paste0("Balanced Accuracy: ",caret::confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"])),
               file = paste0(output_location,
                             "RF_Model_Inputs.txt"),
               append = T,
@@ -302,7 +302,7 @@ ign_grid <- function(fire_data,
               ncolumns = length(c(cause,
                                   season,
                                   results$optVariables,
-                                  confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"])
+                                  caret::confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"])
               )
         )
 
@@ -315,15 +315,15 @@ ign_grid <- function(fire_data,
     for (cause in causes) {
       for (season in min(unique(fire_data$season)):(max(unique(fire_data$season)) + 1)) {
         if (season == max(unique(fire_data$season)) + 1) {
-          tab <- as.numeric(names(table(cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause,]))))
+          tab <- as.numeric(names(table(raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause,]))))
         } else {
-          tab <- as.numeric(names(table(cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,]))))
+          tab <- as.numeric(names(table(raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,]))))
         }
 
         print(paste0("Starting ",cause," - ",season_description[season]))
-        pres_abs = setValues(grast,0)
+        pres_abs = raster::setValues(grast,0)
         pres_abs[tab] <- 1
-        pres_abs <- mask(pres_abs,grast)
+        pres_abs <- raster::mask(pres_abs,grast)
         names(pres_abs) <- "ign"
         modelling_stack <- stack(indicator_stack,pres_abs)
         names(modelling_stack) <- tolower(names(modelling_stack))
@@ -335,14 +335,14 @@ ign_grid <- function(fire_data,
         if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
         if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
 
-        dat_part <- createDataPartition(y = data$ign,p = .8)[[1]]
+        dat_part <- caret::createDataPartition(y = data$ign,p = .8)[[1]]
         data_train <- data[dat_part,]
         data_test <- data[-dat_part,]
 
-        data_train <- downSample(x = data_train[,-ncol(data_train)],
+        data_train <- caret::downSample(x = data_train[,-ncol(data_train)],
                                  y = as.factor(data_train$ign),yname = "ign")
 
-        data_test <- downSample(x = data_test[,-ncol(data_test)],
+        data_test <- caret::downSample(x = data_test[,-ncol(data_test)],
                                 y = as.factor(data_test$ign),yname = "ign")
 
         if (cause == causes[1]) {predictors <- indicators_1}
@@ -355,7 +355,7 @@ ign_grid <- function(fire_data,
             }
           }
 
-        gbm_step <- gbm.step(data_train,
+        gbm_step <- dismo::gbm.step(data_train,
                              gbm.y = 1,
                              #using the same subset of response variables
                              gbm.x = c(2:ncol(data_train)),
@@ -372,7 +372,7 @@ ign_grid <- function(fire_data,
         data_train <- data_train[,c("ign",as.character(summary(gbm_step)[summary(gbm_step)$rel.inf > 2.5,"var"]))]
         data_test <- data_test[,c("ign",as.character(summary(gbm_step)[summary(gbm_step)$rel.inf > 2.5,"var"]))]
 
-        gbm_step <- gbm.step(data_train,
+        gbm_step <- dismo::gbm.step(data_train,
                              gbm.y = 1,
                              #using the same subset of response variables
                              gbm.x = c(2:ncol(data_train)),
@@ -413,7 +413,7 @@ ign_grid <- function(fire_data,
                     season_description[season],
                     results$optVariables,
                     paste0("Area Under the Curve: ",gbm_auc),
-                    paste0("Balanced Accuracy: ",confusionMatrix(as.factor(ifelse(predictions > 0.8, 1, 0)),as.factor(data_test$ign))$byClass['Balanced Accuracy'])),
+                    paste0("Balanced Accuracy: ",caret::confusionMatrix(as.factor(ifelse(predictions > 0.8, 1, 0)),as.factor(data_test$ign))$byClass['Balanced Accuracy'])),
               file = paste0(output_location,
                             "GBM_Model_Inputs.txt"),
               append = T,
@@ -425,7 +425,7 @@ ign_grid <- function(fire_data,
               )
         )
 
-        writeRaster(scaled_ign,
+        raster::writeRaster(scaled_ign,
                     paste0(output_location,
                            paste(cause,
                                  season_description[season],
@@ -446,14 +446,14 @@ ign_grid <- function(fire_data,
     for (cause in causes) {
       for (season in min(unique(fire_data$season)):(max(unique(fire_data$season)) + 1)) {
         if (season == max(unique(fire_data$season)) + 1) {
-          tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
+          tab <- raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
         }else{
-          tab <- cellFromXY(setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])
+          tab <- raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])
         }
         print(paste0("Starting ",cause," - ",season_description[season]))
-        pres_abs = setValues(grast,0)
+        pres_abs = raster::setValues(grast,0)
         pres_abs[tab] <- 1
-        pres_abs <- mask(pres_abs,grast)
+        pres_abs <- raster::mask(pres_abs,grast)
         names(pres_abs) <- "ign"
         modelling_stack <- stack(indicator_stack,pres_abs)
         names(modelling_stack) <- tolower(names(modelling_stack))
@@ -464,10 +464,10 @@ ign_grid <- function(fire_data,
         if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
         if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
 
-        data_mod <- downSample(x = data[,-ncol(data)],
+        data_mod <- caret::downSample(x = data[,-ncol(data)],
                                y = data$ign,yname = "ign")
 
-        dat_part <- createDataPartition(y = data_mod$ign,p = .8)[[1]]
+        dat_part <- caret::createDataPartition(y = data_mod$ign,p = .8)[[1]]
         data_train <- data_mod[dat_part,]
         data_test <- data_mod[-dat_part,]
 
@@ -482,14 +482,14 @@ ign_grid <- function(fire_data,
         if (cause == causes[1]) {predictors <- data_train[,c("ign",indicators_1)]}
         if (cause == causes[2]) {predictors <- data_train[,c("ign",indicators_2)]}
 
-        control <- rfeControl(functions = rfFuncs,
+        control <- caret::rfeControl(functions = caret::rfFuncs,
                               method = "cv",
                               number = 10,
                               repeats = 2)
-        results <- rfe(x = predictors[-1],
+        results <- caret::rfe(x = predictors[-1],
                        y = predictors[,"ign"],
                        sizes = c(1:length(predictors)),
-                       rfeControl = control,
+                       caret::rfeControl = control,
                        p = 1,
                        metric = "Accuracy")
         print(results)
@@ -501,7 +501,7 @@ ign_grid <- function(fire_data,
 
         predictors <- predictors[,c("ign",results$optVariables)]
 
-        best_mtry <- tuneRF(predictors[-1],
+        best_mtry <- randomForest::tuneRF(predictors[-1],
                             predictors$ign,
                             ntree = 1500,
                             stepFactor = 1.5,
@@ -510,20 +510,20 @@ ign_grid <- function(fire_data,
                             plot = TRUE)
         best_mtry <- best_mtry[which.min(best_mtry[,2]),1]
 
-        rf <- randomForest(ign ~ .,
+        rf <- randomForest::randomForest(ign ~ .,
                            data = predictors,
                            ntree = 1500,
                            mtry = best_mtry,
-                           importance = TRUE,
+                           randomForest::importance = TRUE,
                            response.type = "binary")
 
-        # model variable importance
-        imp <- importance(rf)
+        # model variable randomForest::importance
+        imp <- randomForest::importance(rf)
 
         # predict probability of pres (1) or abs (0)
         prediction <- predict(rf, data_test)
 
-        print(confusionMatrix(prediction,
+        print(caret::confusionMatrix(prediction,
                               data_test$ign)$byClass["Balanced Accuracy"])
 
         # build/name ign raster
@@ -539,7 +539,7 @@ ign_grid <- function(fire_data,
         write(x = c(cause,
                     season_description[season],
                     paste(names(sort(imp[,3],decreasing = T)),round(sort(imp[,3],decreasing = T),2)),
-                    paste0("Balanced Accuracy: ",confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"])),
+                    paste0("Balanced Accuracy: ",caret::confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"])),
               file = paste0(output_location,
                             "RF_Model_Inputs.txt"),
               append = T,
@@ -547,11 +547,11 @@ ign_grid <- function(fire_data,
               ncolumns = length(c(cause,
                                   season,
                                   paste(names(sort(imp[,3],decreasing = T)),round(sort(imp[,3],decreasing = T),2)),
-                                  confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"])
+                                  caret::confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"])
               )
         )
 
-        writeRaster(ign,
+        raster::writeRaster(ign,
                     paste0(output_location,
                            paste(cause,
                                  season_description[season],
@@ -624,7 +624,7 @@ ign_grid <- function(fire_data,
                         learning.rate = 0.0025,
                         plot.main = T)
 
-        # model variable importance
+        # model variable randomForest::importance
         imp <- summary(brt)
 
         # build/name ign raster

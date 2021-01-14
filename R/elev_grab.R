@@ -33,11 +33,11 @@ elev_grab <- function(aoi = "", reference_grid,output_directory){
 
 
   if ( grepl("RasterLayer", class(reference_grid)) ) { grast <- reference_grid }
-  if ( grepl("character", class(reference_grid)) ) { grast <- raster(reference_grid) }
+  if ( grepl("character", class(reference_grid)) ) { grast <- raster::raster(reference_grid) }
   if ( !grepl("RasterLayer|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the raster or a raster object.") }
 
-  e <- as(extent(grast),"SpatialPolygons")
-  proj4string(e) <- proj4string(grast)
+  e <- as(raster::extent(grast),"SpatialPolygons")
+  sp::proj4string(e) <- sp::proj4string(grast)
 
   ## Download and extract the NTS grid specified by user (will be removed after use), uses the 250k grid as that is what CDEM is based on
   nts_temp <- tempfile(fileext = '.zip')
@@ -51,7 +51,7 @@ elev_grab <- function(aoi = "", reference_grid,output_directory){
 
   ## Determine the NTS grids the data exists across
   layers <- raster::crop(nts_grid,
-                 spTransform(e,CRSobj = CRS(proj4string(nts_grid))))$NTS_SNRC
+                 sp::spTransform(e,CRSobj = sp::CRS(sp::proj4string(nts_grid))))$NTS_SNRC
 
   ## Extract the CDEM tiles needed to generate the grid.
   elevation <- lapply(layers,function(i){
@@ -65,7 +65,7 @@ elev_grab <- function(aoi = "", reference_grid,output_directory){
                   destfile = loc)
     files <- unzip(loc,list = T)
 
-    raster(paste0("/vsizip/",loc,"/",files$Name[grep(".tif$",files$Name)]))
+    raster::raster(paste0("/vsizip/",loc,"/",files$Name[grep(".tif$",files$Name)]))
 
   }
   )
@@ -84,7 +84,7 @@ elev_grab <- function(aoi = "", reference_grid,output_directory){
 
   if (class(aoi) == "character") { warning("You did not declare an area of interest, the elevation file will work for Wind Ninja also.")}
 
-  writeRaster(mosaic.r,
+  raster::writeRaster(mosaic.r,
               paste0(output_directory,"elevation.tif"),
               datatype = "INT2S",
               NAflag = -9999,
@@ -92,13 +92,13 @@ elev_grab <- function(aoi = "", reference_grid,output_directory){
               overwrite = T)
 
   if (class(aoi) == "sf") {
-    writeRaster(raster::mask(mosaic.r,aoi),
+    raster::writeRaster(raster::mask(mosaic.r,aoi),
                 paste0(output_directory,"elevation.tif"),
                 datatype = "INT2S",
                 NAflag = -9999,
                 format = "GTiff",
                 overwrite = T)
-    writeRaster(mosaic.r,
+    raster::writeRaster(mosaic.r,
                 paste0(output_directory,"elevation_wn.tif"),
                 datatype = "INT2S",
                 NAflag = -9999,

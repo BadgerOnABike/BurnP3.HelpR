@@ -91,8 +91,8 @@ fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", ao
   input$jday <- as.numeric(format(as.Date(input@data[,date_col],date_format),"%j"))
 
   ## May throw an error about bad geometry, that's find it still projects.
-  input <- spTransform(input,CRSobj = st_crs(aoi))
-  input <- crop(input, aoi)
+  input <- sp::spTransform(input,CRSobj = sf::st_crs(aoi))
+  input <- raster::crop(input, aoi)
   input <- input[input$CAUSE %in% causes,]
 
   if (seasonal & !is.element("season",names(input))) {
@@ -110,13 +110,13 @@ fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", ao
   }
 
   if (zonal) {
-    input$zone <- extract(zones,input)
+    input$zone <- raster::extract(zones,input)
     if (length(which(is.na(input$zone))) > 0) {input <- input[-which(is.na(input$zone)),]}
   }
 
   vars <- c("CAUSE", if (seasonal) {"season"},if (zonal) {"zone"})
 
-  fire_rate <- ddply(.data = as.data.frame(input),
+  fire_rate <- plyr::ddply(.data = as.data.frame(input),
                      .variables = c(vars),
                      .fun = function(x){
                        counts <- nrow(x)

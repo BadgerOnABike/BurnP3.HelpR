@@ -84,12 +84,12 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
 
   if (raster == T) {
 
-  bp_list <- rast(x = list.files(path = directory,
+  bp_list <- terra::rast(x = list.files(path = directory,
                                  pattern = "Burn_Probability.tif$",
                                  recursive = T,
                                  full.names = T))
 
-  bp_list <- app(x = bp_list,
+  bp_list <- terra::app(x = bp_list,
                  fun = sum)
 
   writeRaster(x = bp_list,

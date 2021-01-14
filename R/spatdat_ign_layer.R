@@ -10,7 +10,7 @@
 #'
 #' @importFrom raster raster crop
 #' @importFrom sf st_read st_transform st_geometry_type st_is_empty st_zm st_make_valid
-#' @importFrom rgdal OGRListLayers
+#' @importFrom rgdal ogrListLayers
 #' 
 #' @return List
 #' @export
@@ -28,67 +28,67 @@
 spatdat_ign_layer <- function(reference_grid,layer,dsn){
 
   if ( grepl("RasterLayer", class(reference_grid)) ) {grast <- reference_grid}
-  if ( grepl("character", class(reference_grid)) ) {grast <- raster(reference_grid)}
+  if ( grepl("character", class(reference_grid)) ) {grast <- raster::raster(reference_grid)}
   if ( !grepl("RasterLayer|character", class(reference_grid)) ) {message("Reference Grid must be the directory of the raster or a raster object.")}
 
 
   if (class(layer) != "character") {
-    x <- st_transform(layer,crs = CRS(proj4string(grast)))
-    y <- st_geometry_type(x)
+    x <- sf::st_transform(layer,crs = sp::CRS(sp::proj4string(grast)))
+    y <- sf::st_geometry_type(x)
     if (length(unique(y)) > 1 & gregexpr("SURFACE",unique(y))[[1]][1] == -1) {
       x <- x[-which(y == "MULTISURFACE"),]
     }
-    if (length(st_is_empty(x)) > 0) {
-      x <- x[!st_is_empty(x),]
+    if (length(sf::st_is_empty(x)) > 0) {
+      x <- x[!sf::st_is_empty(x),]
     }
     layers_list <- as(x,"Spatial")
   }else{
 
     if (!grepl("gdb|gpkg",dsn,ignore.case = T)) {
 
-      x <- st_transform(read_sf(x),
-                        crs = CRS(proj4string(grast)))
+      x <- sf::st_transform(sf::read_sf(x),
+                        crs = sp::CRS(sp::proj4string(grast)))
 
-      x <- st_zm(x)
-      y <- st_geometry_type(x)
+      x <- sf::st_zm(x)
+      y <- sf::st_geometry_type(x)
       if (length(unique(y)) > 1 & gregexpr("SURFACE",unique(y))[[1]][1] == -1) {
         x <- x[-which(y == "MULTISURFACE"),]
       }
-      if (length(st_is_empty(x)) > 0) {
-        x <- x[!st_is_empty(x),]
+      if (length(sf::st_is_empty(x)) > 0) {
+        x <- x[!sf::st_is_empty(x),]
       }
       x <- as(x,"Spatial")
-      x <- crop(x,grast)
+      x <- raster::crop(x,grast)
       layers_list <- x
 
     }
 
     if (grepl("gdb|gpkg",dsn,ignore.case = T)) {
-    layers_list <- lapply(ogrListLayers(dsn = dsn)[grep(layer,
-                                                        ogrListLayers(dsn = dsn),
+    layers_list <- lapply(raster::ogrListLayers(dsn = dsn)[grep(layer,
+                                                        raster::ogrListLayers(dsn = dsn),
                                                         ignore.case = T)],
                           FUN = function(x){
                             print(x)
-                            x <- st_transform(read_sf(dsn = dsn,
+                            x <- sf::st_transform(sf::read_sf(dsn = dsn,
                                                       layer = x),
-                                              crs = CRS(proj4string(grast)))
+                                              crs = sp::CRS(sp::proj4string(grast)))
 
-                            x <- st_zm(x)
-                            y <- st_geometry_type(x)
+                            x <- sf::st_zm(x)
+                            y <- sf::st_geometry_type(x)
 
-                            if (length(unique(st_is_valid(x))) > 1 || unique(st_is_valid(x)) == F) {
-                              x <- x[!is.na(st_is_valid(x)),]
-                              x <- st_make_valid(x)
+                            if (length(unique(sf::st_is_valid(x))) > 1 || unique(sf::st_is_valid(x)) == F) {
+                              x <- x[!is.na(sf::st_is_valid(x)),]
+                              x <- sf::st_make_valid(x)
                             }
 
                             if (length(unique(y)) > 1 & gregexpr("SURFACE",unique(y))[[1]][1] == 1) {
                               x <- x[-which(y == "MULTISURFACE"),]
                             }
-                            if (length(st_is_empty(x)) > 0) {
-                              x <- x[!st_is_empty(x),]
+                            if (length(sf::st_is_empty(x)) > 0) {
+                              x <- x[!sf::st_is_empty(x),]
                             }
                             x <- as(x,"Spatial")
-                            x <- crop(x,grast)
+                            x <- raster::crop(x,grast)
                           }
     )
     }

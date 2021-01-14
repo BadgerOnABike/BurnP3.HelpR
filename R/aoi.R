@@ -68,7 +68,7 @@ aoi <- function(area_of_interest_file,
                 stn_id_col){
 
   if ( grepl("RasterLayer", class(reference_grid)) ) {grast <- reference_grid}
-  if ( grepl("character", class(reference_grid)) ) {grast <- rast(reference_grid)}
+  if ( grepl("character", class(reference_grid)) ) {grast <- terra::rast(reference_grid)}
   if ( !grepl("RasterLayer|character", class(reference_grid)) ) {message("Reference Grid must be the directory of the raster or a raster object.")}
 
   if ( is.null(area_of_interest_file) ) {stop("Please input an area of interest file or delcare PC (Parks Canada) as true to automatically load the Parks Canada layer")}
@@ -83,7 +83,7 @@ aoi <- function(area_of_interest_file,
     unzip(zipfile = pc_temp,
           files = gsub("./","",pc_files),
           exdir = gsub(".zip","",pc_temp))
-    aoi_poly <- st_read(dsn = gsub(".zip","",pc_temp),
+    aoi_poly <- sf::st_read(dsn = gsub(".zip","",pc_temp),
                         layer = "national_parks_boundaries")
 
     unlink(c(gsub(".zip","",pc_temp),list.files(tempdir(),pattern = ".zip",full.names = T)),recursive = T)
@@ -91,10 +91,10 @@ aoi <- function(area_of_interest_file,
 
   if (!is.null(area_of_interest_file)) {
     if (length(area_of_interest_file) > 1) {
-      aoi_poly <- st_read(dsn = area_of_interest_file[1],
+      aoi_poly <- sf::st_read(dsn = area_of_interest_file[1],
                           layer = area_of_interest_file[2])
     } else {
-      aoi_poly <- st_read(area_of_interest_file)
+      aoi_poly <- sf::st_read(area_of_interest_file)
     }
   }
 
@@ -103,18 +103,18 @@ aoi <- function(area_of_interest_file,
      aoi_poly <- aoi_poly[grep(park_of_interest,aoi_poly$parkname_e,ignore.case = T),]
   }
 
-  aoi_poly <- st_transform(x = aoi_poly ,crs = crs(grast))
+  aoi_poly <- sf::st_transform(x = aoi_poly ,crs = crs(grast))
 
   ## Some basic plotting to visualize where stations are in relation to the AOI
 
   stns_within_aoi <- sort(
     as.data.frame(
-      st_intersection(
-        st_transform(
+      sf::st_intersection(
+        sf::st_transform(
           stns,
-          crs = crs(aoi_poly)
+          crs = terra::crs(aoi_poly)
           ),
-        st_buffer(aoi_poly,
+        sf::st_buffer(aoi_poly,
                   dist = buffer_width
                 )
         )
@@ -122,16 +122,16 @@ aoi <- function(area_of_interest_file,
 
   x11();
 
-  p <- ggplot( st_buffer(aoi_poly,
+  p <- ggplot2::ggplot( sf::st_buffer(aoi_poly,
                     dist = buffer_width)[,1]) +
-    geom_sf(aes(fill = OBJECTID)) +
-    geom_sf_label(data = st_transform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
-                                     crs = crs(aoi_poly)),
+    ggplot2::geom_sf(aes(fill = OBJECTID)) +
+    ggplot2::geom_sf_label(data = sf::st_transform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
+                                     crs = terra::crs(aoi_poly)),
                   aes(label = sttn_nm),
                  position = "identity") +
-    ggtitle(label = paste0("There are ",length(stns_within_aoi)," staions inside your area of interest")) +
-    theme_void() +
-    theme(legend.position = "none",
+    ggplot2::ggtitle(label = paste0("There are ",length(stns_within_aoi)," staions inside your area of interest")) +
+    ggplot2::theme_void() +
+    ggplot2::theme(legend.position = "none",
           plot.title = element_text(hjust = 0.5))
 
   print(p)

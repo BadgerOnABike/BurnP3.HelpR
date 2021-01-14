@@ -32,11 +32,11 @@ distance_ign <- function(reference_grid, rasters_list,output_location,output_nam
 
   if ( dir.exists(output_location) == F ) { dir.create(output_location)}
   if ( grepl("RasterLayer", class(reference_grid)) ) { grast <- reference_grid }
-  if ( grepl("character", class(reference_grid)) ) { grast <- raster(reference_grid) }
+  if ( grepl("character", class(reference_grid)) ) { grast <- raster::raster(reference_grid) }
   if ( !grepl("RasterLayer|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the raster or a raster object.") }
 
-  distance.r <- distance(rasters_list)
-  writeRaster(mask(distance.r,grast),
+  distance.r <- raster::distance(rasters_list)
+  raster::writeRaster(raster::mask(distance.r,grast),
               paste0(output_location,"/",output_name,"_distance.tif"),
               format = "GTiff",
               overwrite = T)

@@ -61,17 +61,17 @@ fuel_grid_generator <- function(aoi_poly, aoi_buffer = 15000, lut, reference_gri
 
 
   if ( grepl("SpatRaster", class(reference_grid)) ) { grast <- reference_grid }
-  if ( grepl("character", class(reference_grid)) ) { grast <- rast(reference_grid) }
+  if ( grepl("character", class(reference_grid)) ) { grast <- terra::rast(reference_grid) }
   if ( !grepl("SpatRaster|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the raster or a SpatRaster object from the terra package.") }
 
   if (is.element("sf",class(aoi_poly)) ) { aoi_poly <- aoi_poly }
-  if ( is.element("character",class(aoi_poly)) ) { aoi_poly <- st_read(aoi_poly) }
+  if ( is.element("character",class(aoi_poly)) ) { aoi_poly <- sf::st_read(aoi_poly) }
   if ( !is.element("sf", class(aoi_poly)) & !is.element("character",class(aoi_poly)) ) { message("Area of Interest must be the location of the shapefile or an sf object.") }
 
-  aoi_poly <- st_buffer(
-    st_transform(
+  aoi_poly <- sf::st_buffer(
+    sf::st_transform(
       aoi_poly,
-      crs(grast)
+      terra::crs(grast)
     ),
     dist = aoi_buffer
   )
@@ -90,20 +90,20 @@ fuel_grid_generator <- function(aoi_poly, aoi_buffer = 15000, lut, reference_gri
 
     print(paste0("Working on Raster... ",i))
 
-      if (class(x) == "character") {rst.in <- rast(x)} else {rst.in <- x}
+      if (class(x) == "character") {rst.in <- terra::rast(x)} else {rst.in <- x}
 
-      rst.in <- expand(rst.in,ext(vect(aoi_poly)))
+      rst.in <- terra::expand(rst.in,terra::ext(terra::vect(aoi_poly)))
 
-      rst.in <- project(rst.in,y = proj4string(crs(aoi_poly)),method = "ngb")
-      rst.in <- crop(rst.in,rast(vect(aoi_poly)),snap = "in")
+      rst.in <- terra::project(rst.in,y = sp::proj4string(terra::crs(aoi_poly)),method = "ngb")
+      rst.in <- terra::crop(rst.in,terra::rast(terra::vect(aoi_poly)),snap = "in")
 
       if ( res(rst.in)[1] != res(grast)[1] ) {
 
-        rst.in <- raster(resample(rst.in,grast,method = "ngb"))
+        rst.in <- raster::raster(raster::resample(rst.in,grast,method = "ngb"))
 
       } else {
 
-        rst.in <- raster(rst.in)
+        rst.in <- raster::raster(rst.in)
 
       }
 
@@ -115,21 +115,21 @@ fuel_grid_generator <- function(aoi_poly, aoi_buffer = 15000, lut, reference_gri
 
       print(paste0("Working on Shapefile... ", i))
 
-      if (class(x) == "character") {x <- read_sf(x)}
+      if (class(x) == "character") {x <- sf::read_sf(x)}
 
-      shps <- st_crop(
-                st_make_valid(
-                  st_transform(
+      shps <- sf::st_crop(
+                sf::st_make_valid(
+                  sf::st_transform(
                     x,
-                    crs = crs(grast)
+                    crs = terra::crs(grast)
                     )
                   ),
-                xmin = bbox(grast)[1,1],
-                ymin = bbox(grast)[2,1],
-                xmax = bbox(grast)[1,2],
-                ymax = bbox(grast)[2,2]
+                xmin = terra::bbox(grast)[1,1],
+                ymin = terra::bbox(grast)[2,1],
+                xmax = terra::bbox(grast)[1,2],
+                ymax = terra::bbox(grast)[2,2]
                 )
-      shps <- st_cast(shps, "MULTIPOLYGON")
+      shps <- sf::st_cast(shps, "MULTIPOLYGON")
 
       if ( pc[i]) {
         fuel_rep <- data.frame(shps)
@@ -140,33 +140,33 @@ fuel_grid_generator <- function(aoi_poly, aoi_buffer = 15000, lut, reference_gri
         shps[,fuel_col[i]] <- fuel_rep[,fuel_col[i]]
       }
        shps$Fuel <- lut[match(gsub("-","",tolower(data.frame(shps)[,fuel_col[i]])),gsub("-","",tolower(lut$fuel_type))),"export_value"]
-       if (length(unique(st_geometry_type(shps))) > 1) {x <- st_cast(shps,"MULTIPOLYGON")}
-       rst.in <- fasterize(sf = shps,raster = raster(grast),field = "Fuel")
+       if (length(unique(sf::st_geometry_type(shps))) > 1) {x <- sf::st_cast(shps,"MULTIPOLYGON")}
+       rst.in <- fasterize::fasterize(sf = shps,raster = raster::raster(grast),field = "Fuel")
        return(rst.in)
     }
 
       })
 
   extents <- lapply(fuel.r,function(x)extent(x))
-  extents <- ldply(extents,function(x){
+  extents <- plyr::ldply(extents,function(x){
     data.frame(xmin = x@xmin,xmax = x@xmax,ymin = x@ymin,ymax = x@ymax)
   })
-  extents <- extent(c(min(extents$xmin),max(extents$xmax),min(extents$ymin),max(extents$ymax)))
+  extents <- raster::extent(c(min(extents$xmin),max(extents$xmax),min(extents$ymin),max(extents$ymax)))
   fuel.r <- lapply(fuel.r, function(x){
-    x <- extend(x,extents)
-    x <- crop(x,extents)
+    x <- raster::extend(x,extents)
+    x <- raster::crop(x,extents)
   }
   )
 
   mosaic.r <- do.call(merge,fuel.r)
 
-  cropper <- fasterize(aoi_poly,raster(grast))
-  cropper <- crop(cropper,aoi_poly)
+  cropper <- fasterize::fasterize(aoi_poly,raster::raster(grast))
+  cropper <- raster::crop(cropper,aoi_poly)
 
-  mosaic.r <- crop(mosaic.r,cropper)
-  mosaic.r <- mask(mosaic.r,cropper)
+  mosaic.r <- raster::crop(mosaic.r,cropper)
+  mosaic.r <- raster::mask(mosaic.r,cropper)
 
-  writeRaster(mosaic.r,
+  raster::writeRaster(mosaic.r,
               output_directory,
               datatype = "INT2S",
               NAflag = -9999,

@@ -37,17 +37,17 @@ density_ign <- function(reference_grid,layers_list,width = 1000, output_location
 
   if ( dir.exists(output_location) == F ) { dir.create(output_location)}
   if ( grepl("RasterLayer", class(reference_grid)) ) { grast <- reference_grid }
-  if ( grepl("character", class(reference_grid)) ) { grast <- raster(reference_grid) }
+  if ( grepl("character", class(reference_grid)) ) { grast <- raster::raster(reference_grid) }
   if ( !grepl("RasterLayer|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the raster or a raster object.") }
 
-  density.r <- kde2d(coordinates(layers_list)[,1],
-                     coordinates(layers_list)[,2],
+  density.r <- MASS::kde2d(raster::coordinates(layers_list)[,1],
+                           raster::coordinates(layers_list)[,2],
                      n = c(ncol(grast),
                            nrow(grast)),
                      h = width)
-  density.r <- setValues(grast,raster(density.r)[])
+  density.r <- raster::setValues(grast,raster::raster(density.r)[])
 
-  writeRaster(mask(density.r, grast),
+  raster::writeRaster(raster::mask(density.r, grast),
               paste0(output_location,"/",output_name,"_density.tif"),
               format = "GTiff",
               overwrite = T)

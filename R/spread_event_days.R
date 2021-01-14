@@ -143,7 +143,7 @@ spread_event_days <- function(input,
   }
 
   if (zonal == T) {
-    sed_wx <- ddply(input,c(zone_col, yr_col,id_col),.fun = function(x) {
+    sed_wx <- plyr::ddply(input,c(zone_col, yr_col,id_col),.fun = function(x) {
       over_thresh <- x$dmc >= 20 & x$fwi >= min_fwi
       runs <- rle(over_thresh)
       counts <- runs$lengths[runs$values == 1]
@@ -179,7 +179,7 @@ spread_event_days <- function(input,
   }
 
   if ( seasonal == F & zonal == F) {
-    sed_wx <- ddply(.data = input,
+    sed_wx <- plyr::ddply(.data = input,
                     .variables = c( yr_col,id_col),
                     .fun = function(x) {
                                        over_thresh <- x$dmc >= 20 & x$fwi >= min_fwi
