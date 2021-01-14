@@ -178,13 +178,17 @@ spread_event_days <- function(input,
     }
   }
 
-  if ( seasonal == F & zonal == F) {sed_wx <- ddply(input,.(yr,id),.fun = function(x) {
-    over_thresh <- x$dmc >= 20 & x$fwi >= min_fwi
-    runs <- rle(over_thresh)
-    counts <- runs$lengths[runs$values == 1]
-    gaps <- runs$lengths[runs$values == 0]
-    data.frame(counts = counts)
-  })
+  if ( seasonal == F & zonal == F) {
+    sed_wx <- ddply(.data = input,
+                    .variables = c( yr_col,id_col),
+                    .fun = function(x) {
+                                       over_thresh <- x$dmc >= 20 & x$fwi >= min_fwi
+                                       runs <- rle(over_thresh)
+                                       counts <- runs$lengths[runs$values == 1]
+                                       gaps <- runs$lengths[runs$values == 0]
+                                       data.frame(counts = counts)
+                                       }
+                    )
   x <- hist(sed_wx[,"counts"],breaks = 0:(max(sed_wx$counts ,na.rm = T)),freq = T)
   sed <- data.frame(days = x$breaks[-1] ,sp_ev_days = round(x$density*100,2))
 

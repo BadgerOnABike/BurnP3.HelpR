@@ -4,7 +4,7 @@
 \alias{elev_grab}
 \title{Elevation Grabber - From NTS Grids}
 \usage{
-elev_grab(reference_grid, output_directory)
+elev_grab(aoi = "", reference_grid, output_directory)
 }
 \arguments{
 \item{reference_grid}{This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project. Can be either the location of the raster or a raster object.}

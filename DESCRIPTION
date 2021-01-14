@@ -22,12 +22,13 @@ Imports:
     fasterize,
     plyr,
     insol,
-    randomForest
-Depends: 
-	R (>= 3.5.0),
     rgdal,
 	sp,
 	terra,
     sf,
     raster,
-    ggplot2
+    ggplot2,
+    randomForest
+Depends: 
+	R (>= 3.5.0),
+
