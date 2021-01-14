@@ -124,14 +124,14 @@ aoi <- function(area_of_interest_file,
 
   p <- ggplot2::ggplot( sf::st_buffer(aoi_poly,
                     dist = buffer_width)[,1]) +
-    ggplot2::geom_sf(aes(fill = OBJECTID)) +
-    ggplot2::geom_sf_label(data = sf::st_transform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
+    geom_sf(aes(fill = OBJECTID)) +
+    geom_sf_label(data = sf::st_transform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
                                      crs = terra::crs(aoi_poly)),
                   aes(label = sttn_nm),
                  position = "identity") +
-    ggplot2::ggtitle(label = paste0("There are ",length(stns_within_aoi)," staions inside your area of interest")) +
-    ggplot2::theme_void() +
-    ggplot2::theme(legend.position = "none",
+    ggtitle(label = paste0("There are ",length(stns_within_aoi)," staions inside your area of interest")) +
+    theme_void() +
+    theme(legend.position = "none",
           plot.title = element_text(hjust = 0.5))
 
   print(p)
