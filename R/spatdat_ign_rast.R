@@ -6,7 +6,7 @@
 #' @param layer A list containing at least one spatial layer from the \code{spatdat_ign_layer} function to be rasterized.
 #'
 #' @importFrom raster raster cellFromLine cellFromPolygon reclassify rasterToPoints setValues stack
-#' @importFrom sf SpatialPointsDataFrame proj4string
+#' @importFrom sp SpatialPointsDataFrame proj4string spTransform CRS
 #' @importFrom rgeos gCentroid
 #'
 #' @return List containing points and raster layers.

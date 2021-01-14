@@ -11,6 +11,7 @@
 #' @importFrom raster raster crop
 #' @importFrom sf st_read st_transform st_geometry_type st_is_empty st_zm st_make_valid
 #' @importFrom rgdal ogrListLayers
+#' @importFrom sp CRS proj4string
 #' 
 #' @return List
 #' @export
@@ -64,8 +65,8 @@ spatdat_ign_layer <- function(reference_grid,layer,dsn){
     }
 
     if (grepl("gdb|gpkg",dsn,ignore.case = T)) {
-    layers_list <- lapply(raster::ogrListLayers(dsn = dsn)[grep(layer,
-                                                        raster::ogrListLayers(dsn = dsn),
+    layers_list <- lapply(rgdal::ogrListLayers(dsn = dsn)[grep(layer,
+                                                        rgdal::ogrListLayers(dsn = dsn),
                                                         ignore.case = T)],
                           FUN = function(x){
                             print(x)

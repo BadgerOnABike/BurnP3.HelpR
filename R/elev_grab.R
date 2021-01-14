@@ -8,7 +8,7 @@
 #' @details The purpose of this function is to generate a common and rapid elevation layer that is sampled and masked to the reference grid for use within Burn-P3. A second elevation grid is also generated for use in Wind Ninja as that software will fail with NA values in the elevation grid.
 #'
 #' @importFrom raster raster crop merge writeRaster
-#' @importFrom sp proj4string
+#' @importFrom sp proj4string spTransform
 #' @importFrom rgdal readOGR
 #' 
 #' @return RasterLayer

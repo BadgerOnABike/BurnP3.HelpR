@@ -20,7 +20,7 @@
 #'
 #' @importFrom raster raster cellFromXY mask setValues cellStats writeRaster
 #' @importFrom caret rfeControl rfe downSample createDataPartition rfFuncs train resamples confusionMatrix varImp
-#' @importFrom randomForest tuneRF rrandomForest importance
+#' @importFrom randomForest tuneRF randomForest importance
 #' @importFrom dismo gbm.step
 #'
 #' @return rasterLayer
@@ -128,8 +128,8 @@ ign_grid <- function(fire_data,
           if (cause == causes[1]) {predictors <- data_train[,c("ign",indicators_1)]}
           if (cause == causes[2]) {predictors <- data_train[,c("ign",indicators_2)]}
 
-          control <- caret::rfeControl(functions = caret::rfFuncs, method = "cv",number = 10,repeats = 2)
-          results <- caret::rfe(x = predictors[-1],y = predictors[,"ign"],sizes = c(1:length(predictors)),caret::rfeControl = control, p = 1, metric = "Accuracy")
+          control <- caret::rfeControl(functions = rfFuncs, method = "cv",number = 10,repeats = 2)
+          results <- caret::rfe(x = predictors[-1],y = predictors[,"ign"],sizes = c(1:length(predictors)),rfeControl = control, p = 1, metric = "Accuracy")
           print(results)
 
           if ( cause == "L" && max(results$results$Accuracy) > 0.65 ) { break }
@@ -137,8 +137,8 @@ ign_grid <- function(fire_data,
 
         }
 
-        control <- caret::rfeControl(functions = caret::rfFuncs, method = "cv",number = 10)
-        results <- caret::rfe(x = predictors,y = data_train[,"ign"],sizes = c(1:length(predictors)),caret::rfeControl = control, p = 0.8, metric = "Accuracy")
+        control <- caret::rfeControl(functions = rfFuncs, method = "cv",number = 10)
+        results <- caret::rfe(x = predictors,y = data_train[,"ign"],sizes = c(1:length(predictors)),rfeControl = control, p = 0.8, metric = "Accuracy")
         predictors <- predictors[,c("ign",results$optVariables)]
 
         if (testing == F) {
@@ -168,7 +168,7 @@ ign_grid <- function(fire_data,
                          metric = "Accuracy",
                          tuneGrid = tuneGrid,
                          trControl = trControl,
-                         randomForest::importance = TRUE,
+                         importance = TRUE,
                          nodesize = 14,
                          ntree = 300)
         print(rf_mtry)
@@ -184,7 +184,7 @@ ign_grid <- function(fire_data,
                               metric = "Accuracy",
                               tuneGrid = tuneGrid,
                               trControl = trControl,
-                              randomForest::importance = TRUE,
+                              importance = TRUE,
                               nodesize = 14,
                               maxnodes = maxnodes,
                               ntree = 300)
@@ -205,7 +205,7 @@ ign_grid <- function(fire_data,
                                 metric = "Accuracy",
                                 tuneGrid = tuneGrid,
                                 trControl = trControl,
-                                randomForest::importance = TRUE,
+                                importance = TRUE,
                                 nodesize = 14,
                                 maxnodes = maxnodes,
                                 ntree = 300)
@@ -226,7 +226,7 @@ ign_grid <- function(fire_data,
                                metric = "Accuracy",
                                tuneGrid = tuneGrid,
                                trControl = trControl,
-                               randomForest::importance = TRUE,
+                               importance = TRUE,
                                nodesize = 14,
                                maxnodes = maxnodes,
                                ntree = ntree)
@@ -243,7 +243,7 @@ ign_grid <- function(fire_data,
                         metric = "Accuracy",
                         tuneGrid = tuneGrid,
                         trControl = trControl,
-                        randomForest::importance = TRUE,
+                        importance = TRUE,
                         nodesize = 14,
                         maxnodes = maxnodes,
                         ntree = ntrees)
@@ -482,14 +482,14 @@ ign_grid <- function(fire_data,
         if (cause == causes[1]) {predictors <- data_train[,c("ign",indicators_1)]}
         if (cause == causes[2]) {predictors <- data_train[,c("ign",indicators_2)]}
 
-        control <- caret::rfeControl(functions = caret::rfFuncs,
+        control <- caret::rfeControl(functions = rfFuncs,
                               method = "cv",
                               number = 10,
                               repeats = 2)
         results <- caret::rfe(x = predictors[-1],
                        y = predictors[,"ign"],
                        sizes = c(1:length(predictors)),
-                       caret::rfeControl = control,
+                       rfeControl = control,
                        p = 1,
                        metric = "Accuracy")
         print(results)
@@ -514,7 +514,7 @@ ign_grid <- function(fire_data,
                            data = predictors,
                            ntree = 1500,
                            mtry = best_mtry,
-                           randomForest::importance = TRUE,
+                           importance = TRUE,
                            response.type = "binary")
 
         # model variable randomForest::importance

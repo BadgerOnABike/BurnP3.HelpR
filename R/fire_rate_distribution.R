@@ -13,8 +13,9 @@
 #' @param min_fire_size A minimum fire size to subset the fire information to for adjuste fire rate distribution depending on the question being asked. _(Default = 0.01)_
 #' @param causes A character vector defining the causes within the fire dataset. _(Default = c("H","L"))_
 #' 
-#' @importFrom rgdal spTransform
-#' @importFrom sp crs
+#' @importFrom pylr ddply 
+#' @importFrom sp spTransform
+#' @importFrom sf st_crs 
 #' @importFrom raster crop extract
 #' 
 #' @return

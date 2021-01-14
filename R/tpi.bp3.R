@@ -23,7 +23,7 @@
 tpi.bp3 <- function(input, window_size = 5){
 
   if ( grepl("RasterLayer", class(input)) ) { grast <- input }
-  if ( grepl("character", class(input)) ) { grast <- raster(input) }
+  if ( grepl("character", class(input)) ) { grast <- raster::raster(input) }
   if ( !grepl("RasterLayer|character", class(input)) ) { message("Reference Grid must be the directory of the raster or a raster object.") }
 
   tpi <- tpi_w(input = grast,
@@ -53,7 +53,7 @@ tpi_w <- function(input, window_size=5) {
               nc = window_size,
               nr = window_size)
   m[ceiling(0.5 * length(m))] <- 0
-  f <- focal(input,
+  f <- raster::focal(input,
              m)
   input - f
 }
@@ -70,7 +70,7 @@ TRI <- function(input,window_size){
               nc = window_size,
               nr = window_size)
   f[ceiling(0.5 * length(f))] <- 0
-  focal(input,
+  raster::focal(input,
         f,
         fun = function(x, ...) sum(abs(x[-5]-x[5]))/8,
         pad = TRUE,
