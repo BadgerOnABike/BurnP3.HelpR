@@ -28,6 +28,7 @@ Imports:
     sf,
     raster,
     ggplot2,
-    randomForest
+    randomForest,
+	rgeos
 Depends: 
 	R (>= 3.5.0),
