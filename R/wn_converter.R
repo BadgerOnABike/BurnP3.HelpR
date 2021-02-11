@@ -3,22 +3,22 @@
 #' A quick converter for ASCII wind ninja grids to GeoTiff for smaller storage and faster loading.
 #'
 #' @importFrom raster writeRaster raster
-#' 
+#'
 #' @param directory directory of wind ninja grids. The directory that contains the direction and velocity folders.
 #' @export
 #'
 #'
 wn_converter <- function(directory){
-  if (length(grep("dir|speed|spd",list.dirs(directory,recursive = F))) > 0) {
+  if (length(grep("dir|speed|spd|ang|vel",list.dirs(directory,recursive = F))) > 0) {
 
     direction <- list.dirs(directory,
-                           recursive = F)[grep("dir",
+                           recursive = F)[grep("dir|ang",
                                                list.dirs(directory,
                                                          recursive = F)
                                                )
                                           ]
     speed <- list.dirs(directory,
-                       recursive = F)[grep("speed|spd",
+                       recursive = F)[grep("speed|spd|vel",
                                            list.dirs(directory,
                                                      recursive = F)
                                            )

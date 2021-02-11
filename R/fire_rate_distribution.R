@@ -12,14 +12,14 @@
 #' @param zone_names If zonal is True, identify the descriptive names of the zones for use during mapping and output. _(Default = "")_
 #' @param min_fire_size A minimum fire size to subset the fire information to for adjuste fire rate distribution depending on the question being asked. _(Default = 0.01)_
 #' @param causes A character vector defining the causes within the fire dataset. _(Default = c("H","L"))_
-#' 
-#' @importFrom plyr ddply 
+#'
+#' @importFrom plyr ddply
 #' @importFrom sp spTransform
-#' @importFrom sf st_crs 
+#' @importFrom sf st_crs
 #' @importFrom raster crop extract
-#' 
+#'
 #' @return
-#' 
+#'
 #' @export
 #'
 #' @seealso \link[BurnP3.HelpR]{bp3_dir_gen}
@@ -92,7 +92,7 @@ fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", ao
   input$jday <- as.numeric(format(as.Date(input@data[,date_col],date_format),"%j"))
 
   ## May throw an error about bad geometry, that's find it still projects.
-  input <- sp::spTransform(input,CRSobj = sf::st_crs(aoi))
+  input <- sp::spTransform(input,CRSobj = terra::crs(aoi))
   input <- raster::crop(input, aoi)
   input <- input[input$CAUSE %in% causes,]
 
@@ -128,10 +128,11 @@ fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", ao
 
   colnames(fire_rate) <- tolower(colnames(fire_rate))
   fire_rate$cause <- as.numeric(as.factor(fire_rate$cause))
-  write.csv(fire_rate, paste0(output_location,"Fire_Rate_Distribution.csv"),row.names = F)
-  if (output_location == bp3_base) {
+  if (output_location == dir_list[[2]]) {
     write.csv(fire_rate,
               paste0(output_location,"Inputs/2. Modules/Distribution Tables/Fire_Rate_Distribution.csv"),
-              row.names = F)}
+              row.names = F)} else {
+                write.csv(fire_rate, paste0(output_location,"Fire_Rate_Distribution.csv"),row.names = F)
+              }
   return(fire_rate)
 }

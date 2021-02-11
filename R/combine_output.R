@@ -4,6 +4,7 @@
 #' @param file_prefix A file prefix that will preceed "stats", "polygons" and/or "burn probability". _(Default: "Combined")_
 #' @param polygon A logical flag for combination of fire polygons. _(Default: False)_
 #' @param raster A logical flag for combination of burn probability rasters. _(Default: True)_
+#' @param daily A logical flag for the combination of daily or final perimeters. It will default to final when daily = F. _(Default: False)_
 #'
 #' @importFrom sf st_read st_write
 #' @importFrom terra rast app writeRaster
@@ -14,7 +15,7 @@
 #'
 #' @examples
 #'
-combine_output <- function(directory, file_prefix = 'Combined', polygon = F, raster = T){
+combine_output <- function(directory, file_prefix = 'Combined', polygon = F, raster = T, daily = F){
 
   bp_stats_list <- lapply(X = list.files(path = directory,
                                      pattern = "Statistics",
@@ -62,7 +63,7 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
 
   if (polygon == T) {
   bp_shapes_list <- lapply(X = list.files(directory,
-                                      pattern = ".shp$",
+                                      pattern = if (daily == F) {"_FF.shp$"} else {"_DFF.shp$"},
                                       recursive = T,
                                       full.names = T),
                           FUN = st_read)
@@ -79,7 +80,8 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
   st_write(obj = bp_shapes,
            dsn = paste0(directory,"/Polygons.GPKG"),
            layer = paste0(file_prefix,"_Polygon_Fires"),
-           driver = "GPKG")
+           driver = "GPKG",
+           append = F)
   }
 
   if (raster == T) {
