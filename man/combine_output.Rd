@@ -4,7 +4,13 @@
 \alias{combine_output}
 \title{Combine Output}
 \usage{
-combine_output(directory, file_prefix = "Combined", polygon = F, raster = T)
+combine_output(
+  directory,
+  file_prefix = "Combined",
+  polygon = F,
+  raster = T,
+  daily = F
+)
 }
 \arguments{
 \item{directory}{Directory where the outputs are stored and new outputs will be generated to.}
@@ -14,6 +20,8 @@ combine_output(directory, file_prefix = "Combined", polygon = F, raster = T)
 \item{polygon}{A logical flag for combination of fire polygons. \emph{(Default: False)}}
 
 \item{raster}{A logical flag for combination of burn probability rasters. \emph{(Default: True)}}
+
+\item{daily}{A logical flag for the combination of daily or final perimeters. It will default to final when daily = F. \emph{(Default: False)}}
 }
 \value{
 

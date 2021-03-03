@@ -2,12 +2,15 @@
 #'
 #' @param directory Directory where the outputs are stored and new outputs will be generated to.
 #' @param file_prefix A file prefix that will preceed "stats", "polygons" and/or "burn probability". _(Default: "Combined")_
+#' @param stats_file A text string identifying the name of the statistics file. Can be left blank if your statistics file ends with 'Statistics'.
+#' @param bp_file A text string identifying the name of the burn probability file. Can be left blank if your burn probability file ends with 'Probability'.
 #' @param polygon A logical flag for combination of fire polygons. _(Default: False)_
 #' @param raster A logical flag for combination of burn probability rasters. _(Default: True)_
 #' @param daily A logical flag for the combination of daily or final perimeters. It will default to final when daily = F. _(Default: False)_
 #'
 #' @importFrom sf st_read st_write
 #' @importFrom terra rast app writeRaster
+#' @importFrom plyr rbind_rows
 #'
 #' @return
 #' @export
@@ -15,10 +18,10 @@
 #'
 #' @examples
 #'
-combine_output <- function(directory, file_prefix = 'Combined', polygon = F, raster = T, daily = F){
+combine_output <- function(directory, file_prefix = 'Combined', stats_file, bp_file, polygon = F, raster = T, daily = F){
 
   bp_stats_list <- lapply(X = list.files(path = directory,
-                                     pattern = "Statistics",
+                                     pattern = paste0(stats_file,"|Statistics|Stats"),
                                      recursive = T,
                                      full.names = T),
                           FUN = read.csv)
@@ -28,7 +31,7 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
   for (i in 2:length(bp_stats_list)) {
 
     bp_stats_list[[i]]$fire <- bp_stats_list[[i]]$fire + max(bp_stats$fire,na.rm = T)
-    bp_stats <- rbind(bp_stats, bp_stats_list[[i]])
+    bp_stats <- rbind.fill(bp_stats, bp_stats_list[[i]])
 
   }
 
@@ -41,7 +44,7 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
 
 
   bp_rep_list <- lapply(X = list.files(path = directory,
-                                         pattern = "Replay",
+                                         pattern = "Replay.csv$",
                                          recursive = T,
                                          full.names = T),
                           FUN = read.csv)
@@ -50,7 +53,7 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
 
   for (i in 2:length(bp_rep_list)) {
 
-    bp_rep <- rbind(bp_rep, bp_rep_list[[i]])
+    bp_rep <- rbind.fill(bp_rep, bp_rep_list[[i]])
 
   }
 
@@ -62,10 +65,13 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
             row.names = F)
 
   if (polygon == T) {
-  bp_shapes_list <- lapply(X = list.files(directory,
-                                      pattern = if (daily == F) {"_FF.shp$"} else {"_DFF.shp$"},
-                                      recursive = T,
-                                      full.names = T),
+  bp_shapes_list <- lapply(X = grep("DFF",
+                                    list.files(directory,
+                                               pattern = "FF.shp$",
+                                               recursive = T,
+                                               full.names = T),
+                                    value = T,
+                                    invert = if (daily == T) {F} else {T} ),
                           FUN = st_read)
 
   bp_shapes <- bp_shapes_list[[1]]
@@ -73,7 +79,8 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
   for (i in 2:length(bp_shapes_list)) {
 
     bp_shapes_list[[i]]$fire <- bp_shapes_list[[i]]$fire + max(bp_shapes$fire, na.rm = T)
-    bp_shapes <- rbind(bp_shapes, bp_shapes_list[[i]])
+    st_crs(bp_shapes_list[[i]]) <- st_crs(bp_shapes)
+    bp_shapes <- rbind.fill(bp_shapes, bp_shapes_list[[i]])
 
   }
 
@@ -87,7 +94,7 @@ combine_output <- function(directory, file_prefix = 'Combined', polygon = F, ras
   if (raster == T) {
 
   bp_list <- terra::rast(x = list.files(path = directory,
-                                 pattern = "Burn_Probability.tif$",
+                                 pattern = paste0(burn_file,"|Burn_Probability.tif$|Burn_Count.tif$|Probability.tif$|Count.tif$"),
                                  recursive = T,
                                  full.names = T))
 
