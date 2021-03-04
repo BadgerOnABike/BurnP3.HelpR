@@ -1,7 +1,7 @@
 #' Combine Output
 #'
 #' @param directory Directory where the outputs are stored and new outputs will be generated to.
-#' @param file_prefix A file prefix that will preceed "stats", "polygons" and/or "burn probability". _(Default: "Combined")_
+#' @param file_prefix A file prefix that will precede "stats", "polygons" and/or "burn probability". _(Default: "Combined")_
 #' @param stats_file A text string identifying the name of the statistics file. Can be left blank if your statistics file ends with 'Statistics'.
 #' @param bp_file A text string identifying the name of the burn probability file. Can be left blank if your burn probability file ends with 'Probability'.
 #' @param polygon A logical flag for combination of fire polygons. _(Default: False)_
@@ -10,7 +10,7 @@
 #'
 #' @importFrom sf st_read st_write
 #' @importFrom terra rast app writeRaster
-#' @importFrom plyr rbind_rows
+#' @importFrom plyr rbind.fill
 #'
 #' @return
 #' @export
@@ -31,7 +31,7 @@ combine_output <- function(directory, file_prefix = 'Combined', stats_file, bp_f
   for (i in 2:length(bp_stats_list)) {
 
     bp_stats_list[[i]]$fire <- bp_stats_list[[i]]$fire + max(bp_stats$fire,na.rm = T)
-    bp_stats <- rbind.fill(bp_stats, bp_stats_list[[i]])
+    bp_stats <- plyr::rbind.fill(bp_stats, bp_stats_list[[i]])
 
   }
 
@@ -53,7 +53,7 @@ combine_output <- function(directory, file_prefix = 'Combined', stats_file, bp_f
 
   for (i in 2:length(bp_rep_list)) {
 
-    bp_rep <- rbind.fill(bp_rep, bp_rep_list[[i]])
+    bp_rep <- plyr::rbind.fill(bp_rep, bp_rep_list[[i]])
 
   }
 
@@ -80,7 +80,7 @@ combine_output <- function(directory, file_prefix = 'Combined', stats_file, bp_f
 
     bp_shapes_list[[i]]$fire <- bp_shapes_list[[i]]$fire + max(bp_shapes$fire, na.rm = T)
     st_crs(bp_shapes_list[[i]]) <- st_crs(bp_shapes)
-    bp_shapes <- rbind.fill(bp_shapes, bp_shapes_list[[i]])
+    bp_shapes <- plyr::rbind.fill(bp_shapes, bp_shapes_list[[i]])
 
   }
 
@@ -94,7 +94,7 @@ combine_output <- function(directory, file_prefix = 'Combined', stats_file, bp_f
   if (raster == T) {
 
   bp_list <- terra::rast(x = list.files(path = directory,
-                                 pattern = paste0(burn_file,"|Burn_Probability.tif$|Burn_Count.tif$|Probability.tif$|Count.tif$"),
+                                 pattern = paste0(bp_file,"|Burn_Probability.tif$|Burn_Count.tif$|Probability.tif$|Count.tif$"),
                                  recursive = T,
                                  full.names = T))
 

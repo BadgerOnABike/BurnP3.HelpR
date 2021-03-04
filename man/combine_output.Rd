@@ -7,6 +7,8 @@
 combine_output(
   directory,
   file_prefix = "Combined",
+  stats_file,
+  bp_file,
   polygon = F,
   raster = T,
   daily = F
@@ -15,7 +17,11 @@ combine_output(
 \arguments{
 \item{directory}{Directory where the outputs are stored and new outputs will be generated to.}
 
-\item{file_prefix}{A file prefix that will preceed "stats", "polygons" and/or "burn probability". \emph{(Default: "Combined")}}
+\item{file_prefix}{A file prefix that will precede "stats", "polygons" and/or "burn probability". \emph{(Default: "Combined")}}
+
+\item{stats_file}{A text string identifying the name of the statistics file. Can be left blank if your statistics file ends with 'Statistics'.}
+
+\item{bp_file}{A text string identifying the name of the burn probability file. Can be left blank if your burn probability file ends with 'Probability'.}
 
 \item{polygon}{A logical flag for combination of fire polygons. \emph{(Default: False)}}
 

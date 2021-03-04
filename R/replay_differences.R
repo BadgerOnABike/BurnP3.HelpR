@@ -1,30 +1,30 @@
-spring_base_poly <- st_read("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Spring/Polygons.GPKG")
-spring_base_bc <- rast("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Spring/Spring_Combined_Burn_Probability.tif")
-
-spring_replay_bp <- spring_base_bc/nrow(spring_base_poly)
-
-summer_base_poly <- st_read("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Summer/Polygons.GPKG")
-summer_base_bc <- rast("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Summer/Summer_Combined_Burn_Probability.tif")
-
-summer_replay_bp <- summer_base_bc/nrow(summer_base_poly)
-
-mean_bp_classification(input = spring_replay_bp,
-                       output_filename = "E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Spring/Baseline_Classified_BP.tif")
-
-mean_bp_classification(input = summer_replay_bp,
-                       output_filename = "E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Summer/Replay_Classified_BP.tif")
-
-replay_diff <- spring_base_bp/spring_replay_bp
-
-replay_diff <- classify(replay_diff,rcl = matrix(ncol = 2, c(Inf,NA)))
-
-writeRaster(replay_diff,filename = "E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Spring/Replay_Difference_inf_spring.tif",overwrite = T, datatype="FLT4S")
-
-replay_diff <- summer_base_bp/summer_replay_bp
-
-replay_diff <- classify(replay_diff,rcl = matrix(ncol = 2, c(Inf,NA)))
-
-writeRaster(replay_diff,filename = "E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/summer/Replay_Difference_inf_summer.tif",overwrite = T, datatype = "FLT4S")
+# spring_base_poly <- st_read("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Spring/Polygons.GPKG")
+# spring_base_bc <- rast("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Spring/Spring_Combined_Burn_Probability.tif")
+#
+# spring_replay_bp <- spring_base_bc/nrow(spring_base_poly)
+#
+# summer_base_poly <- st_read("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Summer/Polygons.GPKG")
+# summer_base_bc <- rast("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Summer/Summer_Combined_Burn_Probability.tif")
+#
+# summer_replay_bp <- summer_base_bc/nrow(summer_base_poly)
+#
+# mean_bp_classification(input = spring_replay_bp,
+#                        output_filename = "E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Spring/Baseline_Classified_BP.tif")
+#
+# mean_bp_classification(input = summer_replay_bp,
+#                        output_filename = "E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Summer/Replay_Classified_BP.tif")
+#
+# replay_diff <- spring_base_bp/spring_replay_bp
+#
+# replay_diff <- classify(replay_diff,rcl = matrix(ncol = 2, c(Inf,NA)))
+#
+# writeRaster(replay_diff,filename = "E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Spring/Replay_Difference_inf_spring.tif",overwrite = T, datatype="FLT4S")
+#
+# replay_diff <- summer_base_bp/summer_replay_bp
+#
+# replay_diff <- classify(replay_diff,rcl = matrix(ncol = 2, c(Inf,NA)))
+#
+# writeRaster(replay_diff,filename = "E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/summer/Replay_Difference_inf_summer.tif",overwrite = T, datatype = "FLT4S")
 
 replay_difference <- function(directory, baseline_location, replay_location, probability){
 
