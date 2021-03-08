@@ -80,6 +80,7 @@ combine_output <- function(directory, file_prefix = 'Combined', stats_file, bp_f
 
     bp_shapes_list[[i]]$fire <- bp_shapes_list[[i]]$fire + max(bp_shapes$fire, na.rm = T)
     st_crs(bp_shapes_list[[i]]) <- st_crs(bp_shapes)
+    bp_shapes <- bp_shapes[!st_is_empty(bp_shapes),]
     bp_shapes <- plyr::rbind.fill(bp_shapes, bp_shapes_list[[i]])
 
   }

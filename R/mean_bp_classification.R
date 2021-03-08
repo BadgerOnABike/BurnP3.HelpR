@@ -19,6 +19,7 @@ mean_bp_classification <- function(input,output_filename){
   mean_bp <- mean(x = bp[],
                   na.rm = T)
   mean_bp.r <- bp/mean_bp
+  print("The mean burn probability is: ",mean_bp.r)
   bp_vals <- terra::values(mean_bp.r)
   bp_vals[bp_vals[] < 1 & bp_vals[] > 0 & !is.na(bp_vals)] <- (1/bp_vals[bp_vals[] < 1 & bp_vals[] > 0 & !is.na(bp_vals)])*-1
   mean_bp.r <- terra::setValues(x = mean_bp.r,
