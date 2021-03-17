@@ -1,22 +1,39 @@
-cols = c(
-  "#bee8ff",
-  "#73dfff",
-  "#d1ff73",
-  "#55ff00",
-  "#73b2ff",
-  "#0070ff",
-  "#70a800",
-  "#267300",
-  "#f5f57a",
-  "#ffff00",
-  "#e8beff",
-  "#df73ff",
-  "#f5ca7a",
-  "#ffaa00",
-  "#e600a9",
-  "#a80084")
+#' Hazard Legend
+#'
+#' This function generates a 4x4 legend square for the quartiles of probability and a set of 4 HFI breaks.
+#'
+#' @param output_location Output location
+#' @param output_filename Output filename with png extension
+#' @param hfi_breaks A string of 4 numeric HFI breaks
+#'
+#' @return
+#' @export
+#'
+#' @examples
+haz_legend <- function(output_location,output_filename, hfi_breaks = c(0,2000,4000,10000)){
 
-png("E:/Quarantine/Outputs/Result_Figures/BYK/BaselineUpdate2020/Hazard_Legend.png",
+  cols = c(
+    "#bee8ff",
+    "#73dfff",
+    "#d1ff73",
+    "#55ff00",
+    "#73b2ff",
+    "#0070ff",
+    "#70a800",
+    "#267300",
+    "#f5f57a",
+    "#ffff00",
+    "#e8beff",
+    "#df73ff",
+    "#f5ca7a",
+    "#ffaa00",
+    "#e600a9",
+    "#a80084")
+
+
+  if (!grepl("png$",output_filename)) {output_filename <- paste0(output_filename,".png")}
+
+png(paste0(output_location,"/",output_filename),
     height = 1000,
     width = 1200,
     type = "windows")
@@ -91,49 +108,6 @@ text(x = -.1,
      cex = 4)
 dev.off()
 
+print(paste0("Output to ", output_location,"/",output_filename))
 
-## Trying to get this working with ggplot
-
-# plot_polys <- data.frame(x = NA,
-#                          y = NA,
-#                          id = NA,
-#                          col = NA)
-# for (i in 1:4 ) {
-#   for (j in 1:4 ) {
-#     if (i == 1 & j == 1) {
-#     plot_polys <- data.frame(y = c(i - 1,
-#                                    i - 1,
-#                                    i,
-#                                    i),
-#                              x = c(j - 1,
-#                                    j,
-#                                    j,
-#                                    j - 1),
-#                              id = j + (4 * (i - 1)),
-#                              col = cols[j + (4 * (i - 1))])
-#     print(j + (4 * (i - 1)))
-#     print(cols[j + (4 * (i - 1))])
-#     } else {
-#       plot_polys <- rbind( plot_polys,
-#                            data.frame(y = c(i - 1,
-#                                      i - 1,
-#                                      i,
-#                                      i),
-#                                      x = c(j - 1,
-#                                            j,
-#                                            j,
-#                                            j - 1),
-#                                      id = j + (4 * (i - 1)),
-#                                      col = cols[j + (4 * (i - 1))]))
-#       print(j + (4 * (i - 1)))
-#       print(cols[j + (4 * (i - 1))])
-#     }
-#   }
-# }
-#
-# ggplot(data = plot_polys) +
-#   geom_polygon(aes(x = x,
-#                    y = y,
-#                    fill = col,
-#                    group = id),
-#                colour = "black")
+}
