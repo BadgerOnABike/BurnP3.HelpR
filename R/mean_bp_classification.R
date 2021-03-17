@@ -8,7 +8,7 @@
 #' @return
 #' @export
 #'
-#' @examples
+
 mean_bp_classification <- function(input,output_filename){
 
   if ( grepl("SpatRast", class(input)) ) { bp <- input }

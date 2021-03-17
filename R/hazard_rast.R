@@ -3,11 +3,11 @@
 #'
 #'
 #' @param stats_file Character string to the location of the statistics file, if there have been multiple runs aggregated, the aggregate statistics file.
-#' @param median_pattern
-#' @param mean_pattern
-#' @param burn_count_pattern
-#' @param intensity_directory
-#' @param burn_count_directory
+#' @param median_pattern Pattern for files that contain median information.
+#' @param mean_pattern Pattern for files that contain mean information.
+#' @param burn_count_pattern Pattern for files that contain burn count information.
+#' @param intensity_directory Directory where intensity rasters can be found
+#' @param burn_count_directory Directory where burn count rasters can be found
 #'
 #' @importFrom raster raster stack
 #'
