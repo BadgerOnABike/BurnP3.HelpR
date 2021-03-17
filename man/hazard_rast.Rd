@@ -16,7 +16,15 @@ hazard_rast(
 \arguments{
 \item{stats_file}{Character string to the location of the statistics file, if there have been multiple runs aggregated, the aggregate statistics file.}
 
-\item{burn_count_directory}{}
+\item{median_pattern}{Pattern for files that contain median information.}
+
+\item{mean_pattern}{Pattern for files that contain mean information.}
+
+\item{burn_count_pattern}{Pattern for files that contain burn count information.}
+
+\item{intensity_directory}{Directory where intensity rasters can be found}
+
+\item{burn_count_directory}{Directory where burn count rasters can be found}
 }
 \value{
 

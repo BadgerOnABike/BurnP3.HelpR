@@ -10,7 +10,7 @@
 #' @export
 #'
 
-haz_legend <- function(output_location,output_filename, hfi_breaks = c(0,2000,4000,10000)){
+hazard_legend <- function(output_location,output_filename, hfi_breaks = c(0,2000,4000,10000)){
 
   cols = c(
     "#bee8ff",

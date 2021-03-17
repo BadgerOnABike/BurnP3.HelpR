@@ -13,7 +13,7 @@
 #' @export
 #'
 
-haz_mapping <- function(fi,
+hazard_mapping <- function(fi,
                         bp,
                         bp_break_divisor = 4,
                         hfi_breaks = c(0,2000,4000,10000)){
