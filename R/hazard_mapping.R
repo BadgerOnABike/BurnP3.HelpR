@@ -12,7 +12,7 @@
 #' @return SpatRast
 #' @export
 #'
-#' @examples
+
 haz_mapping <- function(fi,
                         bp,
                         bp_break_divisor = 4,
