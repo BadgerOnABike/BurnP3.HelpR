@@ -23,7 +23,11 @@ hazard_mapping <- function(fi,
   hfi_breaks <- c(hfi_breaks[1] + 0.001,
                   hfi_breaks[2:length(hfi_breaks)])
 
-  if (bp_breaks == "") {
+  if (bp_breaks != "") {
+
+    bp_vals <- bp_breaks
+
+  } else {
 
     bp_vals <- c()
 
@@ -32,10 +36,6 @@ hazard_mapping <- function(fi,
       bp_vals[k] <- max(terra::values(bp), na.rm = T) * (k/bp_break_divisor)
 
     }
-
-  } else {
-
-      bp_vals <- bp_breaks
 
     }
 
@@ -46,14 +46,14 @@ hazard_mapping <- function(fi,
 
   bp.df <- as.data.frame(bp, na.rm = F)
 
-  for (i in 1:bp_break_divisor) {
+  for (i in 1:length(bp_vals)) {
 
     break_mat <- matrix(ncol = 3, nrow = length(hfi_breaks) + 1)
 
     for (j in seq_along(hfi_breaks)) {
 
       if (j == 1) {
-        break_mat[j, ] <- c(-Inf,hfi_breaks[j],NA)
+        break_mat[j, ] <- c(-Inf,0.000001,NA)
       } else {
         break_mat[j, ] <- c(hfi_breaks[j - 1],hfi_breaks[j], j - 1)
         if (j == max(seq_along(hfi_breaks))) break_mat[j + 1, ] <- c(hfi_breaks[j], Inf, j)
@@ -62,7 +62,7 @@ hazard_mapping <- function(fi,
     }
     break_mat[,3] <- break_mat[,3] + (i - 1) * 4
 
-    if (i == 1 & i < bp_break_divisor) {
+    if (i == 1 & i < length(bp_vals)) {
       haz[ which(bp.df <= bp_vals[ i ]) ,3] <- terra::classify(fi,rcl = break_mat)[bp <= bp_vals[ i ]]
       } else{
         haz[ which(bp.df > bp_vals[ i - 1 ] & bp.df <= bp_vals[ i ]) ,3] <- terra::classify(fi,rcl = break_mat)[bp > bp_vals[ i - 1 ] & bp <= bp_vals[ i ]]

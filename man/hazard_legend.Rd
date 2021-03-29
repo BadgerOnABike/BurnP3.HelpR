@@ -7,7 +7,8 @@
 hazard_legend(
   output_location,
   output_filename,
-  hfi_breaks = c(0, 2000, 4000, 10000)
+  hfi_breaks = c(0, 2000, 4000, 10000),
+  prob_vals = seq(25, 100, 25)
 )
 }
 \arguments{

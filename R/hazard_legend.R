@@ -10,7 +10,7 @@
 #' @export
 #'
 
-hazard_legend <- function(output_location,output_filename, hfi_breaks = c(0,2000,4000,10000)){
+hazard_legend <- function(output_location,output_filename, hfi_breaks = c(0,2000,4000,10000), prob_vals = seq(25,100,25) ){
 
   cols = c(
     "#bee8ff",
@@ -34,10 +34,10 @@ hazard_legend <- function(output_location,output_filename, hfi_breaks = c(0,2000
   if (!grepl("png$",output_filename)) {output_filename <- paste0(output_filename,".png")}
 
 png(paste0(output_location,"/",output_filename),
-    height = 1000,
-    width = 1200,
+    height = 1300,
+    width = 1600,
     type = "windows")
-par(mar = c(15,20,10,5),
+par(mar = c(20,20,15,5),
     bg = NA)
 plot(x = 0:4,
      y = 0:4,
@@ -50,16 +50,16 @@ plot(x = 0:4,
      ylab = "",
      panel.first = grid(4,4, col = "black", lty = 1),
      main = "HAZARD",
-     cex.main = 7)
+     cex.main = 10)
 mtext(side = 1,
-      line = 13,
+      line = 17,
       text = "\nWeighted Mean Fire Intensity (kW/m)",
-      cex = 4.5,
+      cex = 6.5,
       xpd = T)
 mtext(side = 2,
-      line = 10,
-      text = "Relative Burn Likelihood Percent\nof Landscape Maximum (%)",
-      cex = 4.5)
+      line = 9,
+      text = "Percent of Landscape Maximum\nBurn Likelihood (%)",
+      cex = 6.5)
 for (i in 1:4 ) {
   for (j in 1:4 ) {
     polygon(y = c(i - 1,
@@ -88,24 +88,24 @@ abline(h = 2,
        lwd = 10)
 
 box(lwd = 10, lend = 2)
-text(x = -.4,
+text(x = -.2,
      y = 1:4,
-     labels = seq(25,100,25),
+     labels = prob_vals,
      xpd = T,
      cex = 4)
-text(x = 1:(length(hfi_breaks) ),
+text(x = (1:(length(hfi_breaks) )) - .05,
      y = -.25,
      labels = c(prettyNum(hfi_breaks[2:length(hfi_breaks)],big.mark = ","),paste0(">",prettyNum(hfi_breaks[length(hfi_breaks)],big.mark = ","))),
      xpd = T,
      srt = 45,
      adj = c(.75,.75),
-     cex = 4)
+     cex = 5.5)
 text(x = -.1,
      y = -.1,
      labels = 0,
-     srt = 45,
+     srt = 22.5,
      xpd = T,
-     cex = 4)
+     cex = 5.5)
 dev.off()
 
 print(paste0("Output to ", output_location,"/",output_filename))

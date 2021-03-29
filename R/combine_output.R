@@ -94,7 +94,7 @@ combine_output <- function(directory, file_prefix = 'Combined', stats_file, bp_f
   if (raster == T) {
 
   bp_list <- terra::rast(x = list.files(path = directory,
-                                 pattern = paste0(bp_file,"|Burn_Probability.tif$|Burn_Count.tif$|Probability.tif$|Count.tif$"),
+                                 pattern = paste0(bp_file,"|Burn_Probability.tif$|Burn_Count.tif$|Probability.tif$|Count.tif$|Iteration.tif$"),
                                  recursive = T,
                                  full.names = T))
 

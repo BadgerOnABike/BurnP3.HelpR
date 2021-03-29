@@ -7,6 +7,8 @@
 elev_grab(aoi = "", reference_grid, output_directory)
 }
 \arguments{
+\item{aoi}{Polygon for the area of interest to be intersected with the NTS grid layer.}
+
 \item{reference_grid}{This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project. Can be either the location of the raster or a raster object.}
 
 \item{output_directory}{Output directory where your elevation and Wind Ninja elevation grids will be stored.}
