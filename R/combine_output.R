@@ -101,6 +101,8 @@ combine_output <- function(directory, file_prefix = 'Combined', stats_file, bp_f
   bp_list <- terra::app(x = bp_list,
                  fun = sum)
 
+  names(bp_list) <- paste0(file_prefix,"_Burn_Probability")
+
   writeRaster(x = bp_list,
               filename = paste0(directory,"/",file_prefix,"_Burn_Probability.tif"),
               datatype = "INT2U",

@@ -19,7 +19,7 @@ mean_bp_classification <- function(input,output_filename){
   mean_bp <- mean(x = bp[],
                   na.rm = T)
   mean_bp.r <- bp/mean_bp
-  print("The mean burn probability is: ",mean_bp.r)
+  print(paste0("The mean burn probability is: ", round(mean_bp,4)))
   bp_vals <- terra::values(mean_bp.r)
   bp_vals[bp_vals[] < 1 & bp_vals[] > 0 & !is.na(bp_vals)] <- (1/bp_vals[bp_vals[] < 1 & bp_vals[] > 0 & !is.na(bp_vals)])*-1
   mean_bp.r <- terra::setValues(x = mean_bp.r,
@@ -35,11 +35,10 @@ mean_bp_classification <- function(input,output_filename){
   terra::writeRaster(x = mean_bp.r,
                      filename = output_filename,
                      overwrite = T,
-                     wopts = list(filetype = "GTiff",
-                                  datatype = "INT2S",
-                                  gdal = c("COMPRESS=LZW",
-                                           "TFW=YES"),
-                                  NAflag = -9999
-                                  )
+                     filetype = "GTiff",
+                     datatype = "INT2S",
+                     gdal = c("COMPRESS=LZW",
+                              "TFW=YES"),
+                     NAflag = -9999
                      )
 }

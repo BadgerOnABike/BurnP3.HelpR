@@ -63,9 +63,9 @@ hazard_mapping <- function(fi,
     break_mat[,3] <- break_mat[,3] + (i - 1) * 4
 
     if (i == 1 & i < length(bp_vals)) {
-      haz[ which(bp.df <= bp_vals[ i ]) ,3] <- terra::classify(fi,rcl = break_mat)[bp <= bp_vals[ i ]]
+      haz[ which(bp.df <= bp_vals[ i ]) ,3] <- terra::classify(fi,rcl = break_mat)[which(bp[] <= bp_vals[ i ])]
       } else{
-        haz[ which(bp.df > bp_vals[ i - 1 ] & bp.df <= bp_vals[ i ]) ,3] <- terra::classify(fi,rcl = break_mat)[bp > bp_vals[ i - 1 ] & bp <= bp_vals[ i ]]
+        haz[ which(bp.df > bp_vals[ i - 1 ] & bp.df <= bp_vals[ i ]) ,3] <- terra::classify(fi,rcl = break_mat)[which(bp[] > bp_vals[ i - 1 ] & bp[] <= bp_vals[ i ])]
         }
     }
 
