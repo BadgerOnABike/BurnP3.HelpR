@@ -92,7 +92,7 @@ fuel_grid_generator <- function(aoi_poly, aoi_buffer = 15000, lut, reference_gri
 
       if (class(x) == "character") {rst.in <- terra::rast(x)} else {rst.in <- x}
 
-      rst.in <- terra::expand(rst.in,terra::ext(terra::vect(aoi_poly)))
+      rst.in <- terra::extend(rst.in,terra::ext(terra::vect(aoi_poly)))
 
       rst.in <- terra::project(rst.in,y = sp::proj4string(terra::crs(aoi_poly)),method = "ngb")
       rst.in <- terra::crop(rst.in,terra::rast(terra::vect(aoi_poly)),snap = "in")
