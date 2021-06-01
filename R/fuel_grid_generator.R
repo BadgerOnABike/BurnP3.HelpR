@@ -2,10 +2,10 @@
 #'
 #' @param aoi_poly Spatial data layer or character string to the location of the spatial data containing the area of interest to create a fuel grid for Burn-P3
 #' @param aoi_buffer This is a buffer in meters to extend the aoi_poly for use in clipping the gridded information.
-#' @param lut A look-up table containing the fuel information in order to convert the polygonal and raster information into the final fuel grid layer. _*Mandatory columns are:*_ export value, descriptive_name, fuel_type
+#' @param lut A look-up table containing the fuel information in order to convert the polygonal and raster information into the final fuel grid layer. _*Mandatory columns are:*_ export_value, descriptive_name, fuel_type
 #' @param reference_grid Reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.Can be either the location of the raster or a raster object.
 #' @param fuel_layers Character vector defining spatial (shapefile) and gridded (raster) for ingestion during use of the function. These layers will be stacked from top to bottom, spatial layers first, then raster layers.
-#' @param fuel_col Character vector defining the column that contains fuel calls in each shapefile in the same order they are called in the \code{fuel_layers} object
+#' @param fuel_col Character vector defining the column that contains character fuel types in each shapefile in the same order they are called in the \code{fuel_layers} object
 #' @param desired_resolution The desired resolution of the final raster. _(Default = 100)_
 #' @param pc A boolean vector of logical values (T/F) defining whether or not percent conifer is to be calculated for mixedwood fuels based on a percent conifer column.
 #' @param pc_col A character vector defining the column for percent conifer in each spatial layer. If the corresponding \code{pc} value is false enter "".
