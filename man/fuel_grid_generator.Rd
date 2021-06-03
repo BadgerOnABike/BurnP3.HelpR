@@ -22,13 +22,13 @@ fuel_grid_generator(
 
 \item{aoi_buffer}{This is a buffer in meters to extend the aoi_poly for use in clipping the gridded information.}
 
-\item{lut}{A look-up table containing the fuel information in order to convert the polygonal and raster information into the final fuel grid layer. \emph{\emph{Mandatory columns are:}} export value, descriptive_name, fuel_type}
+\item{lut}{A look-up table containing the fuel information in order to convert the polygonal and raster information into the final fuel grid layer. \emph{\emph{Mandatory columns are:}} export_value, descriptive_name, fuel_type}
 
 \item{reference_grid}{Reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.Can be either the location of the raster or a raster object.}
 
 \item{fuel_layers}{Character vector defining spatial (shapefile) and gridded (raster) for ingestion during use of the function. These layers will be stacked from top to bottom, spatial layers first, then raster layers.}
 
-\item{fuel_col}{Character vector defining the column that contains fuel calls in each shapefile in the same order they are called in the \code{fuel_layers} object}
+\item{fuel_col}{Character vector defining the column that contains character fuel types in each shapefile in the same order they are called in the \code{fuel_layers} object}
 
 \item{desired_resolution}{The desired resolution of the final raster. \emph{(Default = 100)}}
 

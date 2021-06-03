@@ -147,7 +147,7 @@ fuel_grid_generator <- function(aoi_poly, aoi_buffer = 15000, lut, reference_gri
 
       })
 
-  extents <- lapply(fuel.r,function(x)extent(x))
+  extents <- lapply(fuel.r,function(x) raster::extent(x))
   extents <- plyr::ldply(extents,function(x){
     data.frame(xmin = x@xmin,xmax = x@xmax,ymin = x@ymin,ymax = x@ymax)
   })
