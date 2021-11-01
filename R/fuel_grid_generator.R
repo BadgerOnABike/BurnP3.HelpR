@@ -11,8 +11,8 @@
 #' @param pc_col A character vector defining the column for percent conifer in each spatial layer. If the corresponding \code{pc} value is false enter "".
 #' @param output_directory The directory to place the final fuel grid. If using the generated directories use \code{bp3_base} as the output directory.
 #'
-#' @importFrom terra rast ext vect project extend crs bbox
-#' @importFrom sf st_read st_buffer st_transform read_sf st_crop st_make_valid st_cast st_geometry_type
+#' @importFrom terra rast ext vect project extend crs
+#' @importFrom sf st_read st_buffer st_transform read_sf st_crop st_make_valid st_cast st_geometry_type st_bbox
 #' @importFrom raster raster crop mask writeRaster resample extend
 #' @importFrom fasterize fasterize
 #' @importFrom sp proj4string
@@ -124,10 +124,10 @@ fuel_grid_generator <- function(aoi_poly, aoi_buffer = 15000, lut, reference_gri
                     crs = terra::crs(grast)
                     )
                   ),
-                xmin = terra::bbox(grast)[1,1],
-                ymin = terra::bbox(grast)[2,1],
-                xmax = terra::bbox(grast)[1,2],
-                ymax = terra::bbox(grast)[2,2]
+                xmin = sf::st_bbox(grast)[1,1],
+                ymin = sf::st_bbox(grast)[2,1],
+                xmax = sf::st_bbox(grast)[1,2],
+                ymax = sf::st_bbox(grast)[2,2]
                 )
       shps <- sf::st_cast(shps, "MULTIPOLYGON")
 
