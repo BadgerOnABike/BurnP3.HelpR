@@ -66,9 +66,9 @@ aoi <- function(area_of_interest_file,
                 stn_name_col,
                 stn_id_col){
 
-  if ( grepl("RasterLayer", class(reference_grid)) ) {grast <- reference_grid}
+  if ( grepl("SpatRaster", class(reference_grid)) ) {grast <- reference_grid}
   if ( grepl("character", class(reference_grid)) ) {grast <- terra::rast(reference_grid)}
-  if ( !grepl("RasterLayer|character", class(reference_grid)) ) {message("Reference Grid must be the directory of the raster or a raster object.")}
+  if ( !grepl("SpatRaster|character", class(reference_grid)) ) {message("Reference Grid must be the directory of the raster or a SpatRaster object.")}
 
   if ( is.null(area_of_interest_file) ) {stop("Please input an area of interest file or delcare PC (Parks Canada) as true to automatically load the Parks Canada layer")}
 
@@ -76,13 +76,13 @@ aoi <- function(area_of_interest_file,
     aoi_poly <- geojsonsf::geojson_sf("https://proxyinternet.nrcan.gc.ca/arcgis/rest/services/CLSS-SATC/CLSS_Administrative_Boundaries/MapServer/1/query?where=OBJECTID+%3E%3D0&geometryType=esriGeometryPolygon&spatialRel=esriSpatialRelIntersects&distance=&units=esriSRUnit_Foot&outFields=*&returnGeometry=true&returnTrueCurves=true&returnIdsOnly=false&returnCountOnly=false&returnZ=false&returnM=false&returnDistinctValues=false&returnExtentOnly=false&featureEncoding=esriDefault&f=geojson")
     stop(paste0("You have declared that you are using Parks Canada data, however you have not defined a park or multiple parks. This will result in national data being used. Park/s of interest can be declared as a character vector.Park names are: ",aoi_poly$sf$adminAreaNameEng))}
 
-  if ( is.null(area_of_interest_file) & park_of_interest != "") {
+  if ( is.null(area_of_interest_file) | park_of_interest != "") {
 
     aoi_poly <- geojsonsf::geojson_sf("https://proxyinternet.nrcan.gc.ca/arcgis/rest/services/CLSS-SATC/CLSS_Administrative_Boundaries/MapServer/1/query?where=OBJECTID+%3E%3D0&geometryType=esriGeometryPolygon&spatialRel=esriSpatialRelIntersects&distance=&units=esriSRUnit_Foot&outFields=*&returnGeometry=true&returnTrueCurves=true&returnIdsOnly=false&returnCountOnly=false&returnZ=false&returnM=false&returnDistinctValues=false&returnExtentOnly=false&featureEncoding=esriDefault&f=geojson")
 
   }
 
-  if (!is.null(area_of_interest_file)) {
+  if (!is.null(area_of_interest_file) & area_of_interest_file != "") {
     if (length(area_of_interest_file) > 1) {
       aoi_poly <- sf::st_read(dsn = area_of_interest_file[1],
                               layer = area_of_interest_file[2])
@@ -93,7 +93,7 @@ aoi <- function(area_of_interest_file,
 
 
   if (park_of_interest != "") {
-    aoi_poly <- aoi_poly[grep(park_of_interest,aoi_poly$parkname_e,ignore.case = T),]
+    aoi_poly <- aoi_poly[grep(park_of_interest,aoi_poly$adminAreaNameEng,ignore.case = T),]
   }
 
   aoi_poly <- sf::st_transform(x = aoi_poly ,crs = crs(grast))
@@ -116,7 +116,7 @@ aoi <- function(area_of_interest_file,
   x11();
 
   p <- ggplot2::ggplot( sf::st_buffer(aoi_poly,
-                                      dist = buffer_width)[,1]) +
+                                      dist = buffer_width)) +
     geom_sf(aes(fill = OBJECTID)) +
     geom_sf_label(data = sf::st_transform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
                                           crs = terra::crs(aoi_poly)),
@@ -131,3 +131,4 @@ aoi <- function(area_of_interest_file,
 
   return(stns_within_aoi)
 }
+
