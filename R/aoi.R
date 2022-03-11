@@ -26,7 +26,7 @@
 #'weather_stations <- st_read(dsn=system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),layer="weather_stations")
 #'
 #'## Defined AOI
-#'aoi(area_of_interest_file = st_read(system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),"aoi"),
+#'aoi(area_of_interest_file = c(system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),"aoi"),
 #'    PC=F,
 #'    reference_grid = ref_grid,
 #'    buffer_width = 15000,
@@ -82,14 +82,14 @@ aoi <- function(area_of_interest_file,
 
   }
 
-  if (!is.null(area_of_interest_file) & area_of_interest_file != "") {
-    if (length(area_of_interest_file) > 1) {
-      aoi_poly <- sf::st_read(dsn = area_of_interest_file[1],
-                              layer = area_of_interest_file[2])
-    } else {
-      aoi_poly <- sf::st_read(area_of_interest_file)
-    }
-  }
+  if( area_of_interest_file[1] != ""){
+     if (length(area_of_interest_file) == 2) {
+       aoi_poly <- sf::st_read(dsn = area_of_interest_file[1],
+                               layer = area_of_interest_file[2])
+       } else {
+         aoi_poly <- sf::st_read(area_of_interest_file)
+       }
+   }
 
 
   if (park_of_interest != "") {
@@ -97,6 +97,8 @@ aoi <- function(area_of_interest_file,
   }
 
   aoi_poly <- sf::st_transform(x = aoi_poly ,crs = crs(grast))
+
+  names(aoi_poly)[grep("id",names(aoi_poly),ignore.case = T)] <- "OBJECTID"
 
   ## Some basic plotting to visualize where stations are in relation to the AOI
 
@@ -131,4 +133,5 @@ aoi <- function(area_of_interest_file,
 
   return(stns_within_aoi)
 }
+
 
