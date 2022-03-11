@@ -22,8 +22,8 @@
 #' @examples
 #'
 #'# Load test data
-#'ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
-#'weather_stations <- st_read(dsn=system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),layer="weather_stations")
+#'ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+#'weather_stations <- sf::st_read(dsn=system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),layer="weather_stations")
 #'
 #'## Defined AOI
 #'aoi(area_of_interest_file = c(system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),"aoi"),
@@ -73,7 +73,9 @@ aoi <- function(area_of_interest_file,
   if ( is.null(area_of_interest_file) ) {stop("Please input an area of interest file or delcare PC (Parks Canada) as true to automatically load the Parks Canada layer")}
 
   if (PC == T & park_of_interest == "") {
+
     aoi_poly <- geojsonsf::geojson_sf("https://proxyinternet.nrcan.gc.ca/arcgis/rest/services/CLSS-SATC/CLSS_Administrative_Boundaries/MapServer/1/query?where=OBJECTID+%3E%3D0&geometryType=esriGeometryPolygon&spatialRel=esriSpatialRelIntersects&distance=&units=esriSRUnit_Foot&outFields=*&returnGeometry=true&returnTrueCurves=true&returnIdsOnly=false&returnCountOnly=false&returnZ=false&returnM=false&returnDistinctValues=false&returnExtentOnly=false&featureEncoding=esriDefault&f=geojson")
+
     stop(paste0("You have declared that you are using Parks Canada data, however you have not defined a park or multiple parks. This will result in national data being used. Park/s of interest can be declared as a character vector.Park names are: ",aoi_poly$sf$adminAreaNameEng))}
 
   if ( is.null(area_of_interest_file) | park_of_interest != "") {
@@ -133,5 +135,3 @@ aoi <- function(area_of_interest_file,
 
   return(stns_within_aoi)
 }
-
-
