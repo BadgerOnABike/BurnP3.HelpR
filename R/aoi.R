@@ -12,8 +12,9 @@
 #'
 #' @importFrom terra rast
 #' @importFrom sf st_read st_transform st_intersection st_buffer
+#' @importFrom geojsonsf geojson_sf
 #' @import ggplot2
-#' 
+#'
 #' @details Area of interest generator that allows a systematic AOI generation. Automated system for Parks Canada.
 #'
 #' @return SpatialPolygonsDataFrame
@@ -56,8 +57,6 @@
 #'
 #' @export
 
-
-
 aoi <- function(area_of_interest_file,
                 PC = F,
                 reference_grid,
@@ -73,26 +72,20 @@ aoi <- function(area_of_interest_file,
 
   if ( is.null(area_of_interest_file) ) {stop("Please input an area of interest file or delcare PC (Parks Canada) as true to automatically load the Parks Canada layer")}
 
-  if (PC == T & park_of_interest == "") {stop(paste0("You have declared that you are using Parks Canada data, however you have not defined a park or multiple parks. This will result in national data being used. Park/s of interest can be declared as a character vector.Park names are: ",aoi_poly$parkname_e))}
+  if (PC == T & park_of_interest == "") {
+    aoi_poly <- geojsonsf::geojson_sf("https://proxyinternet.nrcan.gc.ca/arcgis/rest/services/CLSS-SATC/CLSS_Administrative_Boundaries/MapServer/1/query?where=OBJECTID+%3E%3D0&geometryType=esriGeometryPolygon&spatialRel=esriSpatialRelIntersects&distance=&units=esriSRUnit_Foot&outFields=*&returnGeometry=true&returnTrueCurves=true&returnIdsOnly=false&returnCountOnly=false&returnZ=false&returnM=false&returnDistinctValues=false&returnExtentOnly=false&featureEncoding=esriDefault&f=geojson")
+    stop(paste0("You have declared that you are using Parks Canada data, however you have not defined a park or multiple parks. This will result in national data being used. Park/s of interest can be declared as a character vector.Park names are: ",aoi_poly$sf$adminAreaNameEng))}
 
   if ( is.null(area_of_interest_file) & park_of_interest != "") {
-    pc_temp <- tempfile(fileext = '.zip')
-    download.file(destfile = pc_temp,
-                  url = "http://ftp.maps.canada.ca/pub/pc_pc/National-parks_Parc-national/national_parks_boundaries/national_parks_boundaries.shp.zip")
-    pc_files <- unzip(pc_temp)
-    unzip(zipfile = pc_temp,
-          files = gsub("./","",pc_files),
-          exdir = gsub(".zip","",pc_temp))
-    aoi_poly <- sf::st_read(dsn = gsub(".zip","",pc_temp),
-                        layer = "national_parks_boundaries")
 
-    unlink(c(gsub(".zip","",pc_temp),list.files(tempdir(),pattern = ".zip",full.names = T)),recursive = T)
+    aoi_poly <- geojsonsf::geojson_sf("https://proxyinternet.nrcan.gc.ca/arcgis/rest/services/CLSS-SATC/CLSS_Administrative_Boundaries/MapServer/1/query?where=OBJECTID+%3E%3D0&geometryType=esriGeometryPolygon&spatialRel=esriSpatialRelIntersects&distance=&units=esriSRUnit_Foot&outFields=*&returnGeometry=true&returnTrueCurves=true&returnIdsOnly=false&returnCountOnly=false&returnZ=false&returnM=false&returnDistinctValues=false&returnExtentOnly=false&featureEncoding=esriDefault&f=geojson")
+
   }
 
   if (!is.null(area_of_interest_file)) {
     if (length(area_of_interest_file) > 1) {
       aoi_poly <- sf::st_read(dsn = area_of_interest_file[1],
-                          layer = area_of_interest_file[2])
+                              layer = area_of_interest_file[2])
     } else {
       aoi_poly <- sf::st_read(area_of_interest_file)
     }
@@ -100,7 +93,7 @@ aoi <- function(area_of_interest_file,
 
 
   if (park_of_interest != "") {
-     aoi_poly <- aoi_poly[grep(park_of_interest,aoi_poly$parkname_e,ignore.case = T),]
+    aoi_poly <- aoi_poly[grep(park_of_interest,aoi_poly$parkname_e,ignore.case = T),]
   }
 
   aoi_poly <- sf::st_transform(x = aoi_poly ,crs = crs(grast))
@@ -113,22 +106,22 @@ aoi <- function(area_of_interest_file,
         sf::st_transform(
           stns,
           crs = terra::crs(aoi_poly)
-          ),
+        ),
         sf::st_buffer(aoi_poly,
-                  dist = buffer_width
-                )
+                      dist = buffer_width
         )
-      )[,stn_name_col])
+      )
+    )[,stn_name_col])
 
   x11();
 
   p <- ggplot2::ggplot( sf::st_buffer(aoi_poly,
-                    dist = buffer_width)[,1]) +
+                                      dist = buffer_width)[,1]) +
     geom_sf(aes(fill = OBJECTID)) +
     geom_sf_label(data = sf::st_transform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
-                                     crs = terra::crs(aoi_poly)),
+                                          crs = terra::crs(aoi_poly)),
                   aes(label = sttn_nm),
-                 position = "identity") +
+                  position = "identity") +
     ggtitle(label = paste0("There are ",length(stns_within_aoi)," staions inside your area of interest")) +
     theme_void() +
     theme(legend.position = "none",
