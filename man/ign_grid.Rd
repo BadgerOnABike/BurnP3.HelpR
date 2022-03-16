@@ -60,7 +60,7 @@ Ignition grids are a probability surface describing the potential for any one ce
 
 ## Load in example data
 data("indicator_stack")
-fire_data <- readOGR(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
+fire_data <- rgdal::readOGR(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
 indicators_1 <- c("elevation",
                   "road_distance",
                   "rail_distance",
@@ -85,12 +85,11 @@ ign_grid(fire_data = fire_data,
          output_location = output_location,
          min_fire_size = "",
          model = model,
-         factor_vars =  c("ecodistrict","ign","in_out_park","fuels","town_boundary","weather_zones"),
+         factor_vars =  c("ecodistrict","ign","in_out_park","fuels","town_boundary"),
          non_fuel_vals = 101:110,
          testing = T)
 
-print(paset0("Test files have been written to: ", output_location))
+print(paste0("Test files have been written to: ", output_location))
 
 unlink(tempdir(),recursive = T)
-
 }
