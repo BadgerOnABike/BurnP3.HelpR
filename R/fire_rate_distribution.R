@@ -14,9 +14,8 @@
 #' @param causes A character vector defining the causes within the fire dataset. _(Default = c("H","L"))_
 #'
 #' @importFrom plyr ddply
-#' @importFrom sp spTransform
-#' @importFrom sf st_crs
-#' @importFrom raster crop extract
+#' @importFrom sf st_crs st_transform
+#' @importFrom terra crop extract
 #'
 #' @return
 #'
@@ -27,10 +26,10 @@
 #' @examples
 #' ## Load relavent data
 #' data("fire_data")
-#' aoi <- readOGR(system.file("extdata","extdata.gpkg",package="BurnP3.HelpR"),"aoi")
+#' aoi <- read_sf(system.file("extdata","extdata.gpkg",package="BurnP3.HelpR"),"aoi")
 #' output_location <- paste0(tempdir(),"\\")
-#' zones <- raster(system.file("extdata","zones.tif",package="BurnP3.HelpR"))
-#' data("seasons")
+#' zones <- rast(system.file("extdata","zones.tif",package="BurnP3.HelpR"))
+#' data("season_df")
 #' zone_names = c("Alpine-E","Montane-E","Alpine-W","Montane-W","IDF")
 #'
 #' fr <- fire_rate_distribution(input = fire_data,
@@ -55,7 +54,7 @@
 #'                              date_col = "REP_DATE",
 #'                              seasonal = T,
 #'                              zonal = F,
-#'                              seasons = seasons,
+#'                              seasons = season_df,
 #'                              zones,
 #'                              zone_names = "",
 #'                              min_fire_size = 0.01,
@@ -84,16 +83,16 @@
 
 fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", aoi, output_location, seasonal=F, zonal=F, seasons = "", zones, zone_names = "", min_fire_size = 0.01, causes = c("H","L")){
 
-  if (length(which(is.na(input@data[,date_col]))) > 0) {input <- input[-which(is.na(input@data[,date_col])),]}
+  if (length(which(is.na(input[,date_col]))) > 0) {input <- input[-which(is.na(input[,date_col])),]}
   if (length(which(duplicated(paste(input$LATITUDE,input$LONGITUDE,input$YEAR)))) > 0) {input <- input[-which(duplicated(paste(input$LATITUDE,input$LONGITUDE,input$YEAR))),]}
   # subset of the 100km_input to 3 ha minimum fire size
 
-  input <- subset(input, input@data$SIZE_HA >= min_fire_size)
-  input$jday <- as.numeric(format(as.Date(input@data[,date_col],date_format),"%j"))
+  input <- subset(input, input$SIZE_HA >= min_fire_size)
+  input$jday <- as.numeric(format(as.Date(input[[date_col]],date_format),"%j"))
 
   ## May throw an error about bad geometry, that's find it still projects.
-  input <- sp::spTransform(input,CRSobj = terra::crs(aoi))
-  input <- raster::crop(input, aoi)
+  input <- sf::st_transform(input,crs = st_crs(aoi))
+  input <- sf::st_crop(input, aoi)
   input <- input[input$CAUSE %in% causes,]
 
   if (seasonal & !is.element("season",names(input))) {
@@ -111,7 +110,7 @@ fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", ao
   }
 
   if (zonal) {
-    input$zone <- raster::extract(zones,input)
+    input$zone <- terra::extract(zones,input)
     if (length(which(is.na(input$zone))) > 0) {input <- input[-which(is.na(input$zone)),]}
   }
 
@@ -127,7 +126,8 @@ fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", ao
   )
 
   colnames(fire_rate) <- tolower(colnames(fire_rate))
-  fire_rate$cause <- as.numeric(as.factor(fire_rate$cause))
+  print(data.frame(cause = fire_rate$cause, numeric_cause = as.numeric(as.factor(as.character(fire_rate$cause)))))
+  fire_rate$cause <- as.numeric(as.factor(as.character(fire_rate$cause)))
   if (output_location == dir_list[[2]]) {
     write.csv(fire_rate,
               paste0(output_location,"Inputs/2. Modules/Distribution Tables/Fire_Rate_Distribution.csv"),
