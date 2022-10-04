@@ -27,7 +27,7 @@
 #' @examples
 #'
 #' ## Load example data
-#' load("E:/Quarantine/R/BP3_RProject/burn-p3-r-package/data/weather.rda")
+#' data(weather)
 #'
 #' spread_event_days(input = wx_input,
 #' yr_col = "yr",

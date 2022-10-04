@@ -35,10 +35,9 @@ mean_bp_classification <- function(input,output_filename){
   terra::writeRaster(x = mean_bp.r,
                      filename = output_filename,
                      overwrite = T,
-                     filetype = "GTiff",
-                     datatype = "INT2S",
-                     gdal = c("COMPRESS=LZW",
-                              "TFW=YES"),
+                     wopt = list(filetype = "GTiff",
+                                 datatype = "INT2S",
+                                 gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
                      NAflag = -9999
                      )
 }

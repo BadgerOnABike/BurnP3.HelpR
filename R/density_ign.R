@@ -36,9 +36,9 @@
 density_ign <- function(reference_grid,layers_list,width = 1000, output_location,output_name){
 
   if ( dir.exists(output_location) == F ) { dir.create(output_location)}
-  if ( grepl("SpatRast", class(reference_grid)) ) { grast <- reference_grid }
+  if ( grepl("SpatRaster", class(reference_grid)) ) { grast <- reference_grid }
   if ( grepl("character", class(reference_grid)) ) { grast <- terra::rast(reference_grid) }
-  if ( !grepl("SpatRast|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the raster or a SpatRast object.") }
+  if ( !grepl("SpatRaster|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the raster or a SpatRast object.") }
 
   density.r <- MASS::kde2d(x = sf::st_coordinates(layers_list)[,1],
                            y = sf::st_coordinates(layers_list)[,2],

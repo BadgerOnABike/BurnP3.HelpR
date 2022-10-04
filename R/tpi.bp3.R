@@ -7,8 +7,8 @@
 #' @param input The elevation grid that will be used during modelling. It may also be larger in order to avoid edge effects if necessary.
 #' @param window_size Must be an odd number
 #'
-#' @importFrom raster raster focal terrain
-#' 
+#' @importFrom terra rast focal terrain
+#'
 #' @return RasterStack
 #' @export
 #'
@@ -16,25 +16,25 @@
 #' @examples
 #'
 #' ##Load in example data
-#' elev <- raster(system.file("extdata/elev.tif",package="BurnP3.HelpR"))
-#' tpi.out <- tpi.bp3(elevation_grid = elev, window_size = 5)
+#' elev <- rast(system.file("extdata/elev.tif",package="BurnP3.HelpR"))
+#' tpi.out <- tpi.bp3(input = elev, window_size = 5)
 #' plot(tpi.out)
 
 tpi.bp3 <- function(input, window_size = 5){
 
-  if ( grepl("RasterLayer", class(input)) ) { grast <- input }
-  if ( grepl("character", class(input)) ) { grast <- raster::raster(input) }
-  if ( !grepl("RasterLayer|character", class(input)) ) { message("Reference Grid must be the directory of the raster or a raster object.") }
+  if ( grepl("SpatRaster", class(input)) ) { grast <- input }
+  if ( grepl("character", class(input)) ) { grast <- terra::rast(input) }
+  if ( !grepl("SpatRaster|character", class(input)) ) { message("Reference Grid must be the directory of the raster or a SpatRaster object.") }
 
   tpi <- tpi_w(input = grast,
                window_size)
   tri <- TRI(input = grast,
              window_size)
   flow <- terrain(x = grast,
-                  opt = "flowdir")
-  out.r <- stack(tpi,
-                 tri,
-                 flow)
+                  v = "flowdir")
+  out.r <- c(tpi,
+             tri,
+             flow)
   names(out.r) <- c("tpi",
                     "tri",
                     "flowdir")
@@ -45,7 +45,7 @@ tpi.bp3 <- function(input, window_size = 5){
 #' @param input The elevation grid that will be used during modelling. It may also be larger in order to avoid edge effects if necessary.
 #' @param window_size Must be an odd number
 #'
-#' @return RasterLayer
+#' @return SpatRaster
 #' @export
 #'
 tpi_w <- function(input, window_size=5) {
@@ -53,7 +53,7 @@ tpi_w <- function(input, window_size=5) {
               nc = window_size,
               nr = window_size)
   m[ceiling(0.5 * length(m))] <- 0
-  f <- raster::focal(input,
+  f <- terra::focal(input,
              m)
   input - f
 }
@@ -62,7 +62,7 @@ tpi_w <- function(input, window_size=5) {
 #' @param input The elevation grid that will be used during modelling. It may also be larger in order to avoid edge effects if necessary.
 #' @param window_size Must be an odd number
 #'
-#' @return RasterLayer
+#' @return SpatRaster
 #' @export
 #'
 TRI <- function(input,window_size){
@@ -70,7 +70,7 @@ TRI <- function(input,window_size){
               nc = window_size,
               nr = window_size)
   f[ceiling(0.5 * length(f))] <- 0
-  raster::focal(input,
+  terra::focal(input,
         f,
         fun = function(x, ...) sum(abs(x[-5]-x[5]))/8,
         pad = TRUE,

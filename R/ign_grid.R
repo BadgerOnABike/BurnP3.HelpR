@@ -23,7 +23,7 @@
 #' @importFrom randomForest tuneRF randomForest importance
 #' @importFrom dismo gbm.step
 #'
-#' @return rasterLayer
+#' @return spatraster
 #'
 #' @export
 #'

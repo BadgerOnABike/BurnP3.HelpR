@@ -2,7 +2,7 @@
 #'
 #' A quick converter for ASCII wind ninja grids to GeoTiff for smaller storage and faster loading.
 #'
-#' @importFrom raster writeRaster raster
+#' @importFrom terra writeRaster rast
 #'
 #' @param directory directory of wind ninja grids. The directory that contains the direction and velocity folders.
 #' @export
@@ -31,9 +31,10 @@ wn_converter <- function(directory){
              function(x){
         writeRaster(raster(x),
                     gsub(".asc",".tif",x),
-                    format = "GTiff",
-                    NAflag = -9999,
-                    datatype = "INT2S",
+                    wopt = list(filetype = "GTiff",
+                                datatype = "INT2s",
+                                gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
+                    NAflag=-9999,
                     overwrite = T)
       }
       )
@@ -46,9 +47,10 @@ wn_converter <- function(directory){
            function(x){
       writeRaster(raster(x),
                   gsub(".asc",".tif",x),
-                  format = "GTiff",
-                  NAflag = -9999,
-                  datatype = "INT2S",
+                  wopt = list(filetype = "GTiff",
+                              datatype = "INT2s",
+                              gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
+                  NAflag=-9999,
                   overwrite = T)
     }
     )

@@ -66,7 +66,7 @@
 #'
 #' @docType package
 #'
-#' @author Brett Moore \email{Brett.Moore@@canada.ca}
+#' @author Brett Moore \email{Brett.Moore@@nrcan-rncan.gc.ca}
 #'
 #' @name BurnP3.HelpR-package
 #' @aliases BurnP3.HelpR BurnP3.HelpR-package
