@@ -12,7 +12,7 @@ mean_bp_classification(input, output_filename)
 \item{output_filename}{A character sting that defines the output directory and filename for the output raster.}
 }
 \value{
-
+SpatRaster
 }
 \description{
 This function creates an output raster that represents the devisation from the mean burn probability on a landscape. This is intended for use when presenting burn probability to better demonstrate the deviance from the mean across the landscape and draw attention to areas that are considerably above and below the mean burn probability.

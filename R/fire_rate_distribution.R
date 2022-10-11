@@ -17,7 +17,7 @@
 #' @importFrom sf st_crs st_transform
 #' @importFrom terra crop extract
 #'
-#' @return
+#' @return SpatRaster
 #'
 #' @export
 #'

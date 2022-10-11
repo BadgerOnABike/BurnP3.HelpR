@@ -15,7 +15,7 @@
 #' @importFrom sf st_read st_buffer st_transform read_sf st_crop st_make_valid st_cast st_geometry_type st_bbox
 #' @importFrom plyr ldply
 #'
-#' @return
+#' @return SpatRaster
 #' @export
 #'
 #'

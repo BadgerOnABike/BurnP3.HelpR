@@ -5,8 +5,8 @@
 #' @param reference_grid This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.
 #' @param layer A list containing at least one spatial layer from the \code{spatdat_ign_layer} function to be rasterized.
 #'
-#' @importFrom terra rast cellFromLine cellFromPolygon reclassify rasterToPoints setValues stack
-#' @importFrom sf read_sf st_crs st_transform st_centroid
+#' @importFrom terra rast cells classify setValues vect
+#' @importFrom sf read_sf st_crs st_transform st_centroid st_as_sf
 #'
 #' @return List containing points and raster layers.
 #' @export
@@ -24,7 +24,7 @@
 spatdat_ign_rast <- function(reference_grid, layers_list){
 
   if ( grepl("SpatRaster", class(reference_grid)) ) {grast <- reference_grid}
-  if ( grepl("character", class(reference_grid)) ) {grast <- raster::raster(reference_grid)}
+  if ( grepl("character", class(reference_grid)) ) {grast <- terra::rast(reference_grid)}
   if ( !grepl("SpatRaster|character", class(reference_grid)) ) {message("Reference Grid must be the directory of the raster or a SpatRaster object.")}
 
   rasters_list <- lapply(X = layers_list,
@@ -38,7 +38,7 @@ spatdat_ign_rast <- function(reference_grid, layers_list){
                            if (grepl("polygon",unique(st_geometry_type(x)),ignore.case = T)) {
                              cells_in <-  terra::cells(x = terra::setValues(grast,0),
                                                        y = vect(x))[,"cell"]
-                             if (is.null(cells_in)) x <- sp::SpatialPoints(rgeos::gCentroid(x),proj4string = sp::CRS(sp::proj4string(grast)))
+                             if (is.null(cells_in)) x <- sf::st_as_sf(sf::st_centroid(x),proj4string = sf::st_crs(grast))
                            }
 
                            if (grepl("point",unique(st_geometry_type(x)),ignore.case = T)) {

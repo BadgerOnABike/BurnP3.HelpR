@@ -15,13 +15,13 @@ density_ign(
 \arguments{
 \item{reference_grid}{Reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.Can be either the location of the raster or a raster object.}
 
+\item{layers_list}{A point layer or layers in the form of a list for which you are interested in the density.}
+
 \item{width}{Distance around each point to take into the density calculation.}
 
 \item{output_location}{The location the output density rasters will be placed.}
 
 \item{output_name}{The name of the files to be output. Typically these will be a vector of the names of your list of layers.}
-
-\item{layer}{A point layer for which you are interested in the density.}
 }
 \value{
 RasterLayer
@@ -35,8 +35,8 @@ This function utilizes the kernal density estimation algorithm from spatialEco t
 \examples{
 
 ## Load example data
-ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
-fires <- readOGR(system.file("extdata/fires.shp",package = "BurnP3.HelpR"))
+ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+fires <- read_sf(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
 temp_dir <- tempdir()
 density_test <- density_ign(reference_grid = ref_grid,
                             layers_list = fires,

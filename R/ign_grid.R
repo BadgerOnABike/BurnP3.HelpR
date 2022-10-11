@@ -18,7 +18,7 @@
 #' @param factor_vars If there are layers that are factors they need to be added to a character vector for use in the function.
 #' @param non_fuel_vals If there are non-fuels that you want excluded from ignition grids they need to be in a numeric vector.
 #'
-#' @importFrom terra rast cellFromXY mask setValues cellStats writeRaster
+#' @importFrom terra rast cellFromXY mask setValues global writeRaster
 #' @importFrom caret rfeControl rfe downSample createDataPartition rfFuncs train resamples confusionMatrix varImp
 #' @importFrom randomForest tuneRF randomForest importance
 #' @importFrom dismo gbm.step
@@ -34,6 +34,7 @@
 #'
 #' ## Load in example data
 #' data("indicator_stack")
+#' indicator_stack <- terra::rast(indicator_stack)
 #' fire_data <- sf::read_sf(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
 #' indicators_1 <- c("elevation",
 #'                   "road_distance",
@@ -51,7 +52,7 @@
 #'
 #' ign_grid(fire_data = fire_data,
 #'          indicator_stack = indicator_stack,
-#'          reference_grid = raster(system.file("extdata","elev.tif",package="BurnP3.HelpR")),
+#'          reference_grid = terra::rast(system.file("extdata","elev.tif",package="BurnP3.HelpR")),
 #'          indicators_1 = indicators_1,
 #'          indicators_2 = indicators_2,
 #'          causes = causes,
@@ -138,7 +139,7 @@ ign_grid <- function(fire_data,
           print(results)
 
           if ( cause == "L" && max(results$results$Accuracy) > 0.65 ) { break }
-          if ( cause == "H" && max(results$results$Accuracy) > 0.75 && results$results[which.max(results$results$Accuracy),"Variables"] > 3 ) { break }
+          if ( cause == "H" && max(results$results$Accuracy) > 0.70 && results$results[which.max(results$results$Accuracy),"Variables"] > 3 ) { break }
 
         }
 
@@ -409,7 +410,7 @@ ign_grid <- function(fire_data,
                        n.trees = gbm_step$n.trees,
                        type = "response")
 
-        scaled_ign <- (ign - cellStats(ign, stat = 'min')) / (cellStats(ign, stat = 'max') - cellStats(ign, stat = 'min'))
+        scaled_ign <- (ign - global(ign, fun = 'min')) / (global(ign, fun = 'max') - global(ign, fun = 'min'))
 
         scaled_ign[][which(indicator_stack$fuels[] %in% c(101:110))] <- 0
 
@@ -505,7 +506,7 @@ ign_grid <- function(fire_data,
         print(results)
 
         if ( cause == "L" && max(results$results$Accuracy) > 0.65 ) { break }
-        if ( cause == "H" && max(results$results$Accuracy) > 0.75 && results$results[which.max(results$results$Accuracy),"Variables"] > 3 ) { break }
+        if ( cause == "H" && max(results$results$Accuracy) > 0.70 && results$results[which.max(results$results$Accuracy),"Variables"] > 3 ) { break }
 
         }
 

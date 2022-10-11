@@ -45,7 +45,7 @@ fire_rate_distribution(
 \item{causes}{A character vector defining the causes within the fire dataset. \emph{(Default = c("H","L"))}}
 }
 \value{
-
+SpatRaster
 }
 \description{
 Fire Rate Distribution
@@ -53,10 +53,10 @@ Fire Rate Distribution
 \examples{
 ## Load relavent data
 data("fire_data")
-aoi <- readOGR(system.file("extdata","extdata.gpkg",package="BurnP3.HelpR"),"aoi")
+aoi <- read_sf(system.file("extdata","extdata.gpkg",package="BurnP3.HelpR"),"aoi")
 output_location <- paste0(tempdir(),"\\\\")
-zones <- raster(system.file("extdata","zones.tif",package="BurnP3.HelpR"))
-data("seasons")
+zones <- rast(system.file("extdata","zones.tif",package="BurnP3.HelpR"))
+data("season_df")
 zone_names = c("Alpine-E","Montane-E","Alpine-W","Montane-W","IDF")
 
 fr <- fire_rate_distribution(input = fire_data,
@@ -81,7 +81,7 @@ fr <- fire_rate_distribution(input = fire_data,
                              date_col = "REP_DATE",
                              seasonal = T,
                              zonal = F,
-                             seasons = seasons,
+                             seasons = season_df,
                              zones,
                              zone_names = "",
                              min_fire_size = 0.01,

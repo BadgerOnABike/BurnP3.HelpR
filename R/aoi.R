@@ -94,9 +94,9 @@ aoi <- function(area_of_interest_file,
 
     aoi_poly <- geojsonsf::geojson_sf(url)
 
-    stop(paste0("You have declared that you are using Parks Canada data,", 
-    "however you have not defined a park or multiple parks. This will result ,"
-    "in national data being used. Park/s of interest can be declared as a ,"
+    stop(paste0("You have declared that you are using Parks Canada data,",
+    "however you have not defined a park or multiple parks. This will result ,",
+    "in national data being used. Park/s of interest can be declared as a ,",
     "character vector.Park names are: ",aoi_poly$sf$adminAreaNameEng))}
 
   if ( is.null(area_of_interest_file) | park_of_interest != "") {

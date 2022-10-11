@@ -19,6 +19,7 @@
 #' ## Load example data
 #' ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
 #' data("spatdat_rast_out")
+#' raster_list$rasters <- rast(raster_list$rasters)
 #' temp_dir <- tempdir()
 #' distance_test <- distance_ign(reference_grid = ref_grid,
 #'                             rasters_list = raster_list$rasters,

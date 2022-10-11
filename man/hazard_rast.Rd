@@ -27,7 +27,7 @@ hazard_rast(
 \item{burn_count_directory}{Directory where burn count rasters can be found}
 }
 \value{
-
+list
 }
 \description{
 Wildfire Hazard Raster Generator

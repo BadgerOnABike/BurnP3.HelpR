@@ -20,8 +20,8 @@ A function to create a point layer and a raster layer out of spatial inputs (poi
 \examples{
 
 ## Load example data
-ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3"))
-layers_list <- list(readOGR(dsn=system.file("extdata/extdata.gpkg",package = "BurnP3"),layer="layers_list"))
+ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+layers_list <- list(read_sf(dsn=system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="layers_list"))
 out <- spatdat_ign_rast(reference_grid = ref_grid,
                         layers_list = layers_list)
 

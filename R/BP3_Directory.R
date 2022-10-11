@@ -5,7 +5,6 @@
 #' @param root The root directory where the full Burn-P3 directory currently exists.
 #' @param project_name The name of the current Burn-P3 project.
 #'
-#' @return
 #' @export
 #'
 #' @examples

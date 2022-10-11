@@ -11,9 +11,6 @@ bp3_dirs(root = "", project_name = "")
 
 \item{project_name}{The name of the current Burn-P3 project.}
 }
-\value{
-
-}
 \description{
 A function to generate objects with base and Burn-P3 directories for use in subsequent functions.
 }

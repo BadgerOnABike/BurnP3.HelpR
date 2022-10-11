@@ -10,7 +10,6 @@
 #' @importFrom terra ext
 #' @importFrom sf st_transform st_as_sf
 #'
-#' @return
 #' @export
 #'
 #' @examples

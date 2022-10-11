@@ -29,12 +29,6 @@ combine_output(
 
 \item{daily}{A logical flag for the combination of daily or final perimeters. It will default to final when daily = F. \emph{(Default: False)}}
 }
-\value{
-
-}
 \description{
 Combine Output
-}
-\examples{
-
 }

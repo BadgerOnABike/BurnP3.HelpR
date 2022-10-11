@@ -5,7 +5,7 @@
 #' @param input Required as a SpatRast or a character string for the directory of the raster information.
 #' @param output_filename A character sting that defines the output directory and filename for the output raster.
 #'
-#' @return
+#' @return SpatRaster
 #' @export
 #'
 
@@ -31,6 +31,8 @@ mean_bp_classification <- function(input,output_filename){
                                             data = c(-Inf,-10,-11,10,Inf,11)
                                             )
                                )
+
+  return(mean_bp.r)
 
   terra::writeRaster(x = mean_bp.r,
                      filename = output_filename,

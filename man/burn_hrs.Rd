@@ -15,9 +15,6 @@ burn_hrs(reference_grid, season_df, season_col, out_dir)
 
 \item{out_dir}{Output directory}
 }
-\value{
-
-}
 \description{
 The hours of burning are an important part of a Burn-P3 simulation. One third of the total daylight hours are considered to be burning hours. Values are rounded to the nearest whole number and the proportion of each of those hours will be output to a file in your declared location. If you are declaring different hours for the whole simulation, use a single season with the start and end julian days spanning the weather relevant to your study.
 }

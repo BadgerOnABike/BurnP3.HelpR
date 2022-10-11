@@ -4,7 +4,7 @@
 \alias{elev_grab}
 \title{Elevation Grabber - From NTS Grids}
 \usage{
-elev_grab(aoi = "", reference_grid, output_directory)
+elev_grab(aoi = NULL, reference_grid, output_directory)
 }
 \arguments{
 \item{aoi}{Polygon for the area of interest to be intersected with the NTS grid layer. \emph{(Default: "")} If Default is used the full extent under the reference_grid will be returned.}

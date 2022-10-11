@@ -11,7 +11,7 @@
 #'
 #' @importFrom terra rast
 #'
-#' @return
+#' @return list
 #' @export
 #'
 
