@@ -1,6 +1,13 @@
 # BurnP3.HelpR-package
 A package for R that assists with Burn-P3 input generation.
 
+To install:
+
+```
+install.packages("devtools")
+devtools::install_github("BadgerOnABike/Burnp3.HelpR")
+```
+
  # 0. Establish Area of Interest and Question
 
  While the package will be unable to do most of this work for you, we will describe the inputs you need ready to use this tool effectively.
