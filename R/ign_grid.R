@@ -23,6 +23,7 @@
 #' @importFrom randomForest tuneRF randomForest importance
 #' @importFrom dismo gbm.step
 #' @importFrom sf read_sf st_coordinates
+#' @importFrom data.table as.data.table
 #' @import gbm
 #'
 #' @return spatraster
