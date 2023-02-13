@@ -29,14 +29,21 @@
 #'
 #' unlink(temp_dir, recursive = T)
 
-elev_grab <- function(aoi = "", reference_grid,output_directory){
+elev_grab <- function(aoi = NULL, reference_grid,output_directory){
 
-
-  if ( grepl("SpatRast", class(reference_grid)) ) { grast <- reference_grid }
+  if ( grepl("SpatRaster", class(reference_grid)) ) { grast <- reference_grid }
   if ( grepl("character", class(reference_grid)) ) { grast <- terra::rast(reference_grid) }
-  if ( !grepl("SpatRast|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the raster or a raster object.") }
+  if ( !grepl("SpatRaster|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the spatraster or a spatraster object.") }
 
-  e <- sf::st_as_sf(as(terra::as.polygons(grast, extent=T),"Spatial"))
+  if ( grepl("sf", class(aoi)) ) { aoi <- aoi }
+  if ( grepl("character", class(aoi)) ) { aoi <- sf:read_sf(aoi) }
+  if ( !grepl("sf|character", class(aoi)) ) { message("AOI must be a simple feature (sf) or a directory to a simple feature.") }
+
+  if( !is.null(aoi)){
+    e <- aoi
+  }else{
+    e <- sf::st_as_sf(as(terra::as.polygons(grast, extent=T),"Spatial"))
+  }
 
   ## Download and extract the NTS grid specified by user (will be removed after use), uses the 250k grid as that is what CDEM is based on
   nts_temp <- tempfile(fileext = '.zip')
@@ -82,16 +89,18 @@ elev_grab <- function(aoi = "", reference_grid,output_directory){
   if (class(aoi)[1] == "sf") {
     terra::writeRaster(terra::mask(mosaic.r,vect(aoi)),
                 paste0(output_directory,"elevation.tif"),
-                datatype = "INT2S",
+                wopt = list(filetype = "GTiff",
+                            datatype = "INT2S",
+                            gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
                 NAflag = -9999,
-                filetype = "GTiff",
                 overwrite = T)
   }
     terra::writeRaster(mosaic.r,
                 paste0(output_directory,"elevation_wn.tif"),
-                datatype = "INT2S",
+                wopt = list(filetype = "GTiff",
+                            datatype = "INT2S",
+                            gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
                 NAflag = -9999,
-                filetype = "GTiff",
                 overwrite = T)
 
 }

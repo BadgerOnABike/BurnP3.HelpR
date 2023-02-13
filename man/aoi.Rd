@@ -44,11 +44,11 @@ Area of interest generator that allows a systematic AOI generation. Automated sy
 \examples{
 
 # Load test data
-ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
-weather_stations <- st_read(dsn=system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),layer="weather_stations")
+ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+weather_stations <- sf::st_read(dsn=system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),layer="weather_stations")
 
 ## Defined AOI
-aoi(area_of_interest_file = st_read(system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),"aoi"),
+aoi(area_of_interest_file = c(system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),"aoi"),
    PC=F,
    reference_grid = ref_grid,
    buffer_width = 15000,

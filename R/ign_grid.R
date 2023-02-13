@@ -18,12 +18,15 @@
 #' @param factor_vars If there are layers that are factors they need to be added to a character vector for use in the function.
 #' @param non_fuel_vals If there are non-fuels that you want excluded from ignition grids they need to be in a numeric vector.
 #'
-#' @importFrom raster raster cellFromXY mask setValues cellStats writeRaster
+#' @importFrom terra rast cellFromXY mask setValues global writeRaster
 #' @importFrom caret rfeControl rfe downSample createDataPartition rfFuncs train resamples confusionMatrix varImp
 #' @importFrom randomForest tuneRF randomForest importance
 #' @importFrom dismo gbm.step
+#' @importFrom sf read_sf st_coordinates
+#' @importFrom data.table as.data.table
+#' @import gbm
 #'
-#' @return rasterLayer
+#' @return spatraster
 #'
 #' @export
 #'
@@ -32,7 +35,8 @@
 #'
 #' ## Load in example data
 #' data("indicator_stack")
-#' fire_data <- rgdal::readOGR(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
+#' indicator_stack <- terra::rast(indicator_stack)
+#' fire_data <- sf::read_sf(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
 #' indicators_1 <- c("elevation",
 #'                   "road_distance",
 #'                   "rail_distance",
@@ -49,7 +53,7 @@
 #'
 #' ign_grid(fire_data = fire_data,
 #'          indicator_stack = indicator_stack,
-#'          reference_grid = raster(system.file("extdata","elev.tif",package="BurnP3.HelpR")),
+#'          reference_grid = terra::rast(system.file("extdata","elev.tif",package="BurnP3.HelpR")),
 #'          indicators_1 = indicators_1,
 #'          indicators_2 = indicators_2,
 #'          causes = causes,
@@ -80,9 +84,9 @@ ign_grid <- function(fire_data,
                      non_fuel_vals = NULL,
                      testing = F){
 
-  if ( grepl("RasterLayer", class(reference_grid)) ) { grast <- reference_grid }
-  if ( grepl("character", class(reference_grid)) ) { grast <- raster::raster(reference_grid) }
-  if ( !grepl("RasterLayer|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the raster or a raster object.") }
+  if ( grepl("SpatRaster", class(reference_grid)) ) { grast <- reference_grid }
+  if ( grepl("character", class(reference_grid)) ) { grast <- terra::rast(reference_grid) }
+  if ( !grepl("SpatRaster|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the raster or a raster object.") }
 
   if (model == "") {
     stop("Please define a model. Either rf for an automatically refined random forest, rf_stock for a baseline randomForest::randomForest, gbm for gradient boosting machine or brt for a boosted regression tree.")}
@@ -91,34 +95,36 @@ ign_grid <- function(fire_data,
   indicators_1 <- tolower(indicators_1)
   indicators_2 <- tolower(indicators_2)
 
-  ## Random Forest Model
+  # Random Forest -----------------------------------------------------------
+
   if (model == "rf") {
-
-
     for (cause in causes) {
       for (season in min(unique(fire_data$season)):(max(unique(fire_data$season)) + 1)) {
         if (season == max(unique(fire_data$season)) + 1) {
-          tab <- raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
+          tab <- terra::cellFromXY(terra::setValues(grast,0), st_coordinates(fire_data[fire_data$CAUSE == cause,]))
         } else {
-          tab <- raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])
+          tab <- terra::cellFromXY(terra::setValues(grast,0), st_coordinates(fire_data[fire_data$CAUSE == cause & fire_data$season == season,]))
         }
 
         print(paste0("Starting ",cause," - ",season_description[season]))
-        pres_abs = raster::setValues(grast,0)
+        pres_abs = terra::setValues(grast,0)
         pres_abs[tab] <- 1
-        pres_abs <- raster::mask(pres_abs,grast)
+        pres_abs <- terra::mask(pres_abs,grast)
         names(pres_abs) <- "ign"
-        modelling_stack <- stack(indicator_stack,pres_abs)
+        modelling_stack <- c(indicator_stack,pres_abs)
         names(modelling_stack) <- tolower(names(modelling_stack))
 
         # build ign dataframe
-        data <- raster::as.data.frame(modelling_stack)
-        data <- data[-which(!complete.cases(data)),] # remove NA instances
-        if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
-        if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
+        data <- data.table::as.data.table(modelling_stack)
+        data <- data[complete.cases(data)] # remove NA instances
+        if (!is.null( non_fuel_vals ) ) data <- data[!fuels %in% non_fuel_vals] ## Remove Rock and Water
+        if (!is.null( factor_vars ) ) data[,
+                                           (factor_vars) := lapply(.SD, as.factor),
+                                           .SDcols = factor_vars]
 
-        data_mod <- caret::downSample(x = data[,-ncol(data)],
-                   y = data$ign,yname = "ign")
+        data_mod <- caret::downSample(x = data[,-"ign"],
+                                      y = data$ign,
+                                      yname = "ign")
 
         dat_part <- caret::createDataPartition(y = data_mod$ign,p = .8)[[1]]
         data_train <- data_mod[dat_part,]
@@ -134,12 +140,10 @@ ign_grid <- function(fire_data,
           print(results)
 
           if ( cause == "L" && max(results$results$Accuracy) > 0.65 ) { break }
-          if ( cause == "H" && max(results$results$Accuracy) > 0.75 && results$results[which.max(results$results$Accuracy),"Variables"] > 3 ) { break }
+          if ( cause == "H" && max(results$results$Accuracy) > 0.70 && results$results[which.max(results$results$Accuracy),"Variables"] > 3 ) { break }
 
         }
 
-        control <- caret::rfeControl(functions = caret::rfFuncs, method = "cv",number = 10)
-        results <- caret::rfe(x = predictors,y = data_train[,"ign"],sizes = c(1:length(predictors)),rfeControl = control, p = 0.8, metric = "Accuracy")
         predictors <- predictors[,c("ign",results$optVariables)]
 
         if (testing == F) {
@@ -159,8 +163,6 @@ ign_grid <- function(fire_data,
                             trControl = trControl)
         # Print the results
         print(rf_default)
-
-        bestmtry <- randomForest::tuneRF()
 
         tuneGrid <- expand.grid(.mtry = c(1:10))
         rf_mtry <- caret::train(ign~.,
@@ -272,14 +274,13 @@ ign_grid <- function(fire_data,
 
         caret::confusionMatrix(prediction, data_test$ign)$byClass["Balanced Accuracy"]
 
-        ign <- raster::predict(model = rf_default,
-                               object = indicator_stack,
-                               type = "prob",
-                               index = 2)
+        ign <- terra::predict(object = indicator_stack,
+                              model = rf_default,
+                              type = "prob")[[2]]
 
         ign[][which(indicator_stack$fuels[] %in% c(101:110))] <- 0
 
-        raster::writeRaster(ign,
+        terra::writeRaster(rast(ign),
                     paste0(output_location,
                            paste(cause,
                                  season_description[season],
@@ -290,7 +291,10 @@ ign_grid <- function(fire_data,
                                         "ign_randomforest_auto.tif"),
                                  sep = "_")
                     ),
-                    overwrite = T)
+                    overwrite = T,
+                    wopt = list(filetype = "GTiff",
+                                datatype = "FLT4S",
+                                gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")))
 
         write(x = c(cause,
                     season_description[season],
@@ -311,40 +315,41 @@ ign_grid <- function(fire_data,
     }
   }
 
-  ## Gradient Boosting Machine
+
+# Gradient Boosting Machine -----------------------------------------------
+
   if (model == "gbm") {
     for (cause in causes) {
       for (season in min(unique(fire_data$season)):(max(unique(fire_data$season)) + 1)) {
         if (season == max(unique(fire_data$season)) + 1) {
-          tab <- as.numeric(names(table(raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause,]))))
+          tab <- terra::cellFromXY(terra::setValues(grast,0), st_coordinates(fire_data[fire_data$CAUSE == cause,]))
         } else {
-          tab <- as.numeric(names(table(raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,]))))
+          tab <- terra::cellFromXY(terra::setValues(grast,0), st_coordinates(fire_data[fire_data$CAUSE == cause & fire_data$season == season,]))
         }
 
         print(paste0("Starting ",cause," - ",season_description[season]))
-        pres_abs = raster::setValues(grast,0)
+        pres_abs = terra::setValues(grast,0)
         pres_abs[tab] <- 1
-        pres_abs <- raster::mask(pres_abs,grast)
+        pres_abs <- terra::mask(pres_abs,grast)
         names(pres_abs) <- "ign"
-        modelling_stack <- stack(indicator_stack,pres_abs)
+        modelling_stack <- c(indicator_stack,pres_abs)
         names(modelling_stack) <- tolower(names(modelling_stack))
 
 
         # build ign dataframe
-        data <- raster::as.data.frame(modelling_stack)
-        data <- data[-which(!complete.cases(data)),] # remove NA instances
-        if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
-        if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
+        data <- data.table::as.data.table(modelling_stack)
+        data <- data[complete.cases(data)] # remove NA instances
+        if (!is.null( non_fuel_vals ) ) data <- data[!fuels %in% non_fuel_vals] ## Remove Rock and Water
+        if (!is.null( factor_vars ) ) data[,
+                                           (factor_vars) := lapply(.SD, as.factor),
+                                           .SDcols = factor_vars]
 
-        dat_part <- caret::createDataPartition(y = data$ign,p = .8)[[1]]
-        data_train <- data[dat_part,]
-        data_test <- data[-dat_part,]
+        data_mod <- caret::downSample(x = data[,-ncol(data)],
+                                      y = data$ign,yname = "ign")
 
-        data_train <- caret::downSample(x = data_train[,-ncol(data_train)],
-                                 y = as.factor(data_train$ign),yname = "ign")
-
-        data_test <- caret::downSample(x = data_test[,-ncol(data_test)],
-                                y = as.factor(data_test$ign),yname = "ign")
+        dat_part <- caret::createDataPartition(y = data_mod$ign,p = .8)[[1]]
+        data_train <- data_mod[dat_part,]
+        data_test <- data_mod[-dat_part,]
 
         if (cause == causes[1]) {predictors <- indicators_1}
         if (cause == causes[2]) {predictors <- indicators_2}
@@ -401,12 +406,12 @@ ign_grid <- function(fire_data,
         print(gbm_auc)
 
 
-        ign <- predict(indicator_stack,
+        ign <- terra::predict(indicator_stack,
                        gbm_step,
                        n.trees = gbm_step$n.trees,
                        type = "response")
 
-        scaled_ign <- (ign - cellStats(ign, stat = 'min')) / (cellStats(ign, stat = 'max') - cellStats(ign, stat = 'min'))
+        scaled_ign <- (ign - global(ign, fun = 'min')) / (global(ign, fun = 'max') - global(ign, fun = 'min'))
 
         scaled_ign[][which(indicator_stack$fuels[] %in% c(101:110))] <- 0
 
@@ -426,7 +431,7 @@ ign_grid <- function(fire_data,
               )
         )
 
-        raster::writeRaster(scaled_ign,
+        terra::writeRaster(scaled_ign,
                     paste0(output_location,
                            paste(cause,
                                  season_description[season],
@@ -437,30 +442,36 @@ ign_grid <- function(fire_data,
                                         "ign_gbmstep.tif"),
                                  sep = "_")
                     ),
-                    overwrite = T) # write raster
+                    overwrite = T,
+                    wopt = list(filetype = "GTiff",
+                                datatype = "FLT4S",
+                                gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2"))) # write raster
       }
     }
   }
 
-  ## Per Tom Swystun
+
+# Random Forest Stock -----------------------------------------------------
+
   if (model == "rf_stock") {
     for (cause in causes) {
       for (season in min(unique(fire_data$season)):(max(unique(fire_data$season)) + 1)) {
         if (season == max(unique(fire_data$season)) + 1) {
-          tab <- raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
-        }else{
-          tab <- raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])
+          tab <- terra::cellFromXY(terra::setValues(grast,0), st_coordinates(fire_data[fire_data$CAUSE == cause,]))
+        } else {
+          tab <- terra::cellFromXY(terra::setValues(grast,0), st_coordinates(fire_data[fire_data$CAUSE == cause & fire_data$season == season,]))
         }
+
         print(paste0("Starting ",cause," - ",season_description[season]))
-        pres_abs = raster::setValues(grast,0)
+        pres_abs = terra::setValues(grast,0)
         pres_abs[tab] <- 1
-        pres_abs <- raster::mask(pres_abs,grast)
+        pres_abs <- terra::mask(pres_abs,grast)
         names(pres_abs) <- "ign"
-        modelling_stack <- stack(indicator_stack,pres_abs)
+        modelling_stack <- c(indicator_stack,pres_abs)
         names(modelling_stack) <- tolower(names(modelling_stack))
 
         # build ign dataframe
-        data <- raster::as.data.frame(modelling_stack)
+        data <- terra::as.data.frame(modelling_stack)
         data <- data[-which(!complete.cases(data)),] # remove NA instances
         if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
         if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
@@ -496,7 +507,7 @@ ign_grid <- function(fire_data,
         print(results)
 
         if ( cause == "L" && max(results$results$Accuracy) > 0.65 ) { break }
-        if ( cause == "H" && max(results$results$Accuracy) > 0.75 && results$results[which.max(results$results$Accuracy),"Variables"] > 3 ) { break }
+        if ( cause == "H" && max(results$results$Accuracy) > 0.70 && results$results[which.max(results$results$Accuracy),"Variables"] > 3 ) { break }
 
         }
 
@@ -528,10 +539,9 @@ ign_grid <- function(fire_data,
                               data_test$ign)$byClass["Balanced Accuracy"])
 
         # build/name ign raster
-        ign <- raster::predict(model = rf,
+        ign <- terra::predict(model = rf,
                                object = indicator_stack,
-                               type = "prob",
-                               index = 2)
+                               type = "prob")[[2]]
 
         plot(ign)
 
@@ -552,55 +562,65 @@ ign_grid <- function(fire_data,
               )
         )
 
-        raster::writeRaster(ign,
+        terra::writeRaster(ign,
                     paste0(output_location,
                            paste(cause,
                                  season_description[season],
                                  "ign_randomforest.tif",
                                  sep = "_")
                     ),
-                    overwrite = T)
+                    overwrite = T,
+                    wopt = list(filetype = "GTiff",
+                                datatype = "FLT4S",
+                                gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")))
 
       }
     }
   }
 
-  ## Boosted Regression Tree
+
+# Boosted Regression Tree -------------------------------------------------
+
   if (model == "brt") {
     for (cause in causes) {
       for (season in min(unique(fire_data$season)):(max(unique(fire_data$season)) + 1)) {
         if (season == max(unique(fire_data$season)) + 1) {
-          tab <- raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause,])
-        }else{
-          tab <- raster::cellFromXY(raster::setValues(grast,0), fire_data[fire_data$CAUSE == cause & fire_data$season == season,])
+          tab <- terra::cellFromXY(terra::setValues(grast,0), st_coordinates(fire_data[fire_data$CAUSE == cause,]))
+        } else {
+          tab <- terra::cellFromXY(terra::setValues(grast,0), st_coordinates(fire_data[fire_data$CAUSE == cause & fire_data$season == season,]))
         }
+
         print(paste0("Starting ",cause," - ",season_description[season]))
-        pres_abs = raster::setValues(grast,0)
+        pres_abs = terra::setValues(grast,0)
         pres_abs[tab] <- 1
-        pres_abs <- raster::mask(pres_abs,grast)
+        pres_abs <- terra::mask(pres_abs,grast)
         names(pres_abs) <- "ign"
-        modelling_stack <- stack(indicator_stack,pres_abs)
+        modelling_stack <- c(indicator_stack,pres_abs)
         names(modelling_stack) <- tolower(names(modelling_stack))
 
         # build ign dataframe
-        data <- raster::as.data.frame(modelling_stack)
+        data <- terra::as.data.frame(modelling_stack)
         data <- data[-which(!complete.cases(data)),] # remove NA instances
         if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
         if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
 
         data_mod <- caret::downSample(x = data[,-ncol(data)],
-                               y = data$ign,yname = "ign")
+                                      y = data$ign,yname = "ign")
 
-        data_mod$ign <- as.integer(as.character(data_mod$ign))
+        dat_part <- caret::createDataPartition(y = data_mod$ign,p = .8)[[1]]
+        data_train <- data_mod[dat_part,]
+        data_test <- data_mod[-dat_part,]
+
+        data_train$ign <- as.integer(as.character(data_train$ign))
 
         if (testing == F) {
-          if (nrow(data_mod) <= 100) {
+          if (nrow(data_train) <= 100) {
             warning("Sample was less than 100 elements, skipping. There were, ",nrow(data[data$ign == 1,])," actual ignitions in the training data.");next
             }
           }
 
-        if (cause == causes[1]) {predictors <- data_mod[,c("ign",indicators_1)] }
-        if (cause == causes[2]) {predictors <- data_mod[,c("ign",indicators_2)] }
+        if (cause == causes[1]) {predictors <- data_train[,c("ign",indicators_1)] }
+        if (cause == causes[2]) {predictors <- data_train[,c("ign",indicators_2)] }
 
         brt <- dismo::gbm.step(data = predictors,
                         gbm.x = 2:length(predictors),
@@ -611,7 +631,7 @@ ign_grid <- function(fire_data,
                         n.trees = 500,
                         step.size = 50,
                         max.trees = 7500,
-                        learning.rate = 0.0025)
+                        learning.rate = 0.0005)
 
         brt <- dismo::gbm.step(data = predictors,
                         gbm.x = which(names(predictors) %in% brt$contributions[brt$contributions$rel.inf >= 1.0, "var"]),
@@ -622,17 +642,16 @@ ign_grid <- function(fire_data,
                         n.trees = 500,
                         step.size = 50,
                         max.trees = 7500,
-                        learning.rate = 0.0025,
+                        learning.rate = 0.0005,
                         plot.main = T)
 
         # model variable randomForest::importance
         imp <- summary(brt)
 
         # build/name ign raster
-        ign <- raster::predict(model = brt,
+        ign <- terra::predict(model = brt,
                                object = indicator_stack,
                                type = "response",
-                               index = 2,
                                n.trees = brt$n.trees,
                                na.rm = T)
 
@@ -656,14 +675,17 @@ ign_grid <- function(fire_data,
               )
         )
 
-        raster::writeRaster(ign,
+        terra::writeRaster(ign,
                     paste0(output_location,
                            paste(cause,
                                  season_description[season],
                                  "ign_boostedregressiontree.tif",
                                  sep = "_")
                     ),
-                    overwrite = T)
+                    overwrite = T,
+                    wopt = list(filetype = "GTiff",
+                                datatype = "FLT4S",
+                                gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")))
 
       }
     }

@@ -72,5 +72,5 @@ Upon completion of Burn-P3 modeling the outputs will require some processing and
 }
 
 \author{
-Brett Moore \email{Brett.Moore@canada.ca}
+Brett Moore \email{Brett.Moore@nrcan-rncan.gc.ca}
 }

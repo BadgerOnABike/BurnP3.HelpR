@@ -6,7 +6,6 @@
 #' @param output_filename Output filename with png extension
 #' @param hfi_breaks A string of 4 numeric HFI breaks
 #'
-#' @return
 #' @export
 #'
 

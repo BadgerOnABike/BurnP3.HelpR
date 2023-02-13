@@ -22,11 +22,11 @@
 #' @examples
 #'
 #'# Load test data
-#'ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
-#'weather_stations <- st_read(dsn=system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),layer="weather_stations")
+#'ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+#'weather_stations <- sf::st_read(dsn=system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),layer="weather_stations")
 #'
 #'## Defined AOI
-#'aoi(area_of_interest_file = st_read(system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),"aoi"),
+#'aoi(area_of_interest_file = c(system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),"aoi"),
 #'    PC=F,
 #'    reference_grid = ref_grid,
 #'    buffer_width = 15000,
@@ -66,37 +66,62 @@ aoi <- function(area_of_interest_file,
                 stn_name_col,
                 stn_id_col){
 
-  if ( grepl("RasterLayer", class(reference_grid)) ) {grast <- reference_grid}
-  if ( grepl("character", class(reference_grid)) ) {grast <- terra::rast(reference_grid)}
-  if ( !grepl("RasterLayer|character", class(reference_grid)) ) {message("Reference Grid must be the directory of the raster or a raster object.")}
+  if (grepl("SpatRaster", class(reference_grid))) {
+    grast <- reference_grid
+    }
+  if (grepl("character", class(reference_grid))) {
+    grast <- terra::rast(reference_grid)
+    }
+  if (!grepl("SpatRaster|character", class(reference_grid))) {
+    message("Reference Grid must be the directory
+ of the raster or a SpatRaster object.")
+    }
 
-  if ( is.null(area_of_interest_file) ) {stop("Please input an area of interest file or delcare PC (Parks Canada) as true to automatically load the Parks Canada layer")}
+  if (is.null(area_of_interest_file)) {
+    stop("Please input an area of interest file or delcare
+ PC (Parks Canada) as true to automatically load the Parks Canada layer")
+    }
+
+  url <- paste0("https://proxyinternet.nrcan.gc.ca/arcgis/rest/services/",
+  "CLSS-SATC/CLSS_Administrative_Boundaries/MapServer/1/query?where=",
+  "OBJECTID+%3E%3D0&geometryType=esriGeometryPolygon&spatialRel=",
+  "esriSpatialRelIntersects&distance=&units=esriSRUnit_Foot&outFields=",
+  "*&returnGeometry=true&returnTrueCurves=true&returnIdsOnly=false",
+  "&returnCountOnly=false&returnZ=false&returnM=false&returnDistinctValues=",
+  "false&returnExtentOnly=false&featureEncoding=esriDefault&f=geojson")
 
   if (PC == T & park_of_interest == "") {
-    aoi_poly <- geojsonsf::geojson_sf("https://proxyinternet.nrcan.gc.ca/arcgis/rest/services/CLSS-SATC/CLSS_Administrative_Boundaries/MapServer/1/query?where=OBJECTID+%3E%3D0&geometryType=esriGeometryPolygon&spatialRel=esriSpatialRelIntersects&distance=&units=esriSRUnit_Foot&outFields=*&returnGeometry=true&returnTrueCurves=true&returnIdsOnly=false&returnCountOnly=false&returnZ=false&returnM=false&returnDistinctValues=false&returnExtentOnly=false&featureEncoding=esriDefault&f=geojson")
-    stop(paste0("You have declared that you are using Parks Canada data, however you have not defined a park or multiple parks. This will result in national data being used. Park/s of interest can be declared as a character vector.Park names are: ",aoi_poly$sf$adminAreaNameEng))}
 
-  if ( is.null(area_of_interest_file) & park_of_interest != "") {
+    aoi_poly <- geojsonsf::geojson_sf(url)
 
-    aoi_poly <- geojsonsf::geojson_sf("https://proxyinternet.nrcan.gc.ca/arcgis/rest/services/CLSS-SATC/CLSS_Administrative_Boundaries/MapServer/1/query?where=OBJECTID+%3E%3D0&geometryType=esriGeometryPolygon&spatialRel=esriSpatialRelIntersects&distance=&units=esriSRUnit_Foot&outFields=*&returnGeometry=true&returnTrueCurves=true&returnIdsOnly=false&returnCountOnly=false&returnZ=false&returnM=false&returnDistinctValues=false&returnExtentOnly=false&featureEncoding=esriDefault&f=geojson")
+    stop(paste0("You have declared that you are using Parks Canada data,",
+    "however you have not defined a park or multiple parks. This will result ,",
+    "in national data being used. Park/s of interest can be declared as a ,",
+    "character vector.Park names are: ",aoi_poly$sf$adminAreaNameEng))}
+
+  if ( is.null(area_of_interest_file) | park_of_interest != "") {
+
+    aoi_poly <- geojsonsf::geojson_sf(url)
 
   }
 
-  if (!is.null(area_of_interest_file)) {
-    if (length(area_of_interest_file) > 1) {
-      aoi_poly <- sf::st_read(dsn = area_of_interest_file[1],
-                          layer = area_of_interest_file[2])
-    } else {
-      aoi_poly <- sf::st_read(area_of_interest_file)
-    }
-  }
+  if( area_of_interest_file[1] != ""){
+     if (length(area_of_interest_file) == 2) {
+       aoi_poly <- sf::st_read(dsn = area_of_interest_file[1],
+                               layer = area_of_interest_file[2])
+       } else {
+         aoi_poly <- sf::st_read(area_of_interest_file)
+       }
+   }
 
 
   if (park_of_interest != "") {
-     aoi_poly <- aoi_poly[grep(park_of_interest,aoi_poly$parkname_e,ignore.case = T),]
+    aoi_poly <- aoi_poly[grep(park_of_interest,aoi_poly$adminAreaNameEng,ignore.case = T),]
   }
 
   aoi_poly <- sf::st_transform(x = aoi_poly ,crs = crs(grast))
+
+  names(aoi_poly)[grep("id",names(aoi_poly),ignore.case = T)] <- "OBJECTID"
 
   ## Some basic plotting to visualize where stations are in relation to the AOI
 
@@ -106,22 +131,22 @@ aoi <- function(area_of_interest_file,
         sf::st_transform(
           stns,
           crs = terra::crs(aoi_poly)
-          ),
+        ),
         sf::st_buffer(aoi_poly,
-                  dist = buffer_width
-                )
+                      dist = buffer_width
         )
-      )[,stn_name_col])
+      )
+    )[,stn_name_col])
 
   x11();
 
-  p <- ggplot2::ggplot( sf::st_buffer(aoi_poly,
-                    dist = buffer_width)[,1]) +
+  p <- ggplot2::ggplot(sf::st_buffer(aoi_poly,
+                                      dist = buffer_width)) +
     geom_sf(aes(fill = OBJECTID)) +
     geom_sf_label(data = sf::st_transform(stns[data.frame(stns)[,stn_name_col] %in% stns_within_aoi,],
-                                     crs = terra::crs(aoi_poly)),
+                                          crs = terra::crs(aoi_poly)),
                   aes(label = sttn_nm),
-                 position = "identity") +
+                  position = "identity") +
     ggtitle(label = paste0("There are ",length(stns_within_aoi)," staions inside your area of interest")) +
     theme_void() +
     theme(legend.position = "none",

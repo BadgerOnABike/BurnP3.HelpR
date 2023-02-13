@@ -48,7 +48,7 @@ ign_grid(
 \item{testing}{This flag turns off a minimum data check within the modelling process. 100 records are typically required for the model to proceed however the testing dataset is smaller, to improve performance, and as such the minimum data check must be ignored. \emph{(Default = F)}}
 }
 \value{
-rasterLayer
+spatraster
 }
 \description{
 Ignition grid calculation for use within the Burn-P3 model.
@@ -60,7 +60,8 @@ Ignition grids are a probability surface describing the potential for any one ce
 
 ## Load in example data
 data("indicator_stack")
-fire_data <- readOGR(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
+indicator_stack <- terra::rast(indicator_stack)
+fire_data <- sf::read_sf(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
 indicators_1 <- c("elevation",
                   "road_distance",
                   "rail_distance",
@@ -77,7 +78,7 @@ model = "rf_stock"
 
 ign_grid(fire_data = fire_data,
          indicator_stack = indicator_stack,
-         reference_grid = raster(system.file("extdata","elev.tif",package="BurnP3.HelpR")),
+         reference_grid = terra::rast(system.file("extdata","elev.tif",package="BurnP3.HelpR")),
          indicators_1 = indicators_1,
          indicators_2 = indicators_2,
          causes = causes,
@@ -85,12 +86,11 @@ ign_grid(fire_data = fire_data,
          output_location = output_location,
          min_fire_size = "",
          model = model,
-         factor_vars =  c("ecodistrict","ign","in_out_park","fuels","town_boundary","weather_zones"),
+         factor_vars =  c("ecodistrict","ign","in_out_park","fuels","town_boundary"),
          non_fuel_vals = 101:110,
          testing = T)
 
-print(paset0("Test files have been written to: ", output_location))
+print(paste0("Test files have been written to: ", output_location))
 
 unlink(tempdir(),recursive = T)
-
 }

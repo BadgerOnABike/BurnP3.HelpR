@@ -43,7 +43,7 @@ replay_difference <- function(directory, baseline_location, replay_location, pro
     rm(baseline_poly)
 
     replay_poly <- st_read(paste0(replay_location,"/Polygons.GPKG"))
-    replay_bc <- raste(list.files(path = replay_location, pattern = "Burn_Probability.tif$|Burn_Count.tif$",recursive = T,full.names = T))
+    replay_bc <- rast(list.files(path = replay_location, pattern = "Burn_Probability.tif$|Burn_Count.tif$",recursive = T,full.names = T))
     replay_bp <- replay_bc / nrow(replay_poly)
     rm(replay_poly)
 

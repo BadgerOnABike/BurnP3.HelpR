@@ -12,11 +12,9 @@
 #' @importFrom terra rast app writeRaster
 #' @importFrom plyr rbind.fill
 #'
-#' @return
 #' @export
 #'
 #'
-#' @examples
 #'
 combine_output <- function(directory, file_prefix = 'Combined', stats_file, bp_file, polygon = F, raster = T, daily = F){
 

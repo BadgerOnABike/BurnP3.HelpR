@@ -1,14 +1,14 @@
 Package: BurnP3.HelpR
 Type: Package
 Title: Burn-P3 Input Generation Helper Package
-Version: 0.6.8
+Version: 0.7.0
 Author: Brett Moore
 Maintainer: Brett Moore <Brett.Moore@Canada.ca>
 Description: A series of functions intended to aid experience Burn-P3 operators in the generation of inputs for a modelling task.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)
 Suggests: 
     knitr,

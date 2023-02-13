@@ -23,7 +23,7 @@ Explanatory variables that are often used during the ignition gridding process a
 \examples{
 
 ##Load in example data
-elev <- raster(system.file("extdata/elev.tif",package="BurnP3.HelpR"))
-tpi.out <- tpi.bp3(elevation_grid = elev, window_size = 5)
+elev <- rast(system.file("extdata/elev.tif",package="BurnP3.HelpR"))
+tpi.out <- tpi.bp3(input = elev, window_size = 5)
 plot(tpi.out)
 }

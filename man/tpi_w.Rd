@@ -12,7 +12,7 @@ tpi_w(input, window_size = 5)
 \item{window_size}{Must be an odd number}
 }
 \value{
-RasterLayer
+SpatRaster
 }
 \description{
 Function to calculate topographic position index with a window

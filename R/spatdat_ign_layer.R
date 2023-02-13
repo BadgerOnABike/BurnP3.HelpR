@@ -8,11 +8,9 @@
 #'
 #' @details This tool imports the spatial data for use within the spatial data rasterizer, it can perform on points, lines and polygons.
 #'
-#' @importFrom raster raster crop
-#' @importFrom sf st_read st_transform st_geometry_type st_is_empty st_zm st_make_valid
-#' @importFrom rgdal ogrListLayers
-#' @importFrom sp CRS proj4string
-#' 
+#' @importFrom terra rast crop
+#' @importFrom sf read_sf st_transform st_geometry_type st_is_empty st_zm st_make_valid st_crs
+#'
 #' @return List
 #' @export
 #'
@@ -20,21 +18,21 @@
 #' @examples
 #'
 #' ## Load example data
-#' ref_grid <- raster(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+#' ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
 #'
 #' out <- spatdat_ign_layer(reference_grid = ref_grid,
 #'                          layer = "road",
-#'                          dsn = system.file("extdata",package="BurnP3.HelpR"))
+#'                          dsn = system.file("extdata/extdata.gpkg",package="BurnP3.HelpR"))
 #'
 spatdat_ign_layer <- function(reference_grid,layer,dsn){
 
-  if ( grepl("RasterLayer", class(reference_grid)) ) {grast <- reference_grid}
-  if ( grepl("character", class(reference_grid)) ) {grast <- raster::raster(reference_grid)}
-  if ( !grepl("RasterLayer|character", class(reference_grid)) ) {message("Reference Grid must be the directory of the raster or a raster object.")}
+  if ( grepl("SpatRaster", class(reference_grid)) ) {grast <- reference_grid}
+  if ( grepl("character", class(reference_grid)) ) {grast <- terra::rast(reference_grid)}
+  if ( !grepl("SpatRaster|character", class(reference_grid)) ) {message("Reference Grid must be the directory of the raster or a spatraster object.")}
 
 
   if (class(layer) != "character") {
-    x <- sf::st_transform(layer,crs = sp::CRS(sp::proj4string(grast)))
+    x <- sf::st_transform(layer,crs = st_crs(grast))
     y <- sf::st_geometry_type(x)
     if (length(unique(y)) > 1 & gregexpr("SURFACE",unique(y))[[1]][1] == -1) {
       x <- x[-which(y == "MULTISURFACE"),]
@@ -48,7 +46,7 @@ spatdat_ign_layer <- function(reference_grid,layer,dsn){
     if (!grepl("gdb|gpkg",dsn,ignore.case = T)) {
 
       x <- sf::st_transform(sf::read_sf(x),
-                        crs = sp::CRS(sp::proj4string(grast)))
+                        crs = sf::st_crs(grast))
 
       x <- sf::st_zm(x)
       y <- sf::st_geometry_type(x)
@@ -59,20 +57,18 @@ spatdat_ign_layer <- function(reference_grid,layer,dsn){
         x <- x[!sf::st_is_empty(x),]
       }
       x <- as(x,"Spatial")
-      x <- raster::crop(x,grast)
+      x <- terra::crop(x,grast)
       layers_list <- x
 
     }
 
     if (grepl("gdb|gpkg",dsn,ignore.case = T)) {
-    layers_list <- lapply(rgdal::ogrListLayers(dsn = dsn)[grep(layer,
-                                                        rgdal::ogrListLayers(dsn = dsn),
-                                                        ignore.case = T)],
+    layers_list <- lapply(layer,
                           FUN = function(x){
                             print(x)
                             x <- sf::st_transform(sf::read_sf(dsn = dsn,
                                                       layer = x),
-                                              crs = sp::CRS(sp::proj4string(grast)))
+                                              crs = st_crs(grast))
 
                             x <- sf::st_zm(x)
                             y <- sf::st_geometry_type(x)
@@ -88,8 +84,7 @@ spatdat_ign_layer <- function(reference_grid,layer,dsn){
                             if (length(sf::st_is_empty(x)) > 0) {
                               x <- x[!sf::st_is_empty(x),]
                             }
-                            x <- as(x,"Spatial")
-                            x <- raster::crop(x,grast)
+                            x <- sf::st_crop(x,st_bbox(grast))
                           }
     )
     }

@@ -9,9 +9,9 @@
 #' @param intensity_directory Directory where intensity rasters can be found
 #' @param burn_count_directory Directory where burn count rasters can be found
 #'
-#' @importFrom raster raster stack
+#' @importFrom terra rast
 #'
-#' @return
+#' @return list
 #' @export
 #'
 

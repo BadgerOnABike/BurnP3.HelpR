@@ -5,7 +5,7 @@
 #' @param input Required as a SpatRast or a character string for the directory of the raster information.
 #' @param output_filename A character sting that defines the output directory and filename for the output raster.
 #'
-#' @return
+#' @return SpatRaster
 #' @export
 #'
 
@@ -32,13 +32,14 @@ mean_bp_classification <- function(input,output_filename){
                                             )
                                )
 
+  return(mean_bp.r)
+
   terra::writeRaster(x = mean_bp.r,
                      filename = output_filename,
                      overwrite = T,
-                     filetype = "GTiff",
-                     datatype = "INT2S",
-                     gdal = c("COMPRESS=LZW",
-                              "TFW=YES"),
+                     wopt = list(filetype = "GTiff",
+                                 datatype = "INT2S",
+                                 gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
                      NAflag = -9999
                      )
 }

@@ -30,7 +30,7 @@ fuel_grid_generator(
 
 \item{fuel_col}{Character vector defining the column that contains character fuel types in each shapefile in the same order they are called in the \code{fuel_layers} object}
 
-\item{desired_resolution}{The desired resolution of the final raster. \emph{(Default = 100)}}
+\item{desired_resolution}{The desired resolution of the final spatraster. \emph{(Default = 100)}}
 
 \item{pc}{A boolean vector of logical values (T/F) defining whether or not percent conifer is to be calculated for mixedwood fuels based on a percent conifer column.}
 
@@ -39,7 +39,7 @@ fuel_grid_generator(
 \item{output_directory}{The directory to place the final fuel grid. If using the generated directories use \code{bp3_base} as the output directory.}
 }
 \value{
-
+SpatRaster
 }
 \description{
 Fuel Grid Generator
@@ -53,7 +53,7 @@ fuel_shape_2 <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "Bu
                          layer = "Shape_Fuels_2")
 fuel_shape_PC <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
                          layer = "Shape_Fuels_PC")
-fuel_raster <- raster(system.file("extdata/fuel.tif", package = "BurnP3.HelpR"))
+fuel_raster <- rast(system.file("extdata/fuel.tif", package = "BurnP3.HelpR"))
 reference_grid <- fuel_raster
 
 aoi_poly <- st_read(  dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
