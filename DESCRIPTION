@@ -20,12 +20,12 @@ Imports:
     dismo,
     fasterize,
     plyr,
-	  sp,
-	  terra,
-    sf,
+	sp,
     ggplot2,
     randomForest,
     gbm,
     geosphere
 Depends: 
-	R (>= 3.5.0)
+	R (>= 3.5.0),
+    terra,
+    sf

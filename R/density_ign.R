@@ -14,7 +14,7 @@
 #' @importFrom sf st_coordinates
 #' @importFrom MASS kde2d
 #'
-#' @return RasterLayer
+#' @return SpatRast
 #' @export
 #'
 #' @seealso \code{\link[BurnP3.HelpR]{spatdat_ign_layer}}

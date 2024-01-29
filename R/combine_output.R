@@ -14,8 +14,6 @@
 #'
 #' @export
 #'
-#'
-#'
 combine_output <- function(directory, file_prefix = 'Combined', stats_file, bp_file, polygon = F, raster = T, daily = F){
 
   bp_stats_list <- lapply(X = list.files(path = directory,
