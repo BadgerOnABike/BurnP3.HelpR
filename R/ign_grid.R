@@ -13,7 +13,7 @@
 #' @param season_description Character vector with the descriptive names of the factor seasons within the wildfire data.
 #' @param output_location Directory for the rasters that will be calculated.
 #' @param min_fire_size A minimum fire size that may be defined to filter the wildfire data provided. _(Default = "")_
-#' @param model A character string defining the model to be used during the ignition gridding process. Can be one of: rf_stock, rf, gbm. The models are: stock random forest - run without any tuning. Random forest, an automatically tuned random forest run. Gradient Boosted Model - a gbm that is run in its default mode.
+#' @param model A character string defining the model to be used during the ignition gridding process. Can be one of: rf_stock, rf, gbm and brt. The models are: stock random forest - run without any tuning. Random forest, an automatically tuned random forest run. Gradient Boosted Model - a gbm that is run in its default mode. Boosted Regression Tree - run in its default mode and provides details on the equation yielded.
 #' @param testing This flag turns off a minimum data check within the modelling process. 100 records are typically required for the model to proceed however the testing dataset is smaller, to improve performance, and as such the minimum data check must be ignored. _(Default = F)_
 #' @param factor_vars If there are layers that are factors they need to be added to a character vector for use in the function.
 #' @param non_fuel_vals If there are non-fuels that you want excluded from ignition grids they need to be in a numeric vector.
