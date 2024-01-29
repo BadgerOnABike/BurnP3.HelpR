@@ -36,7 +36,7 @@ elev_grab <- function(aoi = NULL, reference_grid,output_directory){
   if ( !grepl("SpatRaster|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the spatraster or a spatraster object.") }
 
   if ( grepl("sf", class(aoi)) ) { aoi <- aoi }
-  if ( grepl("character", class(aoi)) ) { aoi <- sf:read_sf(aoi) }
+  if ( grepl("character", class(aoi)) ) { aoi <- sf::read_sf(aoi) }
   if ( !grepl("sf|character", class(aoi)) ) { message("AOI must be a simple feature (sf) or a directory to a simple feature.") }
 
   if( !is.null(aoi)){
