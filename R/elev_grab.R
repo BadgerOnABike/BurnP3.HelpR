@@ -10,7 +10,7 @@
 #' @details The purpose of this function is to generate a common and rapid elevation layer that is sampled and masked to the reference grid for use within Burn-P3. A second elevation grid is also generated for use in Wind Ninja as that software will fail with NA values in the elevation grid.
 #'
 #' @importFrom terra rast crop merge writeRaster as.polygons project mask crs
-#' @importFrom sf st_as_sf st_read st_crop st_transform
+#' @importFrom sf st_as_sf st_read st_crop st_transform st_crs
 #'
 #' @export
 #'
@@ -57,7 +57,7 @@ elev_grab <- function(aoi = NULL, reference_grid,output_directory){
 
   ## Determine the NTS grids the data exists across
   layers <- sf::st_crop(nts_grid,
-                 sf::st_transform(e,crs = st_crs(nts_grid)))$NTS_SNRC
+                 sf::st_transform(e,crs = sf::st_crs(nts_grid)))$NTS_SNRC
 
   ## Extract the CDEM tiles needed to generate the grid.
   elevation <- lapply(layers,function(i){
@@ -88,7 +88,7 @@ elev_grab <- function(aoi = NULL, reference_grid,output_directory){
 
   if (class(aoi)[1] == "sf") {
     terra::writeRaster(terra::mask(mosaic.r,vect(aoi)),
-                paste0(output_directory,"elevation.tif"),
+                paste0(output_directory,"\\elevation.tif"),
                 wopt = list(filetype = "GTiff",
                             datatype = "INT2S",
                             gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
@@ -96,7 +96,7 @@ elev_grab <- function(aoi = NULL, reference_grid,output_directory){
                 overwrite = T)
   }
     terra::writeRaster(mosaic.r,
-                paste0(output_directory,"elevation_wn.tif"),
+                paste0(output_directory,"\\elevation_wn.tif"),
                 wopt = list(filetype = "GTiff",
                             datatype = "INT2S",
                             gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
