@@ -6,7 +6,7 @@
 #' @param out_dir Output directory
 #' @param season_col The column containing the season names.
 #'
-#' @importFrom insol daylength
+#' @importFrom geosphere daylength
 #' @importFrom terra ext
 #' @importFrom sf st_transform st_as_sf
 #'
@@ -31,16 +31,15 @@
 #'
 burn_hrs <- function(reference_grid, season_df, season_col, out_dir){
 
-midpt <- data.frame(x = mean(ext(reference_grid)@ptr$vector[1:2]),
-                    y = mean(ext(reference_grid)@ptr$vector[3:4])) %>%
+midpt <- data.frame(x = mean(ext(reference_grid)[1:2]),
+                    y = mean(ext(reference_grid)[3:4])) %>%
             sf::st_as_sf(coords = c(1,2), crs=3402) %>%
             sf::st_transform(4326)
 
 for (j in unique(season_df[,season_col])) {
 
 x <- table(round(daylength(lat = st_coordinates(midpt)[2],
-                           long = st_coordinates(midpt)[1],tmz = -7,
-                           jd = season_df[which(season_df[,season_col] == j),"jstart"]:season_df[which(season_df[,season_col] == j),"jend"])[,"daylen"]/3,0))
+                           doy = season_df[which(season_df[,season_col] == j),"jstart"]:season_df[which(season_df[,season_col] == j),"jend"])/3,0))
 
 burn_hrs <- data.frame(Hours = names(x),Percent = NA)
 
