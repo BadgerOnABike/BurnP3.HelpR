@@ -39,7 +39,7 @@ ign_grid(
 
 \item{min_fire_size}{A minimum fire size that may be defined to filter the wildfire data provided. \emph{(Default = "")}}
 
-\item{model}{A character string defining the model to be used during the ignition gridding process. Can be one of: rf_stock, rf, gbm. The models are: stock random forest - run without any tuning. Random forest, an automatically tuned random forest run. Gradient Boosted Model - a gbm that is run in its default mode.}
+\item{model}{A character string defining the model to be used during the ignition gridding process. Can be one of: rf_stock, rf, gbm and brt. The models are: stock random forest - run without any tuning. Random forest, an automatically tuned random forest run. Gradient Boosted Model - a gbm that is run in its default mode. Boosted Regression Tree - run in its default mode and provides details on the equation yielded.}
 
 \item{factor_vars}{If there are layers that are factors they need to be added to a character vector for use in the function.}
 
