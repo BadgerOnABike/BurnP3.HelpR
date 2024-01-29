@@ -15,5 +15,5 @@ mean_bp_classification(input, output_filename)
 SpatRaster
 }
 \description{
-This function creates an output raster that represents the devisation from the mean burn probability on a landscape. This is intended for use when presenting burn probability to better demonstrate the deviance from the mean across the landscape and draw attention to areas that are considerably above and below the mean burn probability.
+This function creates an output raster that represents the deviation from the mean burn probability on a landscape. This is intended for use when presenting burn probability to better demonstrate the deviance from the mean across the landscape and draw attention to areas that are considerably above and below the mean burn probability.
 }

@@ -24,7 +24,7 @@ density_ign(
 \item{output_name}{The name of the files to be output. Typically these will be a vector of the names of your list of layers.}
 }
 \value{
-RasterLayer
+SpatRast
 }
 \description{
 Generate kernal density layers from a list of layers and write the rasters out
