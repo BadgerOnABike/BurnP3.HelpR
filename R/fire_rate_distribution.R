@@ -110,7 +110,7 @@ fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", ao
   }
 
   if (zonal) {
-    input$zone <- terra::extract(zones,input)
+    input$zone <- terra::extract(project(zones,crs(input),method="near"),input)$zones
     if (length(which(is.na(input$zone))) > 0) {input <- input[-which(is.na(input$zone)),]}
   }
 
@@ -126,13 +126,14 @@ fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", ao
   )
 
   colnames(fire_rate) <- tolower(colnames(fire_rate))
-  print(data.frame(cause = fire_rate$cause, numeric_cause = as.numeric(as.factor(as.character(fire_rate$cause)))))
   fire_rate$cause <- as.numeric(as.factor(as.character(fire_rate$cause)))
-  if (output_location == dir_list[[2]]) {
+  print(fire_rate)
+  if (exists("dir_list") && output_location == dir_list[[2]]) {
     write.csv(fire_rate,
               paste0(output_location,"Inputs/2. Modules/Distribution Tables/Fire_Rate_Distribution.csv"),
-              row.names = F)} else {
-                write.csv(fire_rate, paste0(output_location,"Fire_Rate_Distribution.csv"),row.names = F)
-              }
+              row.names = F)
+    } else {
+        write.csv(fire_rate, paste0(output_location,"Fire_Rate_Distribution.csv"),row.names = F)
+        }
   return(fire_rate)
 }
