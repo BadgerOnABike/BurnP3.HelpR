@@ -31,13 +31,13 @@
 
 elev_grab <- function(aoi = NULL, reference_grid,output_directory){
 
-  if ( grepl("SpatRaster", class(reference_grid)) ) { grast <- reference_grid }
-  if ( grepl("character", class(reference_grid)) ) { grast <- terra::rast(reference_grid) }
-  if ( !grepl("SpatRaster|character", class(reference_grid)) ) { message("Reference Grid must be the directory of the spatraster or a spatraster object.") }
+  if ( any(grepl("SpatRaster", class(reference_grid))) ) { grast <- reference_grid }
+  if ( any(grepl("character", class(reference_grid))) ) { grast <- terra::rast(reference_grid) }
+  if ( any(!grepl("SpatRaster|character", class(reference_grid))) ) { message("Reference Grid must be the directory of the spatraster or a spatraster object.") }
 
-  if ( grepl("sf", class(aoi)) ) { aoi <- aoi }
-  if ( grepl("character", class(aoi)) ) { aoi <- sf:read_sf(aoi) }
-  if ( !grepl("sf|character", class(aoi)) ) { message("AOI must be a simple feature (sf) or a directory to a simple feature.") }
+  if ( any(grepl("sf", class(aoi))) ) { aoi <- aoi }
+  if ( any(grepl("character", class(aoi))) ) { aoi <- sf:read_sf(aoi) }
+  if ( !any(grepl("sf|character", class(aoi))) ) { message("AOI must be a simple feature (sf) or a directory to a simple feature.") }
 
   if( !is.null(aoi)){
     e <- aoi
