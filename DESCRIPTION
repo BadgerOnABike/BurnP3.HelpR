@@ -1,14 +1,13 @@
 Package: BurnP3.HelpR
 Type: Package
 Title: Burn-P3 Input Generation Helper Package
-Version: 0.7.0
-Author: Brett Moore
-Maintainer: Brett Moore <Brett.Moore@Canada.ca>
+Version: 0.8.1
+Author@R: person("Brett Moore",aut=c("cre"))
 Description: A series of functions intended to aid experience Burn-P3 operators in the generation of inputs for a modelling task.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.1
 Roxygen: list(markdown = TRUE)
 Suggests: 
     knitr,
@@ -21,14 +20,12 @@ Imports:
     dismo,
     fasterize,
     plyr,
-    insol,
-    rgdal,
 	sp,
-	terra,
-    sf,
-    raster,
     ggplot2,
     randomForest,
-	rgeos
+    gbm,
+    geosphere
 Depends: 
 	R (>= 3.5.0),
+    terra,
+    sf

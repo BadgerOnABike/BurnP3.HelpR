@@ -29,7 +29,7 @@ wn_converter <- function(directory){
                         full.names = T,
                         pattern = ".asc"),
              function(x){
-        writeRaster(raster(x),
+        writeRaster(rast(x),
                     gsub(".asc",".tif",x),
                     wopt = list(filetype = "GTiff",
                                 datatype = "INT2s",
@@ -45,7 +45,7 @@ wn_converter <- function(directory){
                       full.names = T,
                       pattern = ".asc"),
            function(x){
-      writeRaster(raster(x),
+      writeRaster(rast(x),
                   gsub(".asc",".tif",x),
                   wopt = list(filetype = "GTiff",
                               datatype = "INT2s",

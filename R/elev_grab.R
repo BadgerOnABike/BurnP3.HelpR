@@ -35,15 +35,11 @@ elev_grab <- function(aoi = NULL, reference_grid,output_directory){
   if ( any(grepl("character", class(reference_grid))) ) { grast <- terra::rast(reference_grid) }
   if ( any(!grepl("SpatRaster|character", class(reference_grid))) ) { message("Reference Grid must be the directory of the spatraster or a spatraster object.") }
 
+  if( is.null(aoi) ) { aoi <- sf::st_as_sf(as(terra::as.polygons(grast, extent=T),"Spatial"))}
+
   if ( any(grepl("sf", class(aoi))) ) { aoi <- aoi }
   if ( any(grepl("character", class(aoi))) ) { aoi <- sf:read_sf(aoi) }
   if ( !any(grepl("sf|character", class(aoi))) ) { message("AOI must be a simple feature (sf) or a directory to a simple feature.") }
-
-  if( !is.null(aoi)){
-    e <- aoi
-  }else{
-    e <- sf::st_as_sf(as(terra::as.polygons(grast, extent=T),"Spatial"))
-  }
 
   ## Download and extract the NTS grid specified by user (will be removed after use), uses the 250k grid as that is what CDEM is based on
   nts_temp <- tempfile(fileext = '.zip')

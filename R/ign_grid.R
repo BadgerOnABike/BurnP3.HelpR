@@ -13,7 +13,7 @@
 #' @param season_description Character vector with the descriptive names of the factor seasons within the wildfire data.
 #' @param output_location Directory for the rasters that will be calculated.
 #' @param min_fire_size A minimum fire size that may be defined to filter the wildfire data provided. _(Default = "")_
-#' @param model A character string defining the model to be used during the ignition gridding process. Can be one of: rf_stock, rf, gbm. The models are: stock random forest - run without any tuning. Random forest, an automatically tuned random forest run. Gradient Boosted Model - a gbm that is run in its default mode.
+#' @param model A character string defining the model to be used during the ignition gridding process. Can be one of: rf_stock, rf, gbm and brt. The models are: stock random forest - run without any tuning. Random forest, an automatically tuned random forest run. Gradient Boosted Model - a gbm that is run in its default mode. Boosted Regression Tree - run in its default mode and provides details on the equation yielded.
 #' @param testing This flag turns off a minimum data check within the modelling process. 100 records are typically required for the model to proceed however the testing dataset is smaller, to improve performance, and as such the minimum data check must be ignored. _(Default = F)_
 #' @param factor_vars If there are layers that are factors they need to be added to a character vector for use in the function.
 #' @param non_fuel_vals If there are non-fuels that you want excluded from ignition grids they need to be in a numeric vector.
@@ -35,7 +35,7 @@
 #'
 #' ## Load in example data
 #' data("indicator_stack")
-#' indicator_stack <- terra::rast(indicator_stack)
+#' indicator_stack <- terra::unwrap(indicator_stack)
 #' fire_data <- sf::read_sf(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
 #' indicators_1 <- c("elevation",
 #'                   "road_distance",
@@ -49,7 +49,7 @@
 #' causes <- c("H","L")
 #' season_description <- c("Spring","Summer","Fall")
 #' output_location <- paste0(tempdir(),"\\")
-#' model = "rf_stock"
+#' model = "gbm"
 #'
 #' ign_grid(fire_data = fire_data,
 #'          indicator_stack = indicator_stack,
@@ -276,7 +276,9 @@ ign_grid <- function(fire_data,
 
         ign <- terra::predict(object = indicator_stack,
                               model = rf_default,
-                              type = "prob")[[2]]
+                              type = "prob",
+                              fun = predict,
+                              na.rm=T)[[2]]
 
         ign[][which(indicator_stack$fuels[] %in% c(101:110))] <- 0
 
@@ -344,8 +346,9 @@ ign_grid <- function(fire_data,
                                            (factor_vars) := lapply(.SD, as.factor),
                                            .SDcols = factor_vars]
 
-        data_mod <- caret::downSample(x = data[,-ncol(data)],
-                                      y = data$ign,yname = "ign")
+        data_mod <- caret::downSample(x = data[,-"ign"],
+                                      y = data$ign,
+                                      yname = "ign")
 
         dat_part <- caret::createDataPartition(y = data_mod$ign,p = .8)[[1]]
         data_train <- data_mod[dat_part,]
@@ -471,13 +474,16 @@ ign_grid <- function(fire_data,
         names(modelling_stack) <- tolower(names(modelling_stack))
 
         # build ign dataframe
-        data <- terra::as.data.frame(modelling_stack)
-        data <- data[-which(!complete.cases(data)),] # remove NA instances
+        data <- data.table::as.data.table(modelling_stack)
+        data <- data[complete.cases(data),] # remove NA instances
         if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
-        if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
+        if (!is.null( factor_vars ) ) data[,
+                                           (factor_vars) := lapply(.SD, as.factor),
+                                           .SDcols = factor_vars]
 
-        data_mod <- caret::downSample(x = data[,-ncol(data)],
-                               y = data$ign,yname = "ign")
+        data_mod <- caret::downSample(x = data[,-"ign"],
+                                      y = data$ign,
+                                      yname = "ign")
 
         dat_part <- caret::createDataPartition(y = data_mod$ign,p = .8)[[1]]
         data_train <- data_mod[dat_part,]
@@ -504,7 +510,7 @@ ign_grid <- function(fire_data,
                        rfeControl = control,
                        p = 1,
                        metric = "Accuracy")
-        print(results)
+        print(c("Results for ", paste0("Starting ",cause," - ",season_description[season]), "\n",results))
 
         if ( cause == "L" && max(results$results$Accuracy) > 0.65 ) { break }
         if ( cause == "H" && max(results$results$Accuracy) > 0.70 && results$results[which.max(results$results$Accuracy),"Variables"] > 3 ) { break }
@@ -543,6 +549,7 @@ ign_grid <- function(fire_data,
                                object = indicator_stack,
                                type = "prob")[[2]]
 
+        x11()
         plot(ign)
 
         ign[][which(indicator_stack$fuels[] %in% c(101:110))] <- 0
@@ -599,13 +606,16 @@ ign_grid <- function(fire_data,
         names(modelling_stack) <- tolower(names(modelling_stack))
 
         # build ign dataframe
-        data <- terra::as.data.frame(modelling_stack)
-        data <- data[-which(!complete.cases(data)),] # remove NA instances
+        data <- data.table::as.data.table(modelling_stack)
+        data <- data[complete.cases(data),] # remove NA instances
         if (!is.null( non_fuel_vals ) ) data <- data[-which(data$fuels %in% non_fuel_vals),] ## Remove Rock and Water
-        if (!is.null( factor_vars ) ) data[factor_vars] <-  lapply(data[factor_vars], as.factor)
+        if (!is.null( factor_vars ) ) data[,
+                                           (factor_vars) := lapply(.SD, as.factor),
+                                           .SDcols = factor_vars]
 
-        data_mod <- caret::downSample(x = data[,-ncol(data)],
-                                      y = data$ign,yname = "ign")
+        data_mod <- caret::downSample(x = data[,-"ign"],
+                                      y = data$ign,
+                                      yname = "ign")
 
         dat_part <- caret::createDataPartition(y = data_mod$ign,p = .8)[[1]]
         data_train <- data_mod[dat_part,]

@@ -27,5 +27,5 @@ out <- spatdat_ign_rast(reference_grid = ref_grid,
 
 }
 \seealso{
-\code{\link[BurnP3]{spatdat_ign_layer}}
+\code{\link[BurnP3.HelpR]{spatdat_ign_layer}}
 }

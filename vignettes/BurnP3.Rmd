@@ -1,8 +1,8 @@
 ---
-title: "Burn-P3 Package"
+title: "Burn-P3 Helper"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Burn-P3}
+  %\VignetteIndexEntry{Burn-P3 Helper}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

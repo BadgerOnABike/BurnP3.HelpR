@@ -11,7 +11,7 @@
 #' @return List containing points and raster layers.
 #' @export
 #'
-#' @seealso \code{\link[BurnP3]{spatdat_ign_layer}}
+#' @seealso \code{\link[BurnP3.HelpR]{spatdat_ign_layer}}
 #'
 #' @examples
 #'
