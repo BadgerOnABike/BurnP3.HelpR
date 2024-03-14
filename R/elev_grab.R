@@ -37,8 +37,8 @@ elev_grab <- function(aoi = NULL, reference_grid,output_directory){
 
   if( is.null(aoi) ) { aoi <- sf::st_as_sf(as(terra::as.polygons(grast, extent=T),"Spatial"))}
 
-  if ( any(grepl("sf", class(aoi))) ) { e <- aoi }
-  if ( any(grepl("character", class(aoi))) ) { e <- sf:read_sf(aoi) }
+  if ( any(grepl("sf", class(aoi))) ) { aoi <- aoi }
+  if ( any(grepl("character", class(aoi))) ) { aoi <- sf:read_sf(aoi) }
   if ( !any(grepl("sf|character", class(aoi))) ) { message("AOI must be a simple feature (sf) or a directory to a simple feature.") }
 
   ## Download and extract the NTS grid specified by user (will be removed after use), uses the 250k grid as that is what CDEM is based on
@@ -53,7 +53,7 @@ elev_grab <- function(aoi = NULL, reference_grid,output_directory){
 
   ## Determine the NTS grids the data exists across
   layers <- sf::st_crop(nts_grid,
-                 sf::st_transform(e,crs = st_crs(nts_grid)))$NTS_SNRC
+                 sf::st_transform(aoi,crs = st_crs(nts_grid)))$NTS_SNRC
 
   ## Extract the CDEM tiles needed to generate the grid.
   elevation <- lapply(layers,function(i){
