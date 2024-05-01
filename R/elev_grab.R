@@ -5,7 +5,7 @@
 #'
 #' @param reference_grid This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project. Can be either the location of the raster or a raster object.
 #' @param output_directory Output directory where your elevation and Wind Ninja elevation grids will be stored.
-#' @param aoi Polygon for the area of interest to be intersected with the NTS grid layer. _(Default: "")_ If Default is used the full extent under the reference_grid will be returned.
+#' @param aoi_e Polygon for the area of interest to be intersected with the NTS grid layer. _(Default: "")_ If Default is used the full extent under the reference_grid will be returned.
 #'
 #' @details The purpose of this function is to generate a common and rapid elevation layer that is sampled and masked to the reference grid for use within Burn-P3. A second elevation grid is also generated for use in Wind Ninja as that software will fail with NA values in the elevation grid.
 #'
@@ -29,17 +29,17 @@
 #'
 #' unlink(temp_dir, recursive = T)
 
-elev_grab <- function(aoi = NULL, reference_grid,output_directory){
+elev_grab <- function(aoi_e = NULL, reference_grid,output_directory){
 
   if ( any(grepl("SpatRaster", class(reference_grid))) ) { grast <- reference_grid }
   if ( any(grepl("character", class(reference_grid))) ) { grast <- terra::rast(reference_grid) }
   if ( any(!grepl("SpatRaster|character", class(reference_grid))) ) { message("Reference Grid must be the directory of the spatraster or a spatraster object.") }
 
-  if( is.null(aoi) ) { aoi <- sf::st_as_sf(as(terra::as.polygons(grast, extent=T),"Spatial"))}
+  if( is.null(aoi_e) ) { aoi_e <- sf::st_as_sf(as.polygons(grast, extent=T))}
 
-  if ( any(grepl("sf", class(aoi))) ) { aoi <- aoi }
-  if ( any(grepl("character", class(aoi))) ) { aoi <- sf:read_sf(aoi) }
-  if ( !any(grepl("sf|character", class(aoi))) ) { message("AOI must be a simple feature (sf) or a directory to a simple feature.") }
+  if ( any(grepl("sf", class(aoi_e))) ) { aoi_e <- aoi_e }
+  if ( any(grepl("character", class(aoi_e))) ) { aoi_e <- sf:read_sf(aoi_e) }
+  if ( !any(grepl("sf|character", class(aoi_e))) ) { message("aoi_e must be a simple feature (sf) or a directory to a simple feature.") }
 
   ## Download and extract the NTS grid specified by user (will be removed after use), uses the 250k grid as that is what CDEM is based on
   nts_temp <- tempfile(fileext = '.zip')
@@ -53,7 +53,7 @@ elev_grab <- function(aoi = NULL, reference_grid,output_directory){
 
   ## Determine the NTS grids the data exists across
   layers <- sf::st_crop(nts_grid,
-                 sf::st_transform(e,crs = st_crs(nts_grid)))$NTS_SNRC
+                 sf::st_transform(aoi_e,crs = st_crs(nts_grid)))$NTS_SNRC
 
   ## Extract the CDEM tiles needed to generate the grid.
   elevation <- lapply(layers,function(i){
@@ -82,8 +82,8 @@ elev_grab <- function(aoi = NULL, reference_grid,output_directory){
 
   unlink(c(gsub(".zip","",nts_temp),list.files(tempdir(),pattern = ".zip",full.names = T)),recursive = T)
 
-  if (class(aoi)[1] == "sf") {
-    terra::writeRaster(terra::mask(mosaic.r,vect(aoi)),
+  if (class(aoi_e)[1] == "sf") {
+    terra::writeRaster(terra::mask(mosaic.r,vect(aoi_e)),
                 paste0(output_directory,"elevation.tif"),
                 wopt = list(filetype = "GTiff",
                             datatype = "INT2S",
