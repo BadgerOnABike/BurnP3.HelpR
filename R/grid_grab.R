@@ -32,6 +32,8 @@
 
 grid_grab <- function(aoi_e = NULL, reference_grid,output_directory){
 
+  options(timeout = 900)
+
   if ( any(grepl("SpatRaster", class(reference_grid))) ) { grast <- reference_grid }
   if ( any(grepl("character", class(reference_grid))) ) { grast <- terra::rast(reference_grid) }
   if ( any(!grepl("SpatRaster|character", class(reference_grid))) ) { message("Reference Grid must be the directory of the spatraster or a spatraster object.") }
