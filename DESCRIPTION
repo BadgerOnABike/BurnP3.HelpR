@@ -7,7 +7,7 @@ Description: A series of functions intended to aid experience Burn-P3 operators 
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 Suggests: 
     knitr,
@@ -20,7 +20,7 @@ Imports:
     dismo,
     fasterize,
     plyr,
-	sp,
+	  sp,
     ggplot2,
     randomForest,
     gbm,
@@ -30,4 +30,3 @@ Imports:
     data.table
 Depends: 
 	R (>= 3.5.0)
-    

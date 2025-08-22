@@ -1,19 +1,20 @@
-#' Elevation Grabber - From NTS Grids
+#' Gridded Data Grabber Grabber - From NTS Grids
 #'
-#' This function uses your reference layer to define the NTS grids necessary to pull elevation from the CDEM layers provided by the Government of Canada.
+#' This function uses your reference layer to define the NTS grids necessary to pull elevation from the CDEM layers and the national FBP Fuel grid provided by the Government of Canada.
 #' @note Requires an internet connection
 #'
 #' @param reference_grid This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project. Can be either the location of the raster or a raster object.
 #' @param output_directory Output directory where your elevation and Wind Ninja elevation grids will be stored.
 #' @param aoi_e Polygon for the area of interest to be intersected with the NTS grid layer. _(Default: "")_ If Default is used the full extent under the reference_grid will be returned.
 #'
-#' @details The purpose of this function is to generate a common and rapid elevation layer that is sampled and masked to the reference grid for use within Burn-P3. A second elevation grid is also generated for use in Wind Ninja as that software will fail with NA values in the elevation grid.
+#' @details The purpose of this function is to generate a common and rapid elevation layer that is sampled and masked to the reference grid for use within Burn-P3. A second elevation grid is also generated for use in Wind Ninja as that software will fail with NA values in the elevation grid. Fuel data from:
 #'
 #' @importFrom terra rast crop merge writeRaster as.polygons project mask crs
 #' @importFrom sf st_as_sf st_read st_crop st_transform st_crs
 #'
 #' @export
 #'
+#' @references [National FBP Fuels](https://open.canada.ca/data/en/dataset/4e66dd2f-5cd0-42fd-b82c-a430044b31de/resource/f645a02d-fbb2-4c35-9bec-8d4ff516f5f8)
 #' @references [Open Data Canada](https://open.canada.ca/data/en/dataset/7f245e4d-76c2-4caa-951a-45d1d2051333)
 #' @references [Open Data Canada FTP](http://ftp.maps.canada.ca/pub/nrcan_rncan/vector/index/)
 #' @references [Wind Ninja](https://www.firelab.org/project/windninja)
@@ -24,12 +25,12 @@
 #' ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
 #' temp_dir <- tempdir()
 #' test <- elev_grab(reference_grid = ref_grid,
-#'                   output_directory = temp_dir)
+#'                   output_directory = paste0(temp_dir,"\\"))
 #'
 #'
 #' unlink(temp_dir, recursive = T)
 
-elev_grab <- function(aoi_e = NULL, reference_grid,output_directory){
+grid_grab <- function(aoi_e = NULL, reference_grid,output_directory){
 
   if ( any(grepl("SpatRaster", class(reference_grid))) ) { grast <- reference_grid }
   if ( any(grepl("character", class(reference_grid))) ) { grast <- terra::rast(reference_grid) }
@@ -80,9 +81,29 @@ elev_grab <- function(aoi_e = NULL, reference_grid,output_directory){
 
   mosaic.r <-  terra::crop(terra::project(x =  mosaic.r, y = grast),grast)
 
+  bb_4326 <- st_bbox(st_transform(aoi_e,crs="EPSG:4326"))
+  fuel.url<-paste0("https://cwfis.cfs.nrcan.gc.ca/geoserver/public/wcs?",
+                    "service=WCS&version=2.0.0&request=GetCoverage&coverageId=",
+                    "public:cffdrs_fbp_fuel_types_100m&subset=Long(",
+                    bb_4326[1],",",bb_4326[3],")&subset=Lat(",bb_4326[2],",",bb_4326[4],
+                    ")&FORMAT=geotiff&subsettingCRS=EPSG:4326&outputCRS=http://www.opengis.net/def/crs/EPSG/0/3402"
+            )
+  fuels <- resample(terra::project(rast(fuel.url),terra::crs(aoi_e),method = "near"),mosaic.r)
+
+  terra::project(rast(fuel.url),terra::crs(aoi_e),method = "near", res=terra::res(mosaic.r))
+
+
   unlink(c(gsub(".zip","",nts_temp),list.files(tempdir(),pattern = ".zip",full.names = T)),recursive = T)
 
   if (class(aoi_e)[1] == "sf") {
+    terra::writeRaster(terra::mask(fuels,vect(aoi_e)),
+                       paste0(output_directory,"FBP_National_Fuels.tif"),
+                       wopt = list(filetype = "GTiff",
+                                   datatype = "INT2S",
+                                   gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
+                       NAflag = -9999,
+                       overwrite = T)
+
     terra::writeRaster(terra::mask(mosaic.r,vect(aoi_e)),
                 paste0(output_directory,"elevation.tif"),
                 wopt = list(filetype = "GTiff",
@@ -98,5 +119,10 @@ elev_grab <- function(aoi_e = NULL, reference_grid,output_directory){
                             gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
                 NAflag = -9999,
                 overwrite = T)
+print(paste0("Files have been written to: ",dir(output_directory)))
+}
 
+elev_grab <- function(...) {
+  .Deprecated("grid_grab")
+  return(grid_grab(...))
 }
