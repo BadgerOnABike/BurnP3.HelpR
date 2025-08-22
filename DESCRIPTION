@@ -24,8 +24,10 @@ Imports:
     ggplot2,
     randomForest,
     gbm,
-    geosphere
-Depends: 
-	R (>= 3.5.0),
+    geosphere,
     terra,
-    sf
+    sf,
+    data.table
+Depends: 
+	R (>= 3.5.0)
+    
