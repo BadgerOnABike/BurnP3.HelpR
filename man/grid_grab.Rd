@@ -24,13 +24,14 @@ Requires an internet connection
 }
 \examples{
 ## Load example data
-ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
 temp_dir <- tempdir()
+output_directory <- paste0(temp_dir,"\\\\")
 test <- grid_grab(reference_grid = ref_grid,
-                  output_directory = temp_dir)
+                  output_directory = output_directory)
 
 
-unlink(temp_dir, recursive = T)
+unlink(temp_dir)
 }
 \references{
 \href{https://open.canada.ca/data/en/dataset/4e66dd2f-5cd0-42fd-b82c-a430044b31de/resource/f645a02d-fbb2-4c35-9bec-8d4ff516f5f8}{National FBP Fuels}

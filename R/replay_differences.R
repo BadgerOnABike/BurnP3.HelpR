@@ -1,10 +1,10 @@
-# spring_base_poly <- st_read("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Spring/Polygons.GPKG")
-# spring_base_bc <- rast("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Spring/Spring_Combined_Burn_Probability.tif")
+# spring_base_poly <- ("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Spring/Polygons.GPKG")
+# spring_base_bc <- terra::rast("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Spring/Spring_Combined_Burn_Probability.tif")
 #
 # spring_replay_bp <- spring_base_bc/nrow(spring_base_poly)
 #
-# summer_base_poly <- st_read("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Summer/Polygons.GPKG")
-# summer_base_bc <- rast("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Summer/Summer_Combined_Burn_Probability.tif")
+# summer_base_poly <- ("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Summer/Polygons.GPKG")
+# summer_base_bc <- terra::rast("E:/Quarantine/JNP_May_2020/Outputs/No_Beetle_Outputs/Summer/Summer_Combined_Burn_Probability.tif")
 #
 # summer_replay_bp <- summer_base_bc/nrow(summer_base_poly)
 #
@@ -29,21 +29,21 @@
 replay_difference <- function(directory, baseline_location, replay_location, probability){
 
   if(probability == T){
-    base_bp <- rast(list.files(path = baseline_location, pattern = "Burn_Probability.tif$",recursive = T,full.names = T))
-    replay_bp <- rast(list.files(path = replay_location, pattern = "Burn_Probability.tif$",recursive = T,full.names = T))
+    base_bp <- terra::rast(list.files(path = baseline_location, pattern = "Burn_Probability.tif$",recursive = T,full.names = T))
+    replay_bp <- terra::rast(list.files(path = replay_location, pattern = "Burn_Probability.tif$",recursive = T,full.names = T))
   } else{
 
     if(file.size(paste0(baseline_location,"/Polygons.GPKG")) / 1000000000 > 15) {warning("Polygons are larger than 15 Gb, this will take time and RAM, if you do not have at least 32 Gb of RAM this will fail. 64 Gb RAM recommended.")}
 
     gc()
 
-    baseline_poly <- st_read(paste0(baseline_location,"/Polygons.GPKG"))
-    baseline_bc <- rast(list.files(path = baseline_location, pattern = "Burn_Probability.tif$|Burn_Count.tif$",recursive = T,full.names = T))
+    baseline_poly <- (paste0(baseline_location,"/Polygons.GPKG"))
+    baseline_bc <- terra::rast(list.files(path = baseline_location, pattern = "Burn_Probability.tif$|Burn_Count.tif$",recursive = T,full.names = T))
     baseline_bp <- baseline_bc / nrow(baseline_poly)
     rm(baseline_poly)
 
-    replay_poly <- st_read(paste0(replay_location,"/Polygons.GPKG"))
-    replay_bc <- rast(list.files(path = replay_location, pattern = "Burn_Probability.tif$|Burn_Count.tif$",recursive = T,full.names = T))
+    replay_poly <- (paste0(replay_location,"/Polygons.GPKG"))
+    replay_bc <- terra::rast(list.files(path = replay_location, pattern = "Burn_Probability.tif$|Burn_Count.tif$",recursive = T,full.names = T))
     replay_bp <- replay_bc / nrow(replay_poly)
     rm(replay_poly)
 

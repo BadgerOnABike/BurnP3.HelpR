@@ -53,9 +53,9 @@ Fire Rate Distribution
 \examples{
 ## Load relavent data
 data("fire_data")
-aoi <- read_sf(system.file("extdata","extdata.gpkg",package="BurnP3.HelpR"),"aoi")
+aoi <- sf::st_read(system.file("extdata","extdata.gpkg",package="BurnP3.HelpR"),"aoi")
 output_location <- paste0(tempdir(),"\\\\")
-zones <- rast(system.file("extdata","zones.tif",package="BurnP3.HelpR"))
+zones <- terra::rast(system.file("extdata","zones.tif",package="BurnP3.HelpR"))
 data("season_df")
 zone_names = c("Alpine-E","Montane-E","Alpine-W","Montane-W","IDF")
 
@@ -64,8 +64,8 @@ fr <- fire_rate_distribution(input = fire_data,
                              aoi = aoi,
                              output_location = output_location,
                              date_col = "REP_DATE",
-                             seasonal = F,
-                             zonal = F,
+                             seasonal = FALSE,
+                             zonal = FALSE,
                              seasons = "",
                              zones,
                              zone_names = "",
@@ -79,8 +79,8 @@ fr <- fire_rate_distribution(input = fire_data,
                              aoi = aoi,
                              output_location = output_location,
                              date_col = "REP_DATE",
-                             seasonal = T,
-                             zonal = F,
+                             seasonal = TRUE,
+                             zonal = FALSE,
                              seasons = season_df,
                              zones,
                              zone_names = "",
@@ -94,8 +94,8 @@ fr <- fire_rate_distribution(input = fire_data,
                              aoi = aoi,
                              output_location = output_location,
                              date_col = "REP_DATE",
-                             seasonal = F,
-                             zonal = T,
+                             seasonal = FALSE,
+                             zonal = TRUE,
                              seasons = "",
                              zones = zones,
                              zone_names = zone_names,
@@ -105,7 +105,7 @@ fr <- fire_rate_distribution(input = fire_data,
 
 print(fr)
 
-unlink(output_location, recursive = T)
+unlink(output_location)
 
 }
 \seealso{

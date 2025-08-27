@@ -9,24 +9,24 @@
 #'
 #'
 wn_converter <- function(directory){
-  if (length(grep("dir|speed|spd|ang|vel",list.dirs(directory,recursive = F))) > 0) {
+  if (length(grep("dir|speed|spd|ang|vel",list.dirs(directory,recursive = FALSE))) > 0) {
 
     direction <- list.dirs(directory,
-                           recursive = F)[grep("dir|ang",
+                           recursive = FALSE)[grep("dir|ang",
                                                list.dirs(directory,
-                                                         recursive = F)
+                                                         recursive = FALSE)
                                                )
                                           ]
     speed <- list.dirs(directory,
-                       recursive = F)[grep("speed|spd|vel",
+                       recursive = FALSE)[grep("speed|spd|vel",
                                            list.dirs(directory,
-                                                     recursive = F)
+                                                     recursive = FALSE)
                                            )
                                       ]
 
     lapply(c(direction,speed), function(i){
       lapply(list.files(i,
-                        full.names = T,
+                        full.names = TRUE,
                         pattern = ".asc"),
              function(x){
         writeRaster(rast(x),
@@ -35,14 +35,14 @@ wn_converter <- function(directory){
                                 datatype = "INT2s",
                                 gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
                     NAflag=-9999,
-                    overwrite = T)
+                    overwrite = TRUE)
       }
       )
     }
     )
   } else {
     lapply(list.files(directory,
-                      full.names = T,
+                      full.names = TRUE,
                       pattern = ".asc"),
            function(x){
       writeRaster(rast(x),
@@ -51,7 +51,7 @@ wn_converter <- function(directory){
                               datatype = "INT2s",
                               gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
                   NAflag=-9999,
-                  overwrite = T)
+                  overwrite = TRUE)
     }
     )
   }

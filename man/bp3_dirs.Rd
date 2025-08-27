@@ -16,6 +16,6 @@ A function to generate objects with base and Burn-P3 directories for use in subs
 }
 \examples{
 
-bp3_dirs(project_name = "Test_Project")
+bp3_dirs(root=tempdir(),project_name = "Test_Project")
 
 }

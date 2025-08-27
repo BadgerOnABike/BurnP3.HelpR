@@ -2,7 +2,7 @@ Package: BurnP3.HelpR
 Type: Package
 Title: Burn-P3 Input Generation Helper Package
 Version: 0.8.1
-Author@R: person("Brett Moore",aut=c("cre"))
+Authors@R: c(person(given="Brett", family="Moore",email="Brett.Moore@nrcan-rncan.gc.ca",role=c("cre","aut")))
 Description: A series of functions intended to aid experience Burn-P3 operators in the generation of inputs for a modelling task.
 License: GPL (>= 3)
 Encoding: UTF-8
@@ -18,15 +18,16 @@ Imports:
     MASS,
     caret,
     dismo,
-    fasterize,
     plyr,
-	  sp,
     ggplot2,
     randomForest,
     gbm,
     geosphere,
     terra,
     sf,
-    data.table
+    data.table,
+    geojsonsf,
+    methods,
+    magrittr
 Depends: 
 	R (>= 3.5.0)

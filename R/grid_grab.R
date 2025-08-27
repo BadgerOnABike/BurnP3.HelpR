@@ -10,7 +10,7 @@
 #' @details The purpose of this function is to generate a common and rapid elevation layer that is sampled and masked to the reference grid for use within Burn-P3. A second elevation grid is also generated for use in Wind Ninja as that software will fail with NA values in the elevation grid. Fuel data from:
 #'
 #' @importFrom terra rast crop merge writeRaster as.polygons project mask crs
-#' @importFrom sf st_as_sf st_read st_crop st_transform st_crs
+#' @importFrom sf st_as_sf  st_crop st_transform st_crs
 #'
 #' @export
 #'
@@ -22,13 +22,14 @@
 #'
 #' @examples
 #' ## Load example data
-#' ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+#' ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
 #' temp_dir <- tempdir()
-#' test <- elev_grab(reference_grid = ref_grid,
-#'                   output_directory = paste0(temp_dir,"\\"))
+#' output_directory <- paste0(temp_dir,"\\")
+#' test <- grid_grab(reference_grid = ref_grid,
+#'                   output_directory = output_directory)
 #'
 #'
-#' unlink(temp_dir, recursive = T)
+#' unlink(temp_dir)
 
 grid_grab <- function(aoi_e = NULL, reference_grid,output_directory){
 
@@ -41,7 +42,7 @@ grid_grab <- function(aoi_e = NULL, reference_grid,output_directory){
   if( is.null(aoi_e) ) { aoi_e <- sf::st_as_sf(as.polygons(grast, extent=T))}
 
   if ( any(grepl("sf", class(aoi_e))) ) { aoi_e <- aoi_e }
-  if ( any(grepl("character", class(aoi_e))) ) { aoi_e <- sf:read_sf(aoi_e) }
+  if ( any(grepl("character", class(aoi_e))) ) { aoi_e <- (aoi_e) }
   if ( !any(grepl("sf|character", class(aoi_e))) ) { message("aoi_e must be a simple feature (sf) or a directory to a simple feature.") }
 
   ## Download and extract the NTS grid specified by user (will be removed after use), uses the 250k grid as that is what CDEM is based on
@@ -88,14 +89,12 @@ grid_grab <- function(aoi_e = NULL, reference_grid,output_directory){
                     "service=WCS&version=2.0.0&request=GetCoverage&coverageId=",
                     "public:cffdrs_fbp_fuel_types_100m&subset=Long(",
                     bb_4326[1],",",bb_4326[3],")&subset=Lat(",bb_4326[2],",",bb_4326[4],
-                    ")&FORMAT=geotiff&subsettingCRS=EPSG:4326&outputCRS=http://www.opengis.net/def/crs/EPSG/0/3402"
+                    ")&FORMAT=geotiff&subsettingCRS=EPSG:4326&outputCRS=http://www.opengis.net/def/crs/EPSG/0/3978"
             )
-  fuels <- resample(terra::project(rast(fuel.url),terra::crs(aoi_e),method = "near"),mosaic.r)
-
-  terra::project(rast(fuel.url),terra::crs(aoi_e),method = "near", res=terra::res(mosaic.r))
+  fuels <- resample(terra::project(rast(fuel.url),terra::crs(aoi_e),method = "near"),mosaic.r,method="near")
 
 
-  unlink(c(gsub(".zip","",nts_temp),list.files(tempdir(),pattern = ".zip",full.names = T)),recursive = T)
+  unlink(c(gsub(".zip","",nts_temp),list.files(tempdir(),pattern = ".zip",full.names = T)))
 
   if (class(aoi_e)[1] == "sf") {
     terra::writeRaster(terra::mask(fuels,vect(aoi_e)),
@@ -121,7 +120,7 @@ grid_grab <- function(aoi_e = NULL, reference_grid,output_directory){
                             gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
                 NAflag = -9999,
                 overwrite = T)
-print(paste0("Files have been written to: ",dir(output_directory)))
+print(paste0("Files have been written to: ",output_directory))
 }
 
 elev_grab <- function(...) {

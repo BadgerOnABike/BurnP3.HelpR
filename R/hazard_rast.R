@@ -19,21 +19,21 @@ hazard_rast <- function(stats_file,median_pattern,mean_pattern,burn_count_patter
 
   bp_stats <- read.csv(stats_file)
 
-  median_fire_intensity <- rast(
+  median_fire_intensity <- terra::rast(
     list.files(intensity_directory,
                pattern = "FIMed",
                full.names = T,
                recursive = T)
   )
 
-  mean_fire_intensity <- rast(
+  mean_fire_intensity <- terra::rast(
     list.files(intensity_directory,
                pattern = "FIAvg",
                full.names = T,
                recursive = T)
   )
 
-  burn_count <- rast(
+  burn_count <- terra::rast(
     list.files(burn_count_directory,
                pattern = "Probability.tif$|Iteration.tif$|Count.tif$",
                full.names = T,

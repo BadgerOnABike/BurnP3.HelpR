@@ -13,7 +13,7 @@ distance_ign(reference_grid, rasters_list, output_location, output_name)
 
 \item{output_location}{The name of the files to be output. Typically these will be a vector of the names of your list of layers.}
 
-\item{output_name}{}
+\item{output_name}{Name of the output file}
 }
 \value{
 SpatRaster
@@ -26,16 +26,16 @@ This function generates a euclidean distance grid with the \code{distance} funct
 }
 \examples{
 ## Load example data
-ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
 data("spatdat_rast_out")
-raster_list$rasters <- rast(raster_list$rasters)
+raster_list$rasters <- terra::unwrap(raster_list$rasters)
 temp_dir <- tempdir()
 distance_test <- distance_ign(reference_grid = ref_grid,
                             rasters_list = raster_list$rasters,
                             output_location = temp_dir,
                             output_name = "distance_test")
 
-plot(distance_test)
+terra::plot(distance_test)
 
-unlink(temp_dir,recursive = T)
+unlink(temp_dir)
 }

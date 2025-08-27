@@ -16,9 +16,9 @@
 #' @examples
 #'
 #' ##Load in example data
-#' elev <- rast(system.file("extdata/elev.tif",package="BurnP3.HelpR"))
+#' elev <- terra::rast(system.file("extdata/elev.tif",package="BurnP3.HelpR"))
 #' tpi.out <- tpi.bp3(input = elev, window_size = 5)
-#' plot(tpi.out)
+#' terra::plot(tpi.out)
 
 tpi.bp3 <- function(input, window_size = 5){
 
@@ -50,8 +50,8 @@ tpi.bp3 <- function(input, window_size = 5){
 #'
 tpi_w <- function(input, window_size=5) {
   m <- matrix(1/(window_size^2 - 1),
-              nc = window_size,
-              nr = window_size)
+              ncol = window_size,
+              nrow = window_size)
   m[ceiling(0.5 * length(m))] <- 0
   f <- terra::focal(input,
              m)
@@ -67,8 +67,8 @@ tpi_w <- function(input, window_size=5) {
 #'
 TRI <- function(input,window_size){
   f <- matrix(1,
-              nc = window_size,
-              nr = window_size)
+              ncol = window_size,
+              nrow = window_size)
   f[ceiling(0.5 * length(f))] <- 0
   terra::focal(input,
         f,

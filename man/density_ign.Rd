@@ -35,8 +35,8 @@ This function utilizes the kernal density estimation algorithm from spatialEco t
 \examples{
 
 ## Load example data
-ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
-fires <- read_sf(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
+ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+fires <- sf::st_read(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
 temp_dir <- tempdir()
 density_test <- density_ign(reference_grid = ref_grid,
                             layers_list = fires,
@@ -44,7 +44,7 @@ density_test <- density_ign(reference_grid = ref_grid,
                             output_location = temp_dir,
                             output_name = "density_test")
 
-plot(density_test)
+terra::plot(density_test)
 
 unlink(temp_dir)
 }

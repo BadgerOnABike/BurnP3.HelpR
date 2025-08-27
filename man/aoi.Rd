@@ -6,7 +6,7 @@
 \usage{
 aoi(
   area_of_interest_file,
-  PC = F,
+  PC = "no",
   reference_grid,
   buffer_width = 0,
   park_of_interest = "",
@@ -18,7 +18,7 @@ aoi(
 \arguments{
 \item{area_of_interest_file}{Two element vector describing the location of the file (dsn) and the filename. The file is expected to follow a format readable by readOGR.}
 
-\item{PC}{Parks Canada flag to define whether or not you want to download the Parks Canada data automatically. area_of_interest_file must be "" when using PC=T \strong{and} define a / many park_of_interest. (\emph{\emph{Default}} = F)}
+\item{PC}{Parks Canada flag to define whether or not you want to download the Parks Canada data automatically. area_of_interest_file must be "" when using PC = "yes" \strong{and} define a / many park_of_interest. (\emph{\emph{Default}} = "no")}
 
 \item{reference_grid}{This is a reference raster to provide a projection.}
 
@@ -44,12 +44,15 @@ Area of interest generator that allows a systematic AOI generation. Automated sy
 \examples{
 
 # Load test data
-ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
-weather_stations <- sf::st_read(dsn=system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),layer="weather_stations")
+ref_grid <- terra::rast(system.file("extdata/fuel.tif",
+                            package = "BurnP3.HelpR"))
+weather_stations <- sf::st_read(dsn=system.file("extdata/extdata.gpkg",
+                      package="BurnP3.HelpR"),layer="weather_stations")
 
 ## Defined AOI
-aoi(area_of_interest_file = c(system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),"aoi"),
-   PC=F,
+aoi(area_of_interest_file = c(system.file("extdata/extdata.gpkg",
+                               package="BurnP3.HelpR"),"aoi"),
+   PC = "no",
    reference_grid = ref_grid,
    buffer_width = 15000,
    park_of_interest="",
@@ -59,7 +62,7 @@ aoi(area_of_interest_file = c(system.file("extdata/extdata.gpkg", package="BurnP
 
 ## Single Park
 aoi(area_of_interest_file = "",
-   PC=T,
+   PC = "yes",
    reference_grid = ref_grid,
    buffer_width = 15000,
    park_of_interest=c("Banff"),
@@ -69,7 +72,7 @@ aoi(area_of_interest_file = "",
 
 ##Multiple Parks
 aoi(area_of_interest_file = "",
-   PC=T,
+   PC = "yes",
    reference_grid = ref_grid,
    buffer_width = 15000,
    park_of_interest=c("Banff|Jasper"),
