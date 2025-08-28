@@ -18,11 +18,11 @@
 #' @examples
 #' ## Load example data
 #' ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
-#' data("spatdat_rast_out")
-#' raster_list$rasters <- terra::unwrap(raster_list$rasters)
+#' data("interest_raster")
+#' interest_raster <- terra::unwrap(interest_raster)
 #' temp_dir <- tempdir()
 #' distance_test <- distance_ign(reference_grid = ref_grid,
-#'                             rasters_list = raster_list$rasters,
+#'                             rasters_list = interest_raster,
 #'                             output_location = temp_dir,
 #'                             output_name = "distance_test")
 #'

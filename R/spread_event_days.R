@@ -29,7 +29,7 @@
 #' ## Load example data
 #' data(weather)
 #'
-#' spread_event_days(input = wx_input,
+#' spread_event_days(input = weather,
 #' yr_col = "yr",
 #' id_col = "id",
 #' seasonal = FALSE ,
@@ -51,7 +51,7 @@
 #' min_fwi = 19,
 #' directory = "")
 #'
-#' spread_event_days(input = wx_input,
+#' spread_event_days(input = weather,
 #' yr_col = "yr",
 #' id_col = "id",
 #' seasonal = TRUE ,
@@ -73,7 +73,7 @@
 #' min_fwi = 19,
 #' directory = "")
 #'
-#' spread_event_days(input = wx_input,
+#' spread_event_days(input = weather,
 #' yr_col = "yr",
 #' id_col = "id",
 #' seasonal = FALSE ,

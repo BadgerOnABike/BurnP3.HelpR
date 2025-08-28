@@ -1,7 +1,7 @@
 Package: BurnP3.HelpR
 Type: Package
 Title: Burn-P3 Input Generation Helper Package
-Version: 0.8.1
+Version: 0.9.0
 Authors@R: c(person(given="Brett", family="Moore",email="Brett.Moore@nrcan-rncan.gc.ca",role=c("cre","aut")))
 Description: A series of functions intended to aid experience Burn-P3 operators in the generation of inputs for a modelling task.
 License: GPL (>= 3)

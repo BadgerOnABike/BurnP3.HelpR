@@ -58,7 +58,7 @@ This is a calculator for spread event days when continuous fire data does not ex
 ## Load example data
 data(weather)
 
-spread_event_days(input = wx_input,
+spread_event_days(input = weather,
 yr_col = "yr",
 id_col = "id",
 seasonal = FALSE ,
@@ -80,7 +80,7 @@ threshold = 80,
 min_fwi = 19,
 directory = "")
 
-spread_event_days(input = wx_input,
+spread_event_days(input = weather,
 yr_col = "yr",
 id_col = "id",
 seasonal = TRUE ,
@@ -102,7 +102,7 @@ threshold = 80,
 min_fwi = 19,
 directory = "")
 
-spread_event_days(input = wx_input,
+spread_event_days(input = weather,
 yr_col = "yr",
 id_col = "id",
 seasonal = FALSE ,
