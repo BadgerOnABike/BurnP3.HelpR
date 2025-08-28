@@ -20,7 +20,7 @@ The hours of burning are an important part of a Burn-P3 simulation. One third of
 }
 \examples{
 
-elev <- rast(system.file("extdata","elev.tif",package="BurnP3.HelpR"))
+elev <- terra::rast(system.file("extdata","elev.tif",package="BurnP3.HelpR"))
 
 season_df <- data.frame(season = c("Spring","Summer"),
                         jstart = c(125,160),

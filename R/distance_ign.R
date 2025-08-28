@@ -6,7 +6,7 @@
 #' @param reference_grid This is a reference spatraster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.Can be either the location of the raster or a raster object.
 #' @param rasters_list    The location the output density rasters will be placed.
 #' @param output_location The name of the files to be output. Typically these will be a vector of the names of your list of layers.
-#' @param output_name
+#' @param output_name Name of the output file
 #'
 #' @details This function generates a euclidean distance grid with the \code{distance} function.
 #'
@@ -17,18 +17,18 @@
 #'
 #' @examples
 #' ## Load example data
-#' ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
-#' data("spatdat_rast_out")
-#' raster_list$rasters <- rast(raster_list$rasters)
+#' ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+#' data("interest_raster")
+#' interest_raster <- terra::unwrap(interest_raster)
 #' temp_dir <- tempdir()
 #' distance_test <- distance_ign(reference_grid = ref_grid,
-#'                             rasters_list = raster_list$rasters,
+#'                             rasters_list = interest_raster,
 #'                             output_location = temp_dir,
 #'                             output_name = "distance_test")
 #'
-#' plot(distance_test)
+#' terra::plot(distance_test)
 #'
-#' unlink(temp_dir,recursive = T)
+#' unlink(temp_dir)
 distance_ign <- function(reference_grid, rasters_list,output_location,output_name){
 
   if ( dir.exists(output_location) == F ) { dir.create(output_location)}

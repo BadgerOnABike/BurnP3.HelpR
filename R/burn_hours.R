@@ -7,14 +7,15 @@
 #' @param season_col The column containing the season names.
 #'
 #' @importFrom geosphere daylength
-#' @importFrom terra ext
+#' @importFrom terra ext rast
 #' @importFrom sf st_transform st_as_sf
+#' @importFrom magrittr %>%
 #'
 #' @export
 #'
 #' @examples
 #'
-#' elev <- rast(system.file("extdata","elev.tif",package="BurnP3.HelpR"))
+#' elev <- terra::rast(system.file("extdata","elev.tif",package="BurnP3.HelpR"))
 #'
 #' season_df <- data.frame(season = c("Spring","Summer"),
 #'                         jstart = c(125,160),

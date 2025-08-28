@@ -5,6 +5,9 @@
 #' @param output_location Output location
 #' @param output_filename Output filename with png extension
 #' @param hfi_breaks A string of 4 numeric HFI breaks
+#' @param prob_vals A sequence of percentages you would like to use for your hazard legend.
+#'
+#' @importFrom graphics abline box grid hist mtext par polygon text
 #'
 #' @export
 #'

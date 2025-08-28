@@ -26,9 +26,9 @@
 #' @examples
 #' ## Load relavent data
 #' data("fire_data")
-#' aoi <- read_sf(system.file("extdata","extdata.gpkg",package="BurnP3.HelpR"),"aoi")
+#' aoi <- sf::st_read(system.file("extdata","extdata.gpkg",package="BurnP3.HelpR"),"aoi")
 #' output_location <- paste0(tempdir(),"\\")
-#' zones <- rast(system.file("extdata","zones.tif",package="BurnP3.HelpR"))
+#' zones <- terra::rast(system.file("extdata","zones.tif",package="BurnP3.HelpR"))
 #' data("season_df")
 #' zone_names = c("Alpine-E","Montane-E","Alpine-W","Montane-W","IDF")
 #'
@@ -37,8 +37,8 @@
 #'                              aoi = aoi,
 #'                              output_location = output_location,
 #'                              date_col = "REP_DATE",
-#'                              seasonal = F,
-#'                              zonal = F,
+#'                              seasonal = FALSE,
+#'                              zonal = FALSE,
 #'                              seasons = "",
 #'                              zones,
 #'                              zone_names = "",
@@ -52,8 +52,8 @@
 #'                              aoi = aoi,
 #'                              output_location = output_location,
 #'                              date_col = "REP_DATE",
-#'                              seasonal = T,
-#'                              zonal = F,
+#'                              seasonal = TRUE,
+#'                              zonal = FALSE,
 #'                              seasons = season_df,
 #'                              zones,
 #'                              zone_names = "",
@@ -67,8 +67,8 @@
 #'                              aoi = aoi,
 #'                              output_location = output_location,
 #'                              date_col = "REP_DATE",
-#'                              seasonal = F,
-#'                              zonal = T,
+#'                              seasonal = FALSE,
+#'                              zonal = TRUE,
 #'                              seasons = "",
 #'                              zones = zones,
 #'                              zone_names = zone_names,
@@ -78,7 +78,7 @@
 #'
 #' print(fr)
 #'
-#' unlink(output_location, recursive = T)
+#' unlink(output_location)
 #'
 
 fire_rate_distribution <- function(input, date_col, date_format = "%Y/%m/%d", aoi, output_location, seasonal=F, zonal=F, seasons = "", zones, zone_names = "", min_fire_size = 0.01, causes = c("H","L")){

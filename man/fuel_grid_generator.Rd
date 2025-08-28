@@ -47,19 +47,19 @@ Fuel Grid Generator
 \examples{
 
 ## Load in requisite data
-fuel_shape_1 <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
+fuel_shape_1 <- sf::st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
                          layer = "Shape_Fuels_1")
-fuel_shape_2 <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
+fuel_shape_2 <- sf::st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
                          layer = "Shape_Fuels_2")
-fuel_shape_PC <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
+fuel_shape_PC <- sf::st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
                          layer = "Shape_Fuels_PC")
-fuel_raster <- rast(system.file("extdata/fuel.tif", package = "BurnP3.HelpR"))
+fuel_raster <- terra::rast(system.file("extdata/fuel.tif", package = "BurnP3.HelpR"))
 reference_grid <- fuel_raster
 
-aoi_poly <- st_read(  dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
+aoi_poly <- sf::st_read(  dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
                          layer = "aoi_poly")
 data("lut")
-
+output_directory <- paste0(tempdir(),"\\\\")
 fuel_grid_generator(aoi_poly = aoi_poly,
                    aoi_buffer = 0,
                    lut = lut,
@@ -72,9 +72,9 @@ fuel_grid_generator(aoi_poly = aoi_poly,
                                 "Fuels",
                                 NA,
                                 "FBP"),
-                   pc = c(F,F,F,T),
+                   pc = c(FALSE,FALSE,FALSE,TRUE),
                    pc_col = c(NA,NA,NA,"PC"),
-                   output_directory = paste0(tempdir(),"\\\\")
+                   output_directory = output_directory
                    )
  print(paste0("Fuel Grid has been output to ",output_directory))
 }

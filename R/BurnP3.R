@@ -33,7 +33,7 @@
 #'
 #'  # 3. Elevation Grid Generation
 #'
-#'  The Fuel raster is used as a base layer until the elevation grid is derived at which point the elevation is the common reference grid. Elevation is derived from the \href{https://open.canada.ca/data/en/dataset/7f245e4d-76c2-4caa-951a-45d1d2051333}{CDEM data} which is a 30-m resolution. Within \link{elev_grab} the elevation will be resampled and reprojected to the reference grid. Two layers will be output, the elevation masked to the area of interest and an extent wide elevation layer. The latter layer is for use within the Wind Ninja model if a user is interested in using that tool.
+#'  The Fuel raster is used as a base layer until the elevation grid is derived at which point the elevation is the common reference grid. Elevation is derived from the \href{https://open.canada.ca/data/en/dataset/7f245e4d-76c2-4caa-951a-45d1d2051333}{CDEM data} which is a 30-m resolution. Within \link{grid_grab} the elevation will be resampled and reprojected to the reference grid. Two layers will be output, the elevation masked to the area of interest and an extent wide elevation layer. The latter layer is for use within the Wind Ninja model if a user is interested in using that tool.
 #'
 #'  # 4. Define Fire and Weather Zones
 #'

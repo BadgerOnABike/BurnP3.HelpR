@@ -8,9 +8,10 @@
 #' @param raster A logical flag for combination of burn probability rasters. _(Default: True)_
 #' @param daily A logical flag for the combination of daily or final perimeters. It will default to final when daily = F. _(Default: False)_
 #'
-#' @importFrom sf st_read st_write
+#' @importFrom sf  st_write st_crs st_set_crs
 #' @importFrom terra rast app writeRaster
 #' @importFrom plyr rbind.fill
+#' @importFrom utils download.file read.csv unzip write.csv
 #'
 #' @export
 #'
@@ -68,14 +69,14 @@ combine_output <- function(directory, file_prefix = 'Combined', stats_file, bp_f
                                                full.names = T),
                                     value = T,
                                     invert = if (daily == T) {F} else {T} ),
-                          FUN = st_read)
+                          FUN = )
 
   bp_shapes <- bp_shapes_list[[1]]
 
   for (i in 2:length(bp_shapes_list)) {
 
     bp_shapes_list[[i]]$fire <- bp_shapes_list[[i]]$fire + max(bp_shapes$fire, na.rm = T)
-    st_crs(bp_shapes_list[[i]]) <- st_crs(bp_shapes)
+    st_set_crs(bp_shapes_list[[i]],st_crs(bp_shapes))
     bp_shapes <- plyr::rbind.fill(bp_shapes, bp_shapes_list[[i]])
 
   }

@@ -22,9 +22,10 @@
 #' @importFrom caret rfeControl rfe downSample createDataPartition rfFuncs train resamples confusionMatrix varImp
 #' @importFrom randomForest tuneRF randomForest importance
 #' @importFrom dismo gbm.step
-#' @importFrom sf read_sf st_coordinates
-#' @importFrom data.table as.data.table
+#' @importFrom sf  st_coordinates
+#' @importFrom data.table as.data.table .SD :=
 #' @import gbm
+#' @importFrom stats complete.cases predict
 #'
 #' @return spatraster
 #'
@@ -36,7 +37,7 @@
 #' ## Load in example data
 #' data("indicator_stack")
 #' indicator_stack <- terra::unwrap(indicator_stack)
-#' fire_data <- sf::read_sf(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
+#' fire_data <- sf::st_read(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
 #' indicators_1 <- c("elevation",
 #'                   "road_distance",
 #'                   "rail_distance",
@@ -49,7 +50,7 @@
 #' causes <- c("H","L")
 #' season_description <- c("Spring","Summer","Fall")
 #' output_location <- paste0(tempdir(),"\\")
-#' model = "gbm"
+#' model = "rf_stock"
 #'
 #' ign_grid(fire_data = fire_data,
 #'          indicator_stack = indicator_stack,
@@ -63,11 +64,11 @@
 #'          model = model,
 #'          factor_vars =  c("ecodistrict","ign","in_out_park","fuels","town_boundary"),
 #'          non_fuel_vals = 101:110,
-#'          testing = T)
+#'          testing = TRUE)
 #'
 #' print(paste0("Test files have been written to: ", output_location))
 #'
-#' unlink(tempdir(),recursive = T)
+#' unlink(tempdir())
 
 
 ign_grid <- function(fire_data,
@@ -282,7 +283,7 @@ ign_grid <- function(fire_data,
 
         ign[][which(indicator_stack$fuels[] %in% c(101:110))] <- 0
 
-        terra::writeRaster(rast(ign),
+        terra::writeRaster(terra::rast(ign),
                     paste0(output_location,
                            paste(cause,
                                  season_description[season],
@@ -549,8 +550,8 @@ ign_grid <- function(fire_data,
                                object = indicator_stack,
                                type = "prob")[[2]]
 
-        x11()
-        plot(ign)
+        dev.new()
+        terra::plot(ign)
 
         ign[][which(indicator_stack$fuels[] %in% c(101:110))] <- 0
 

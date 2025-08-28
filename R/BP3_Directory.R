@@ -9,7 +9,7 @@
 #'
 #' @examples
 #'
-#' bp3_dirs(project_name = "Test_Project")
+#' bp3_dirs(root=tempdir(),project_name = "Test_Project")
 #'
 bp3_dirs <- function(root="", project_name = "") {
   if (root == "") {

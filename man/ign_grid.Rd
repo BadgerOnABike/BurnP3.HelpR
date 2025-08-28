@@ -61,7 +61,7 @@ Ignition grids are a probability surface describing the potential for any one ce
 ## Load in example data
 data("indicator_stack")
 indicator_stack <- terra::unwrap(indicator_stack)
-fire_data <- sf::read_sf(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
+fire_data <- sf::st_read(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
 indicators_1 <- c("elevation",
                   "road_distance",
                   "rail_distance",
@@ -74,7 +74,7 @@ indicators_2 <- c("elevation","topography_position_index","solar_rad","Lightning
 causes <- c("H","L")
 season_description <- c("Spring","Summer","Fall")
 output_location <- paste0(tempdir(),"\\\\")
-model = "gbm"
+model = "rf_stock"
 
 ign_grid(fire_data = fire_data,
          indicator_stack = indicator_stack,
@@ -88,9 +88,9 @@ ign_grid(fire_data = fire_data,
          model = model,
          factor_vars =  c("ecodistrict","ign","in_out_park","fuels","town_boundary"),
          non_fuel_vals = 101:110,
-         testing = T)
+         testing = TRUE)
 
 print(paste0("Test files have been written to: ", output_location))
 
-unlink(tempdir(),recursive = T)
+unlink(tempdir())
 }

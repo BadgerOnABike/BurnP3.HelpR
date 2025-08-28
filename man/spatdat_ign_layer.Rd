@@ -25,7 +25,7 @@ This tool imports the spatial data for use within the spatial data rasterizer, i
 \examples{
 
 ## Load example data
-ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
 
 out <- spatdat_ign_layer(reference_grid = ref_grid,
                          layer = "road",

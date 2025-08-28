@@ -9,7 +9,8 @@
 #' @details This tool imports the spatial data for use within the spatial data rasterizer, it can perform on points, lines and polygons.
 #'
 #' @importFrom terra rast crop
-#' @importFrom sf read_sf st_transform st_geometry_type st_is_empty st_zm st_make_valid st_crs
+#' @importFrom sf  st_transform st_geometry_type st_is_empty st_zm st_make_valid st_crs
+#' @importFrom methods as
 #'
 #' @return List
 #' @export
@@ -18,7 +19,7 @@
 #' @examples
 #'
 #' ## Load example data
-#' ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+#' ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
 #'
 #' out <- spatdat_ign_layer(reference_grid = ref_grid,
 #'                          layer = "road",
@@ -31,7 +32,7 @@ spatdat_ign_layer <- function(reference_grid,layer,dsn){
   if ( !grepl("SpatRaster|character", class(reference_grid)) ) {message("Reference Grid must be the directory of the raster or a spatraster object.")}
 
 
-  if (class(layer) != "character") {
+  if (!is.character(layer)) {
     x <- sf::st_transform(layer,crs = st_crs(grast))
     y <- sf::st_geometry_type(x)
     if (length(unique(y)) > 1 & gregexpr("SURFACE",unique(y))[[1]][1] == -1) {
@@ -45,7 +46,7 @@ spatdat_ign_layer <- function(reference_grid,layer,dsn){
 
     if (!grepl("gdb|gpkg",dsn,ignore.case = T)) {
 
-      x <- sf::st_transform(sf::read_sf(x),
+      x <- sf::st_transform(sf::st_read(x),
                         crs = sf::st_crs(grast))
 
       x <- sf::st_zm(x)
@@ -66,7 +67,7 @@ spatdat_ign_layer <- function(reference_grid,layer,dsn){
     layers_list <- lapply(layer,
                           FUN = function(x){
                             print(x)
-                            x <- sf::st_transform(sf::read_sf(dsn = dsn,
+                            x <- sf::st_transform(sf::st_read(dsn = dsn,
                                                       layer = x),
                                               crs = st_crs(grast))
 
