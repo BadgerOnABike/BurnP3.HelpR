@@ -9,7 +9,7 @@ spatdat_ign_rast(reference_grid, layers_list)
 \arguments{
 \item{reference_grid}{This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.}
 
-\item{layer}{A list containing at least one spatial layer from the \code{spatdat_ign_layer} function to be rasterized.}
+\item{layers_list}{A list containing at least one spatial layer from the \code{spatdat_ign_layer} function to be rasterized.}
 }
 \value{
 List containing points and raster layers.
@@ -20,12 +20,13 @@ A function to create a point layer and a raster layer out of spatial inputs (poi
 \examples{
 
 ## Load example data
-ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
-layers_list <- list(read_sf(dsn=system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="layers_list"))
+ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+layers_list <- list(sf::st_read(dsn=system.file("extdata/extdata.gpkg",
+                            package = "BurnP3.HelpR"),layer="layers_list"))
 out <- spatdat_ign_rast(reference_grid = ref_grid,
                         layers_list = layers_list)
 
 }
 \seealso{
-\code{\link[BurnP3]{spatdat_ign_layer}}
+\code{\link[BurnP3.HelpR]{spatdat_ign_layer}}
 }

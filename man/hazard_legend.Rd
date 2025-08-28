@@ -17,6 +17,8 @@ hazard_legend(
 \item{output_filename}{Output filename with png extension}
 
 \item{hfi_breaks}{A string of 4 numeric HFI breaks}
+
+\item{prob_vals}{A sequence of percentages you would like to use for your hazard legend.}
 }
 \description{
 This function generates a 4x4 legend square for the quartiles of probability and a set of 4 HFI breaks.

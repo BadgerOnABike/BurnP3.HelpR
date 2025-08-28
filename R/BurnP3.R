@@ -7,7 +7,7 @@
 #'
 #' Typical workflow will be described below if working from scratch however the package is fully modular and individual components can be used in isolation.
 #'
-#' This package currently uses a mixture of (\code{rgdal} and \code{raster}) and (\code{sf} and \code{terra}), additional work is on-going to move everything towards \code{sf} and \code{terra} as they are faster at achieving a number of the goals of this package.
+#' This package currently uses (\code{sf} and \code{terra}).
 #'
 #' @details
 #' # 0. Establish Area of Interest and Question
@@ -33,7 +33,7 @@
 #'
 #'  # 3. Elevation Grid Generation
 #'
-#'  The Fuel raster is used as a base layer until the elevation grid is derived at which point the elevation is the common reference grid. Elevation is derived from the \href{https://open.canada.ca/data/en/dataset/7f245e4d-76c2-4caa-951a-45d1d2051333}{CDEM data} which is a 30-m resolution. Within \link{elev_grab} the elevation will be resampled and reprojected to the reference grid. Two layers will be output, the elevation masked to the area of interest and an extent wide elevation layer. The latter layer is for use within the Wind Ninja model if a user is interested in using that tool.
+#'  The Fuel raster is used as a base layer until the elevation grid is derived at which point the elevation is the common reference grid. Elevation is derived from the \href{https://open.canada.ca/data/en/dataset/7f245e4d-76c2-4caa-951a-45d1d2051333}{CDEM data} which is a 30-m resolution. Within \link{grid_grab} the elevation will be resampled and reprojected to the reference grid. Two layers will be output, the elevation masked to the area of interest and an extent wide elevation layer. The latter layer is for use within the Wind Ninja model if a user is interested in using that tool.
 #'
 #'  # 4. Define Fire and Weather Zones
 #'
@@ -64,7 +64,6 @@
 #'
 #'  Upon completion of Burn-P3 modeling the outputs will require some processing and presentation. Some tools for quick viewing are in development but are currently works in progress.
 #'
-#' @docType package
 #'
 #' @author Brett Moore \email{Brett.Moore@@nrcan-rncan.gc.ca}
 #'

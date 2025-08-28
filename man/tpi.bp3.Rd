@@ -12,18 +12,18 @@ tpi.bp3(input, window_size = 5)
 \item{window_size}{Must be an odd number}
 }
 \value{
-RasterStack
+SpatRast
 }
 \description{
 A set of three functions wrapped in a single call to generate Topographic Position Index, Topographic Ruggedness Index and a flow layer. While \code{terrain} can perform all of these actions, some have been exported to apply a window factor for manipulable use.
 }
 \details{
-Explanatory variables that are often used during the ignition gridding process are TPI, TRI and flow. These parameters give us an idea the influence of the landscape on ignition potential. Additional information about the calculation and interpretation of topographic position index can be found at: \href{http://www.jennessent.com/downloads/tpi-poster-tnc_18x22.pdf}{TPI Info PDF} and in \code{\link[raster]{terrain}}
+Explanatory variables that are often used during the ignition gridding process are TPI, TRI and flow. These parameters give us an idea the influence of the landscape on ignition potential. Additional information about the calculation and interpretation of topographic position index can be found at: \href{http://www.jennessent.com/downloads/tpi-poster-tnc_18x22.pdf}{TPI Info PDF} and in \code{\link[terra]{terrain}}
 }
 \examples{
 
 ##Load in example data
-elev <- rast(system.file("extdata/elev.tif",package="BurnP3.HelpR"))
+elev <- terra::rast(system.file("extdata/elev.tif",package="BurnP3.HelpR"))
 tpi.out <- tpi.bp3(input = elev, window_size = 5)
-plot(tpi.out)
+terra::plot(tpi.out)
 }

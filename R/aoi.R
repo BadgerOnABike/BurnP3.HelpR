@@ -2,7 +2,7 @@
 #'
 #'
 #' @param area_of_interest_file Two element vector describing the location of the file (dsn) and the filename. The file is expected to follow a format readable by readOGR.
-#' @param PC Parks Canada flag to define whether or not you want to download the Parks Canada data automatically. area_of_interest_file must be "" when using PC=T **and** define a / many park_of_interest. (*_Default_* = F)
+#' @param PC Parks Canada flag to define whether or not you want to download the Parks Canada data automatically. area_of_interest_file must be "" when using PC = "yes" **and** define a / many park_of_interest. (*_Default_* = "no")
 #' @param reference_grid This is a reference raster to provide a projection.
 #' @param buffer_width A width in meters to apply to the area of interest. If you are only interested in the area do not buffer. (*_Default_* = 0)
 #' @param park_of_interest The english name of the park or parks of interest. Expects a vector of character strings. (*_Default_* = "")
@@ -13,6 +13,7 @@
 #' @importFrom terra rast
 #' @importFrom sf st_read st_transform st_intersection st_buffer
 #' @importFrom geojsonsf geojson_sf
+#' @importFrom grDevices dev.new dev.off png
 #' @import ggplot2
 #'
 #' @details Area of interest generator that allows a systematic AOI generation. Automated system for Parks Canada.
@@ -22,12 +23,15 @@
 #' @examples
 #'
 #'# Load test data
-#'ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
-#'weather_stations <- sf::st_read(dsn=system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),layer="weather_stations")
+#'ref_grid <- terra::rast(system.file("extdata/fuel.tif",
+#'                             package = "BurnP3.HelpR"))
+#'weather_stations <- sf::st_read(dsn=system.file("extdata/extdata.gpkg",
+#'                       package="BurnP3.HelpR"),layer="weather_stations")
 #'
 #'## Defined AOI
-#'aoi(area_of_interest_file = c(system.file("extdata/extdata.gpkg", package="BurnP3.HelpR"),"aoi"),
-#'    PC=F,
+#'aoi(area_of_interest_file = c(system.file("extdata/extdata.gpkg",
+#'                                package="BurnP3.HelpR"),"aoi"),
+#'    PC = "no",
 #'    reference_grid = ref_grid,
 #'    buffer_width = 15000,
 #'    park_of_interest="",
@@ -37,7 +41,7 @@
 #'
 #'## Single Park
 #'aoi(area_of_interest_file = "",
-#'    PC=T,
+#'    PC = "yes",
 #'    reference_grid = ref_grid,
 #'    buffer_width = 15000,
 #'    park_of_interest=c("Banff"),
@@ -47,7 +51,7 @@
 #'
 #'##Multiple Parks
 #'aoi(area_of_interest_file = "",
-#'    PC=T,
+#'    PC = "yes",
 #'    reference_grid = ref_grid,
 #'    buffer_width = 15000,
 #'    park_of_interest=c("Banff|Jasper"),
@@ -58,7 +62,7 @@
 #' @export
 
 aoi <- function(area_of_interest_file,
-                PC = F,
+                PC = "no",
                 reference_grid,
                 buffer_width = 0,
                 park_of_interest = "",
@@ -90,13 +94,13 @@ aoi <- function(area_of_interest_file,
   "&returnCountOnly=false&returnZ=false&returnM=false&returnDistinctValues=",
   "false&returnExtentOnly=false&featureEncoding=esriDefault&f=geojson")
 
-  if (PC == T & park_of_interest == "") {
+  if (PC == "yes" & park_of_interest == "") {
 
     aoi_poly <- geojsonsf::geojson_sf(url)
 
     stop(paste0("You have declared that you are using Parks Canada data,",
-    "however you have not defined a park or multiple parks. This will result ,",
-    "in national data being used. Park/s of interest can be declared as a ,",
+    "however you have not defined a park or multiple parks. This will result ",
+    "in national data being used. Park/s of interest can be declared as a ",
     "character vector.Park names are: ",aoi_poly$sf$adminAreaNameEng))}
 
   if ( is.null(area_of_interest_file) | park_of_interest != "") {
@@ -138,7 +142,7 @@ aoi <- function(area_of_interest_file,
       )
     )[,stn_name_col])
 
-  x11();
+  dev.new();
 
   p <- ggplot2::ggplot(sf::st_buffer(aoi_poly,
                                       dist = buffer_width)) +

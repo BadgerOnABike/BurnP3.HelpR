@@ -3,21 +3,22 @@
 #' A function to create a point layer and a raster layer out of spatial inputs (point, line, polygon) for use during ignition grid generation. These layers are intended for use in the density \code{density_ign} and euclidean distance \code{distance_ign} functions.
 #'
 #' @param reference_grid This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project.
-#' @param layer A list containing at least one spatial layer from the \code{spatdat_ign_layer} function to be rasterized.
+#' @param layers_list A list containing at least one spatial layer from the \code{spatdat_ign_layer} function to be rasterized.
 #'
 #' @importFrom terra rast cells classify setValues vect
-#' @importFrom sf read_sf st_crs st_transform st_centroid st_as_sf
+#' @importFrom sf st_read st_crs st_transform st_centroid st_as_sf
 #'
 #' @return List containing points and raster layers.
 #' @export
 #'
-#' @seealso \code{\link[BurnP3]{spatdat_ign_layer}}
+#' @seealso \code{\link[BurnP3.HelpR]{spatdat_ign_layer}}
 #'
 #' @examples
 #'
 #' ## Load example data
-#' ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
-#' layers_list <- list(read_sf(dsn=system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="layers_list"))
+#' ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+#' layers_list <- list(sf::st_read(dsn=system.file("extdata/extdata.gpkg",
+#'                             package = "BurnP3.HelpR"),layer="layers_list"))
 #' out <- spatdat_ign_rast(reference_grid = ref_grid,
 #'                         layers_list = layers_list)
 #'

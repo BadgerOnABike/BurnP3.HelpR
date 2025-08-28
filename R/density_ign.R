@@ -10,11 +10,11 @@
 #'
 #' @details This function utilizes the kernal density estimation algorithm from spatialEco to create raster layers for use in ignition grid calculation.
 #'
-#' @importFrom terra rast setValues writeRaster mask
-#' @importFrom sf st_coordinates
+#' @importFrom terra rast setValues writeRaster mask plot
+#' @importFrom sf st_coordinates 
 #' @importFrom MASS kde2d
 #'
-#' @return RasterLayer
+#' @return SpatRast
 #' @export
 #'
 #' @seealso \code{\link[BurnP3.HelpR]{spatdat_ign_layer}}
@@ -22,8 +22,8 @@
 #' @examples
 #'
 #' ## Load example data
-#' ref_grid <- rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
-#' fires <- read_sf(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
+#' ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR"))
+#' fires <- sf::st_read(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
 #' temp_dir <- tempdir()
 #' density_test <- density_ign(reference_grid = ref_grid,
 #'                             layers_list = fires,
@@ -31,7 +31,7 @@
 #'                             output_location = temp_dir,
 #'                             output_name = "density_test")
 #'
-#' plot(density_test)
+#' terra::plot(density_test)
 #'
 #' unlink(temp_dir)
 density_ign <- function(reference_grid,layers_list,width = 1000, output_location,output_name){

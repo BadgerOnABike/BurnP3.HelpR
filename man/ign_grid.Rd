@@ -39,7 +39,7 @@ ign_grid(
 
 \item{min_fire_size}{A minimum fire size that may be defined to filter the wildfire data provided. \emph{(Default = "")}}
 
-\item{model}{A character string defining the model to be used during the ignition gridding process. Can be one of: rf_stock, rf, gbm. The models are: stock random forest - run without any tuning. Random forest, an automatically tuned random forest run. Gradient Boosted Model - a gbm that is run in its default mode.}
+\item{model}{A character string defining the model to be used during the ignition gridding process. Can be one of: rf_stock, rf, gbm and brt. The models are: stock random forest - run without any tuning. Random forest, an automatically tuned random forest run. Gradient Boosted Model - a gbm that is run in its default mode. Boosted Regression Tree - run in its default mode and provides details on the equation yielded.}
 
 \item{factor_vars}{If there are layers that are factors they need to be added to a character vector for use in the function.}
 
@@ -60,8 +60,8 @@ Ignition grids are a probability surface describing the potential for any one ce
 
 ## Load in example data
 data("indicator_stack")
-indicator_stack <- terra::rast(indicator_stack)
-fire_data <- sf::read_sf(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
+indicator_stack <- terra::unwrap(indicator_stack)
+fire_data <- sf::st_read(system.file("extdata/extdata.gpkg",package = "BurnP3.HelpR"),layer="fires")
 indicators_1 <- c("elevation",
                   "road_distance",
                   "rail_distance",
@@ -88,9 +88,9 @@ ign_grid(fire_data = fire_data,
          model = model,
          factor_vars =  c("ecodistrict","ign","in_out_park","fuels","town_boundary"),
          non_fuel_vals = 101:110,
-         testing = T)
+         testing = TRUE)
 
 print(paste0("Test files have been written to: ", output_location))
 
-unlink(tempdir(),recursive = T)
+unlink(tempdir())
 }

@@ -11,8 +11,8 @@
 #' @param pc_col A character vector defining the column for percent conifer in each spatial layer. If the corresponding \code{pc} value is false enter "".
 #' @param output_directory The directory to place the final fuel grid. If using the generated directories use \code{bp3_base} as the output directory.
 #'
-#' @importFrom terra rast ext vect project extend crs crop mask writeRaster resample
-#' @importFrom sf st_read st_buffer st_transform read_sf st_crop st_make_valid st_cast st_geometry_type st_bbox
+#' @importFrom terra rast ext vect project extend crs crop mask writeRaster resample res
+#' @importFrom sf  st_buffer st_transform st_read st_crop st_make_valid st_cast st_geometry_type st_bbox
 #' @importFrom plyr ldply
 #'
 #' @return SpatRaster
@@ -22,19 +22,19 @@
 #' @examples
 #'
 #' ## Load in requisite data
-#' fuel_shape_1 <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
+#' fuel_shape_1 <- sf::st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
 #'                          layer = "Shape_Fuels_1")
-#' fuel_shape_2 <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
+#' fuel_shape_2 <- sf::st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
 #'                          layer = "Shape_Fuels_2")
-#' fuel_shape_PC <- st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
+#' fuel_shape_PC <- sf::st_read( dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
 #'                          layer = "Shape_Fuels_PC")
-#' fuel_raster <- rast(system.file("extdata/fuel.tif", package = "BurnP3.HelpR"))
+#' fuel_raster <- terra::rast(system.file("extdata/fuel.tif", package = "BurnP3.HelpR"))
 #' reference_grid <- fuel_raster
 #'
-#' aoi_poly <- st_read(  dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
+#' aoi_poly <- sf::st_read(  dsn = system.file("extdata/extdata.gpkg", package = "BurnP3.HelpR"),
 #'                          layer = "aoi_poly")
 #' data("lut")
-#'
+#' output_directory <- paste0(tempdir(),"\\")
 #'fuel_grid_generator(aoi_poly = aoi_poly,
 #'                    aoi_buffer = 0,
 #'                    lut = lut,
@@ -47,9 +47,9 @@
 #'                                 "Fuels",
 #'                                 NA,
 #'                                 "FBP"),
-#'                    pc = c(F,F,F,T),
+#'                    pc = c(FALSE,FALSE,FALSE,TRUE),
 #'                    pc_col = c(NA,NA,NA,"PC"),
-#'                    output_directory = paste0(tempdir(),"\\")
+#'                    output_directory = output_directory
 #'                    )
 #'  print(paste0("Fuel Grid has been output to ",output_directory))
 
@@ -94,7 +94,7 @@ fuel_grid_generator <- function(aoi_poly, aoi_buffer = 15000, lut, reference_gri
       rst.in <- terra::project(rst.in,y = terra::crs(aoi_poly),method = "near")
       rst.in <- terra::crop(rst.in,terra::rast(terra::vect(aoi_poly)),snap = "in")
 
-      if ( res(rst.in)[1] != res(grast)[1] ) {
+      if ( terra::res(rst.in)[1] != terra::res(grast)[1] ) {
 
         rst.in <- terra::rast(terra::resample(x = rst.in,
                                               y = grast,
@@ -114,7 +114,7 @@ fuel_grid_generator <- function(aoi_poly, aoi_buffer = 15000, lut, reference_gri
 
       print(paste0("Working on Shapefile... ", i))
 
-      if (any(class(x) == "character")) {x <- sf::read_sf(x)}
+      if (any(class(x) == "character")) {x <- sf::st_read(x)}
 
       shps <- sf::st_crop(
                 sf::st_make_valid(
