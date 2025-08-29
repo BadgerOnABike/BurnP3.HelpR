@@ -1,4 +1,4 @@
-#' Gridded Data Grabber Grabber - From NTS Grids
+#' Gridded Data Grabber - From NTS Grids
 #'
 #' This function uses your reference layer to define the NTS grids necessary to pull elevation from the CDEM layers and the national FBP Fuel grid provided by the Government of Canada.
 #' @note Requires an internet connection
@@ -58,6 +58,10 @@ grid_grab <- function(aoi_e = NULL, reference_grid,output_directory){
   ## Determine the NTS grids the data exists across
   layers <- sf::st_crop(nts_grid,
                  sf::st_transform(aoi_e,crs = sf::st_crs(nts_grid)))$NTS_SNRC
+
+   ##TODO: Migrate to MRDEM
+  ## MRDEM URL
+  #https://datacube-prod-data-public.s3.ca-central-1.amazonaws.com/store/elevation/mrdem/mrdem-30/mrdem-30-dtm.vrt
 
   ## Extract the CDEM tiles needed to generate the grid.
   elevation <- lapply(layers,function(i){
