@@ -2,16 +2,21 @@
 % Please edit documentation in R/grid_grab.R
 \name{grid_grab}
 \alias{grid_grab}
-\title{Gridded Data Grabber Grabber - From NTS Grids}
+\title{Gridded Data Grabber - From NTS Grids}
 \usage{
-grid_grab(aoi_e = NULL, reference_grid, output_directory)
+grid_grab(aoi_e = NULL, buffer = NULL, reference_grid, output_directory)
 }
 \arguments{
-\item{aoi_e}{Polygon for the area of interest to be intersected with the NTS grid layer. \emph{(Default: "")} If Default is used the full extent under the reference_grid will be returned.}
+\item{aoi_e}{Polygon or numeric coordinate pair ("longitude","latitude") for the area of interest to be intersected with the NTS grid layer. \emph{(Default: NULL)} If Default is used the full extent under the reference_grid will be returned.}
+
+\item{buffer}{A buffer in meters to define an area of interest around a point if coordinates are given to the \code{aoi_e} parameter. \emph{(Default: NULL)}}
 
 \item{reference_grid}{This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project. Can be either the location of the raster or a raster object.}
 
 \item{output_directory}{Output directory where your elevation and Wind Ninja elevation grids will be stored.}
+}
+\value{
+SpatRast
 }
 \description{
 This function uses your reference layer to define the NTS grids necessary to pull elevation from the CDEM layers and the national FBP Fuel grid provided by the Government of Canada.
@@ -28,6 +33,17 @@ ref_grid <- terra::rast(system.file("extdata/fuel.tif",package = "BurnP3.HelpR")
 temp_dir <- tempdir()
 output_directory <- paste0(temp_dir,"\\\\")
 test <- grid_grab(reference_grid = ref_grid,
+                  output_directory = output_directory)
+
+## use with a coordinate pair
+test2 <- grid_grab(aoi_e = c(-110, 54),
+                  buffer = 50000,
+                  reference_grid = ref_grid,
+                  output_directory = output_directory)
+
+## use with a coordinate pair but no buffer
+test3 <- grid_grab(aoi_e = c(-110, 54),
+                  reference_grid = ref_grid,
                   output_directory = output_directory)
 
 
