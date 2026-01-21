@@ -45,7 +45,7 @@
 #'
 #' unlink(temp_dir)
 
-grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid,output_directory){
+grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_directory){
 
   options(timeout = 900)
 
@@ -56,10 +56,10 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid,output_director
   if( is.numeric(aoi_e) & is.numeric(buffer) ) {
     aoi_e <- sf::st_buffer(sf::st_sfc(sf::st_point(x=aoi_e,dim="XYZ"),crs=4326),dist = buffer)
   }
-
+  if ( !is.null(reference_grid) ){
   if ( any(grepl("SpatRaster", class(reference_grid))) ) { grast <- reference_grid }
   if ( any(grepl("character", class(reference_grid))) ) { grast <- terra::rast(reference_grid) }
-  if ( any(!grepl("SpatRaster|character", class(reference_grid))) ) { message("Reference Grid must be the directory of the spatraster or a spatraster object.") }
+  if ( any(!grepl("SpatRaster|character", class(reference_grid))) ) { message("Reference Grid must be the directory of the spatraster or a spatraster object.") }}
 
   if( is.null(aoi_e) ) { aoi_e <- sf::st_as_sf(as.polygons(grast, extent=T))}
 
@@ -76,6 +76,7 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid,output_director
   names(elevation) <- "Elevation"
 
   bb_4326 <- sf::st_bbox(sf::st_transform(aoi_e,crs="EPSG:4326"))
+  bb_target <- round(sf::st_bbox(sf::st_transform(aoi_e,crs=target_crs)),-2)
   fuel.url<-paste0("https://cwfis.cfs.nrcan.gc.ca/geoserver/public/wcs?",
                     "service=WCS&version=2.0.0&request=GetCoverage&coverageId=",
                     "public:cffdrs_fbp_fuel_types_100m&subset=Long(",
@@ -85,19 +86,19 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid,output_director
   fuels <- resample(terra::project(rast(fuel.url),elevation,method = "near"),elevation,method="near")
   names(fuels) <-"Fuel"
 
-  terra::writeRaster(terra::mask(fuels,vect(sf::st_transform(aoi_e,target_crs))),
+  terra::writeRaster(terra::crop(fuels,bb_target),
                        paste0(output_directory,"FBP_Fuels.tif"),
                        wopt = list(filetype = "GTiff",
                                    datatype = "INT2S",
-                                   gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
+                                   gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2","TILED=YES","BLOCKXSIZE=512", "BLOCKYSIZE=512")),
                        NAflag = -9999,
                        overwrite = T)
 
-  terra::writeRaster(terra::mask(elevation,vect(sf::st_transform(aoi_e,target_crs))),
+  terra::writeRaster(terra::crop(fuels,bb_target),
                 paste0(output_directory,"elevation.tif"),
                 wopt = list(filetype = "GTiff",
                             datatype = "INT2S",
-                            gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
+                            gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2","TILED=YES","BLOCKXSIZE=512", "BLOCKYSIZE=512")),
                 NAflag = -9999,
                 overwrite = T)
 
