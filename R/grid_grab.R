@@ -45,7 +45,7 @@
 #'
 #' unlink(temp_dir)
 
-grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_directory, mode=NULL){
+grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_directory){
 
   options(timeout = 900)
 
