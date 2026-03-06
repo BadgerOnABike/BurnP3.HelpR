@@ -5,7 +5,7 @@ To install:
 
 ```
 install.packages("devtools")
-devtools::install_github("BadgerOnABike/BurnP3.HelpR@v0.1.0")
+devtools::install_github("BadgerOnABike/BurnP3.HelpR@v0.10.1")
 ```
 
  # 0. Establish Area of Interest and Question
