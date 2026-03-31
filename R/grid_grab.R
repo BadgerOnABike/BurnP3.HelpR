@@ -61,7 +61,7 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
   if ( any(grepl("character", class(reference_grid))) ) { grast <- terra::rast(reference_grid) }
   if ( any(!grepl("SpatRaster|character", class(reference_grid))) ) { message("Reference Grid must be the directory of the spatraster or a spatraster object.") }}
 
-  if( is.null(aoi_e) ) { aoi_e <- sf::st_as_sf(as.polygons(grast, extent=T))}
+  if( is.null(aoi_e) ) { aoi_e <- sf::st_as_sf(terra::as.polygons(grast, extent=T))}
 
   if ( any(grepl("sf", class(aoi_e))) ) { aoi_e <- aoi_e }
   if ( any(grepl("character", class(aoi_e))) ) { aoi_e <- (aoi_e) }
@@ -72,7 +72,8 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
   sf::st_agr(utm_canada) <- "constant"
   target_crs <- sf::st_intersection(utm_canada,sf::st_transform(sf::st_centroid(aoi_e),sf::st_crs(utm_canada)),)$EPSG
 
-  elevation <- mrdem_subset_windowed(bbox = sf::st_bbox(aoi_e), target_res_m = 100,target_crs = target_crs)
+  Sys.setenv(R_LIBCURL_SSL_REVOKE_BEST_EFFORT=TRUE) ## This will ensure the SSL intercept in corporate environments does not crater the grid_grab
+  elevation <- BurnP3.HelpR:::mrdem_subset_windowed(bbox = sf::st_bbox(aoi_e), target_res_m = 100,target_crs = target_crs)
   names(elevation) <- "Elevation"
 
   bb_4326 <- sf::st_bbox(sf::st_transform(aoi_e,crs="EPSG:4326"))
