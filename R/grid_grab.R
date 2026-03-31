@@ -73,7 +73,7 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
   target_crs <- sf::st_intersection(utm_canada,sf::st_transform(sf::st_centroid(aoi_e),sf::st_crs(utm_canada)),)$EPSG
 
   Sys.setenv(R_LIBCURL_SSL_REVOKE_BEST_EFFORT=TRUE) ## This will ensure the SSL intercept in corporate environments does not crater the grid_grab
-  elevation <- BurnP3.HelpR:::mrdem_subset_windowed(bbox = sf::st_bbox(aoi_e), target_res_m = 100,target_crs = target_crs)
+  elevation <- mrdem_subset_windowed(bbox = sf::st_bbox(aoi_e), target_res_m = 100,target_crs = target_crs)
   names(elevation) <- "Elevation"
 
   bb_4326 <- sf::st_bbox(sf::st_transform(aoi_e,crs="EPSG:4326"))
@@ -84,7 +84,7 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
                     bb_4326[1],",",bb_4326[3],")&subset=Lat(",bb_4326[2],",",bb_4326[4],
                     ")&FORMAT=geotiff&subsettingCRS=EPSG:4326&outputCRS=http://www.opengis.net/def/crs/EPSG/0/3978"
             )
-  fuels <- resample(terra::project(rast(fuel.url),elevation,method = "near"),elevation,method="near")
+  fuels <- terra::resample(terra::project(rast(fuel.url),elevation,method = "near"),y = elevation,method="near")
   names(fuels) <-"Fuel"
 
   terra::writeRaster(terra::crop(fuels,bb_target),
