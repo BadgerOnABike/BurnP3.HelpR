@@ -94,7 +94,7 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
                        NAflag = -9999,
                        overwrite = T)
 
-  terra::writeRaster(terra::crop(fuels,bb_target),
+  terra::writeRaster(terra::crop(elevation,bb_target),
                 paste0(output_directory,"elevation.tif"),
                 wopt = list(filetype = "GTiff",
                             datatype = "INT2S",
