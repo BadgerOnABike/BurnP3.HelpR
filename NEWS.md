@@ -1,8 +1,15 @@
 # BurnP3.HelpR 0.10.4
 
+-`grid_grab`
+- Has a fuel argument to allow the user to define if they want a fuel grid pull
+
 # BurnP3.HelpR 0.10.3
 
+- package level definition by function
+
 # BurnP3.HelpR 0.10.2
+
+- reduce redundant requests (fuels)
 
 # BurnP3.HelpR 0.10.1
 
