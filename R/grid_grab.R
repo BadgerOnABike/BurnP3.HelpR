@@ -45,7 +45,7 @@
 #'
 #' unlink(temp_dir)
 
-grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_directory){
+grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_directory, fuel=TRUE){
 
   options(timeout = 900)
 
@@ -78,14 +78,17 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
 
   bb_4326 <- sf::st_bbox(sf::st_transform(aoi_e,crs="EPSG:4326"))
   bb_target <- round(sf::st_bbox(sf::st_transform(aoi_e,crs=target_crs)),-2)
+
+  if(fuel == TRUE){
   fuel.url<-paste0("https://cwfis.cfs.nrcan.gc.ca/geoserver/public/wcs?",
                     "service=WCS&version=2.0.0&request=GetCoverage&coverageId=",
                     "public:cffdrs_fbp_fuel_types_100m&subset=Long(",
                     bb_4326[1],",",bb_4326[3],")&subset=Lat(",bb_4326[2],",",bb_4326[4],
                     ")&FORMAT=geotiff&subsettingCRS=EPSG:4326&outputCRS=http://www.opengis.net/def/crs/EPSG/0/3978"
             )
+
   fuels <- terra::resample(terra::project(rast(fuel.url),elevation,method = "near"),y = elevation,method="near")
-  names(fuels) <-"Fuel"
+  names(fuels) <- "Fuel"
 
   terra::writeRaster(terra::crop(fuels,bb_target),
                        paste0(output_directory,"FBP_Fuels.tif"),
@@ -94,6 +97,7 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
                                    gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2","TILED=YES","BLOCKXSIZE=512", "BLOCKYSIZE=512")),
                        NAflag = -9999,
                        overwrite = T)
+  }
 
   terra::writeRaster(terra::crop(elevation,bb_target),
                 paste0(output_directory,"elevation.tif"),
@@ -103,15 +107,8 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
                 NAflag = -9999,
                 overwrite = T)
 
-    # terra::writeRaster(mosaic.r,
-    #             paste0(output_directory,"elevation_wn.tif"),
-    #             wopt = list(filetype = "GTiff",
-    #                         datatype = "INT2S",
-    #                         gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2")),
-    #             NAflag = -9999,
-    #             overwrite = T)
 print(paste0("Files have been written to: ",output_directory))
-return(c(fuels,elevation))
+if(fuel == TRUE){return(c(fuels,elevation))} else {return(elevation)}
 }
 
 elev_grab <- function(...) {
