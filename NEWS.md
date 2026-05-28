@@ -1,5 +1,8 @@
 # BurnP3.HelpR 0.10.5
 
+-`grid_grab`
+- Added ref_is_fuel to allow the user to define the reference grid as the fuel grid.
+
 # BurnP3.HelpR 0.10.4
 
 -`grid_grab`
