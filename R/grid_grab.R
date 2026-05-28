@@ -42,10 +42,14 @@
 #'                   reference_grid = ref_grid,
 #'                   output_directory = output_directory)
 #'
+#' ## use with a coordinate pair
+#' test4 <- grid_grab(reference_grid = ref_grid,
+#'                   output_directory = output_directory,
+#'                   ref_is_fuel=T)
 #'
 #' unlink(temp_dir)
 
-grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_directory, fuel=TRUE){
+grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_directory, fuel=TRUE, ref_is_fuel=F){
 
   options(timeout = 900)
 
@@ -79,25 +83,29 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
   bb_4326 <- sf::st_bbox(sf::st_transform(aoi_e,crs="EPSG:4326"))
   bb_target <- round(sf::st_bbox(sf::st_transform(aoi_e,crs=target_crs)),-2)
 
-  if(fuel == TRUE){
-  fuel.url<-paste0("https://cwfis.cfs.nrcan.gc.ca/geoserver/public/wcs?",
-                    "service=WCS&version=2.0.0&request=GetCoverage&coverageId=",
-                    "public:cffdrs_fbp_fuel_types_100m&subset=Long(",
-                    bb_4326[1],",",bb_4326[3],")&subset=Lat(",bb_4326[2],",",bb_4326[4],
-                    ")&FORMAT=geotiff&subsettingCRS=EPSG:4326&outputCRS=http://www.opengis.net/def/crs/EPSG/0/3978"
-            )
+  if(fuel){
+    if(ref_is_fuel){
+      fuels <- reference_grid
+      fuels <- terra::resample(terra::project(fuels,elevation,method = "near"),y = elevation,method="near")} else {
+      fuel.url<-paste0("https://cwfis.cfs.nrcan.gc.ca/geoserver/public/wcs?",
+                        "service=WCS&version=2.0.0&request=GetCoverage&coverageId=",
+                        "public:cffdrs_fbp_fuel_types_100m&subset=Long(",
+                        bb_4326[1],",",bb_4326[3],")&subset=Lat(",bb_4326[2],",",bb_4326[4],
+                        ")&FORMAT=geotiff&subsettingCRS=EPSG:4326&outputCRS=http://www.opengis.net/def/crs/EPSG/0/3978"
+                )
 
-  fuels <- terra::resample(terra::project(rast(fuel.url),elevation,method = "near"),y = elevation,method="near")
-  names(fuels) <- "Fuel"
+      fuels <- terra::resample(terra::project(rast(fuel.url),elevation,method = "near"),y = elevation,method="near")}
 
-  terra::writeRaster(terra::crop(fuels,bb_target),
-                       paste0(output_directory,"FBP_Fuels.tif"),
-                       wopt = list(filetype = "GTiff",
-                                   datatype = "INT2S",
-                                   gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2","TILED=YES","BLOCKXSIZE=512", "BLOCKYSIZE=512")),
-                       NAflag = -9999,
-                       overwrite = T)
-  }
+    names(fuels) <- "Fuel"
+
+    terra::writeRaster(terra::crop(fuels,bb_target),
+                         paste0(output_directory,"FBP_Fuels.tif"),
+                         wopt = list(filetype = "GTiff",
+                                     datatype = "INT2S",
+                                     gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2","TILED=YES","BLOCKXSIZE=512", "BLOCKYSIZE=512")),
+                         NAflag = -9999,
+                         overwrite = T)
+    }
 
   terra::writeRaster(terra::crop(elevation,bb_target),
                 paste0(output_directory,"elevation.tif"),
