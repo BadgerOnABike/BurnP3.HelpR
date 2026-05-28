@@ -7,6 +7,8 @@
 #' @param output_directory Output directory where your elevation and Wind Ninja elevation grids will be stored.
 #' @param aoi_e Polygon or numeric coordinate pair ("longitude","latitude") for the area of interest to be intersected with the NTS grid layer. _(Default: NULL)_ If Default is used the full extent under the reference_grid will be returned.
 #' @param buffer A buffer in meters to define an area of interest around a point if coordinates are given to the `aoi_e` parameter. _(Default: NULL)_
+#' @param fuel If you want the tool to process a fuel grid, set this to TRUE. _(Default: TRUE)_
+#' @param ref_is_fuel If the reference grid is the fuel grid se this to TRUE. _(Default: FALSE)_
 #'
 #' @details The purpose of this function is to generate a common and rapid elevation layer that is sampled and masked to the reference grid for use within Burn-P3. A second elevation grid is also generated for use in Wind Ninja as that software will fail with NA values in the elevation grid. Fuel data from:
 #'
@@ -49,7 +51,7 @@
 #'
 #' unlink(temp_dir)
 
-grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_directory, fuel=TRUE, ref_is_fuel=F){
+grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_directory, fuel=TRUE, ref_is_fuel=FALSE){
 
   options(timeout = 900)
 
