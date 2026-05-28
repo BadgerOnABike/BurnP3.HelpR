@@ -49,6 +49,14 @@
 #'                   output_directory = output_directory,
 #'                   ref_is_fuel=T)
 #'
+#' ## If the reference grid is outside the location desired, it will return NAN
+#' ## use with a coordinate pair
+#' test5 <- grid_grab(aoi_e = c(-110, 54),
+#'                   buffer = 50000,
+#'                   reference_grid = ref_grid,
+#'                   output_directory = output_directory,
+#'                   ref_is_fuel=T)
+#'
 #' unlink(temp_dir)
 
 grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_directory, fuel=TRUE, ref_is_fuel=FALSE){
@@ -88,7 +96,9 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
   if(fuel){
     if(ref_is_fuel){
       fuels <- reference_grid
-      fuels <- terra::resample(terra::project(fuels,elevation,method = "near"),y = elevation,method="near")} else {
+      fuels <- terra::resample(terra::project(fuels,elevation,method = "near"),y = elevation,method="near")
+      if(is.na(unique(test5$Fuel[]))){warning("Fuel layer did not fall within desired location, run again with ref_is_fuel = FALSE.")}
+      } else {
       fuel.url<-paste0("https://cwfis.cfs.nrcan.gc.ca/geoserver/public/wcs?",
                         "service=WCS&version=2.0.0&request=GetCoverage&coverageId=",
                         "public:cffdrs_fbp_fuel_types_100m&subset=Long(",
