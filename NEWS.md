@@ -1,3 +1,9 @@
+# BurnP3.HelpR 0.10.6
+
+-`grid_grab`
+- Added EPSG code to the end of the file so we know what projection is being used.
+
+
 # BurnP3.HelpR 0.10.5
 
 -`grid_grab`
