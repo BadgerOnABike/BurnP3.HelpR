@@ -111,7 +111,7 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
     names(fuels) <- "Fuel"
 
     terra::writeRaster(terra::crop(fuels,bb_target),
-                         paste0(output_directory,"FBP_Fuels.tif"),
+                         paste0(output_directory,"FBP_Fuels_epsg_",target_crs,".tif"),
                          wopt = list(filetype = "GTiff",
                                      datatype = "INT2S",
                                      gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2","TILED=YES","BLOCKXSIZE=512", "BLOCKYSIZE=512")),
@@ -120,7 +120,7 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
     }
 
   terra::writeRaster(terra::crop(elevation,bb_target),
-                paste0(output_directory,"elevation.tif"),
+                paste0(output_directory,"elevation_epsg_",target_crs,".tif"),
                 wopt = list(filetype = "GTiff",
                             datatype = "INT2S",
                             gdal = c("COMPRESS=DEFLATE","ZLEVEL=9","PREDICTOR=2","TILED=YES","BLOCKXSIZE=512", "BLOCKYSIZE=512")),
