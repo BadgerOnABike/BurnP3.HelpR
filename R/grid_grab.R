@@ -86,16 +86,30 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
   sf::st_agr(utm_canada) <- "constant"
   target_crs <- sf::st_intersection(utm_canada,sf::st_transform(sf::st_centroid(aoi_e),sf::st_crs(utm_canada)),)$EPSG
 
-  Sys.setenv(R_LIBCURL_SSL_REVOKE_BEST_EFFORT=TRUE) ## This will ensure the SSL intercept in corporate environments does not crater the grid_grab
-  elevation <- mrdem_subset_windowed(bbox = sf::st_bbox(aoi_e), target_res_m = 100,target_crs = target_crs)
-  names(elevation) <- "Elevation"
-
-  bb_4326 <- sf::st_bbox(sf::st_transform(aoi_e,crs="EPSG:4326"))
   bb_target <- round(sf::st_bbox(sf::st_transform(aoi_e,crs=target_crs)),-2)
+
+  bbox_rast <- rast(
+    ext(c(xmin = bb_target["xmin"], xmax = bb_target["xmax"],
+          ymin = bb_target["ymin"], ymax = bb_target["ymax"])),
+    res = 100,
+    crs=st_crs(target_crs))
+  bb_4326 <- bbox_rast|>
+    st_bbox()|>
+    st_as_sfc()|>
+    st_set_crs(target_crs)|>
+    st_transform(4326)|>
+    st_bbox()
+
+  bb_target <- round(sf::st_bbox(sf::st_transform(bb_4326,crs=target_crs)),-2)
+
+  Sys.setenv(R_LIBCURL_SSL_REVOKE_BEST_EFFORT=TRUE) ## This will ensure the SSL intercept in corporate environments does not crater the grid_grab
+  elevation <- mrdem_subset_windowed(bbox = bb_target, target_res_m = 100,target_crs = target_crs)
+  names(elevation) <- "Elevation"
 
   if(fuel){
     if(ref_is_fuel){
       fuels <- reference_grid
+      if(crs(fuels)!=crs(elevation)){warning("The CRS provided was not ideally North Up for fire modelling it has been adjusted to EPSG:",target_crs)}
       fuels <- terra::resample(terra::project(fuels,elevation,method = "near"),y = elevation,method="near")
       if(all(is.na(unique(fuels[])))){warning("Fuel layer did not fall within desired location, run again with ref_is_fuel = FALSE.")}
       } else {
@@ -103,10 +117,10 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
                         "service=WCS&version=2.0.0&request=GetCoverage&coverageId=",
                         "public:cffdrs_fbp_fuel_types_100m&subset=Long(",
                         bb_4326[1],",",bb_4326[3],")&subset=Lat(",bb_4326[2],",",bb_4326[4],
-                        ")&FORMAT=geotiff&subsettingCRS=EPSG:4326&outputCRS=http://www.opengis.net/def/crs/EPSG/0/3978"
+                        ")&FORMAT=geotiff&subsettingCRS=EPSG:4326&outputCRS=http://www.opengis.net/def/crs/EPSG/0/",target_crs
                 )
 
-      fuels <- terra::resample(terra::project(rast(fuel.url),elevation,method = "near"),y = elevation,method="near")}
+      fuels <- terra::resample(rast(fuel.url),y = elevation,method="near")}
 
     names(fuels) <- "Fuel"
 
@@ -135,3 +149,4 @@ elev_grab <- function(...) {
   .Deprecated("grid_grab")
   return(grid_grab(...))
 }
+
