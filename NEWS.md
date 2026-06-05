@@ -1,3 +1,8 @@
+# BurnP3.HelpR 0.10.8
+
+-`grid_grab`
+- Adjusted the methodology, it now uses the initial AOI and converts into the desired CRS, this is to provide an aesthetically pleasing square output that is aligned. At worst the fuels will have clipped edges, but the elevation will be complete.
+
 # BurnP3.HelpR 0.10.7
 
 -`grid_grab`
