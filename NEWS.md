@@ -1,5 +1,8 @@
 # BurnP3.HelpR 0.10.7
 
+-`grid_grab`
+- Improved the Fuel NA detection to ensure NAs that do exist don't trigger the warning to use the WCS.
+
 # BurnP3.HelpR 0.10.6
 
 -`grid_grab`
