@@ -15,6 +15,7 @@
 #' @param zone_names If zonal is True, identify the descriptive names of the zones for use during mapping and output.
 #' @param threshold For weather based spread event day assessments a threshold is necessary to minimize an excessive tail. This ensures a reasonable distribution for short to mid duration fires but excludes long durations. The threshold is defined by the cumulative spread event day potential. As the cumulative sum is assessed the first time it crosses the threshold is the cut point. For example, if the cumulative sum for a spread event day distribution is: .65, .75, .79, .825, .815 (etc, to 1.0) with a threshold of .8, .825 would be the first time that value was cross. As such the first 4 spread event days would be maintained and the remaining .175 will be redistributed to achieve a value of 1.0 across days 1:4. This redistribution will be proportional to the spread event potential by day. That yields a small remainder that is then evenly distributed across the spread event days. This ensure we minimize impacts to the density across spread event days._(Default = 80)_
 #' @param min_fwi A minimum fire weather index is used to describe days where fires are more likely to spread and should be consecutively counted. 19 is common in the Canadian Boreal per Podur and Wotton, 2011 _(Default = 19)_
+#' @param min_dmc A minimum duff moisture code is used to describe the bottom of fire spread potential in most cases. This is used in conjunction with the minimum FWI to define spread event days. It will generally always be exceeded due to the minimum fwi, but can be set lower if there is a desire to maintain all weather, Wang et. al. 2022.  _(Default = 20)_
 #' @param directory Directory for files to be output when using the Burn-P3 directory generator. _(Default = "")_
 #'
 #' @importFrom plyr ddply
@@ -23,6 +24,7 @@
 #' @export
 #'
 #' @references [Defining fire spread event days for fire-growth modelling. 2011. Podur,J.; Wotton, M. International Journal of Wildland Fire. 20:497-507](cfs.nrcan.gc.ca/publications?id=32563)
+#' @references [Future wildfire extent and frequency determined by the longest fire-conducive weather spell. 2022. Xianli Wang, Tom Swystun, Mike D. Flannigan Science of The Total Environment Vol 830](https://doi.org/10.1016/j.scitotenv.2022.154752)
 #'
 #' @examples
 #'
@@ -93,6 +95,7 @@
 #' "West Interior Douglas Fir"),
 #' threshold = 95,
 #' min_fwi = 19,
+#' min_dmc = 20,
 #' directory = "")
 #'
 spread_event_days <- function(input,
@@ -106,6 +109,7 @@ spread_event_days <- function(input,
                               zone_names = "",
                               threshold = 80,
                               min_fwi = 19,
+                              min_dmc = 20,
                               directory = ""){
 
   if (seasonal == T) {
@@ -138,7 +142,9 @@ spread_event_days <- function(input,
 
   if (seasonal == T) {
     sed_wx <- ddply(input,c(season_col, yr_col,id_col),.fun = function(x) {
-      over_thresh <- x$dmc >= 20 & x$fwi >= min_fwi
+      ## The DMC < 20 comes from Wang and Wotton as they discuss fires in a DMC <20 conditions as a fire ending event.
+      ## Here we are collecting weather both above the minimum DMC and the minimum FWI.
+      over_thresh <- x$dmc >= min_dmc & x$fwi >= min_fwi
       runs <- rle(over_thresh)
       counts <- runs$lengths[runs$values == 1]
       gaps <- runs$lengths[runs$values == 0]
@@ -174,7 +180,7 @@ spread_event_days <- function(input,
 
   if (zonal == T) {
     sed_wx <- plyr::ddply(input,c(zone_col, yr_col,id_col),.fun = function(x) {
-      over_thresh <- x$dmc >= 20 & x$fwi >= min_fwi
+      over_thresh <- x$dmc >= min_dmc & x$fwi >= min_fwi
       runs <- rle(over_thresh)
       counts <- runs$lengths[runs$values == 1]
       gaps <- runs$lengths[runs$values == 0]
@@ -212,7 +218,7 @@ spread_event_days <- function(input,
     sed_wx <- plyr::ddply(.data = input,
                     .variables = c( yr_col,id_col),
                     .fun = function(x) {
-                                       over_thresh <- x$dmc >= 20 & x$fwi >= min_fwi
+                                       over_thresh <- x$dmc >= min_dmc & x$fwi >= min_fwi
                                        runs <- rle(over_thresh)
                                        counts <- runs$lengths[runs$values == 1]
                                        gaps <- runs$lengths[runs$values == 0]
