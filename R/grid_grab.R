@@ -109,7 +109,7 @@ grid_grab <- function(aoi_e = NULL,buffer = NULL, reference_grid = NULL,output_d
   if(fuel){
     if(ref_is_fuel){
       fuels <- reference_grid
-      if(crs(fuels)!=crs(elevation)){warning("The CRS provided was not ideally North Up for fire modelling it has been adjusted to EPSG:",target_crs)}
+      if(crs(fuels)!=crs(elevation)){warning("A critical adjustment was made. The projection provided was not ideally North Up for fire modelling it has been adjusted to EPSG:",target_crs)}
       fuels <- terra::resample(terra::project(fuels,elevation,method = "near"),y = elevation,method="near")
       if(all(is.na(unique(fuels[])))){warning("Fuel layer did not fall within desired location, run again with ref_is_fuel = FALSE.")}
       } else {
