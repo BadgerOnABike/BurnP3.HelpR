@@ -3,6 +3,7 @@
 -`spread_event_days`
 - Fixed the redistribution above the threshold to proportionally redistribute across the available spread event days.
 - Added a final adjustment to add in any extra remainder evenly as the proportional redistribution does not achieve 100 all the time.
+- Can now assign the output to an object, it was not being returned previously
 
 # BurnP3.HelpR 0.10.9
 
