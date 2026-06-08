@@ -1,3 +1,9 @@
+# BurnP3.HelpR 0.11.0
+
+-`spread_event_days`
+- Fixed the redistribution above the threshold to proportionally redistribute across the available spread event days.
+- Added a final adjustment to add in any extra remainder evenly as the proportional redistribution does not achieve 100 all the time.
+
 # BurnP3.HelpR 0.10.9
 
 # BurnP3.HelpR 0.10.8
