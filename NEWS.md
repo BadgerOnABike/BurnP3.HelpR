@@ -1,3 +1,9 @@
+# BurnP3.HelpR 0.11.2
+
+-`spread_event_days`
+- Added the `min_dmc` argument to allow a user to modify the floor of the DMC threshold. This is based on Wang et. al. 2022 (in refs now) and is used with the `min_fwi` to define spread potential.
+
+
 # BurnP3.HelpR 0.11.1
 
 -`spread_event_days`
