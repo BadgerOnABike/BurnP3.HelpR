@@ -1,3 +1,8 @@
+# BurnP3.HelpR 0.11.1
+
+-`spread_event_days`
+- Updated documentation for the `threshold` argument to help clarify what that actually does.
+
 # BurnP3.HelpR 0.11.0
 
 -`spread_event_days`
