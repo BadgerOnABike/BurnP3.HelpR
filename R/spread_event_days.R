@@ -131,8 +131,8 @@ spread_event_days <- function(input,
       }
 
     ## Add the difference to achieve 100 percent to the 1 day spread.
-    ## Step 1: apply the remaining differrence from 100 to the spread event days proportionally to their initial contribution.
-    sed$sp_ev_days <- sed$sp_ev_days + round((100 - sum(sed$sp_ev_days))*(sed$sp_ev_days/100),2)
+    ## Step 1: apply the remaining difference from 100 to the spread event days proportionally to their contribution to the trimmed total.
+    sed$sp_ev_days <- sed$sp_ev_days + round((100 - sum(sed$sp_ev_days))*(sed$sp_ev_days/sum(sed$sp_ev_days)),2)
     ## Step 2: To ensure we achieve 100 we evenly distribute the remainder after the bulk application at proportional rates.
     ## This will tend to be a very small number and is due to the proportions removed not being represented by the remaining values.
     if(sum(sed$sp_ev_days) != 100) {sed$sp_ev_days <- sed$sp_ev_days + (100 - sum(sed$sp_ev_days))/nrow(sed)}
