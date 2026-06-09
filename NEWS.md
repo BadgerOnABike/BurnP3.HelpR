@@ -1,3 +1,8 @@
+# BurnP3.HelpR 0.11.3
+
+-`spread_event_days`
+- Adjusted the redistribution system to redistribute based on the contribution to the trimmed total, ensure we do not need to evenly allocate after the initial reallocation.
+
 # BurnP3.HelpR 0.11.2
 
 -`spread_event_days`
