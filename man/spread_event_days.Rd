@@ -16,6 +16,7 @@ spread_event_days(
   zone_names = "",
   threshold = 80,
   min_fwi = 19,
+  min_dmc = 20,
   directory = ""
 )
 }
@@ -38,9 +39,11 @@ spread_event_days(
 
 \item{zone_names}{If zonal is True, identify the descriptive names of the zones for use during mapping and output.}
 
-\item{threshold}{For weather based spread event day assessments a threshold is necessary to minimize an excessive tail. This ensures a reasonable distribution for short to mid duration fires but excludes long durations. \emph{(Default = 80)}}
+\item{threshold}{For weather based spread event day assessments a threshold is necessary to minimize an excessive tail. This ensures a reasonable distribution for short to mid duration fires but excludes long durations. The threshold is defined by the cumulative spread event day potential. As the cumulative sum is assessed the first time it crosses the threshold is the cut point. For example, if the cumulative sum for a spread event day distribution is: .65, .75, .79, .825, .815 (etc, to 1.0) with a threshold of .8, .825 would be the first time that value was cross. As such the first 4 spread event days would be maintained and the remaining .175 will be redistributed to achieve a value of 1.0 across days 1:4. This redistribution will be proportional to the spread event potential by day. That yields a small remainder that is then evenly distributed across the spread event days. This ensure we minimize impacts to the density across spread event days.\emph{(Default = 80)}}
 
 \item{min_fwi}{A minimum fire weather index is used to describe days where fires are more likely to spread and should be consecutively counted. 19 is common in the Canadian Boreal per Podur and Wotton, 2011 \emph{(Default = 19)}}
+
+\item{min_dmc}{A minimum duff moisture code is used to describe the bottom of fire spread potential in most cases. This is used in conjunction with the minimum FWI to define spread event days. It will generally always be exceeded due to the minimum fwi, but can be set lower if there is a desire to maintain all weather, Wang et. al. 2022.  \emph{(Default = 20)}}
 
 \item{directory}{Directory for files to be output when using the Burn-P3 directory generator. \emph{(Default = "")}}
 }
@@ -102,7 +105,7 @@ threshold = 80,
 min_fwi = 19,
 directory = "")
 
-spread_event_days(input = weather,
+test <- spread_event_days(input = weather,
 yr_col = "yr",
 id_col = "id",
 seasonal = FALSE ,
@@ -120,11 +123,14 @@ zone_names = c("Alpine",
 "West Alpine",
 "West Montane",
 "West Interior Douglas Fir"),
-threshold = 80,
+threshold = 95,
 min_fwi = 19,
+min_dmc = 20,
 directory = "")
 
 }
 \references{
 \href{cfs.nrcan.gc.ca/publications?id=32563}{Defining fire spread event days for fire-growth modelling. 2011. Podur,J.; Wotton, M. International Journal of Wildland Fire. 20:497-507}
+
+\href{https://doi.org/10.1016/j.scitotenv.2022.154752}{Future wildfire extent and frequency determined by the longest fire-conducive weather spell. 2022. Xianli Wang, Tom Swystun, Mike D. Flannigan Science of The Total Environment Vol 830}
 }

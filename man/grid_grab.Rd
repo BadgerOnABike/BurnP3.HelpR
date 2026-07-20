@@ -4,7 +4,14 @@
 \alias{grid_grab}
 \title{Gridded Data Grabber - From NTS Grids}
 \usage{
-grid_grab(aoi_e = NULL, buffer = NULL, reference_grid, output_directory)
+grid_grab(
+  aoi_e = NULL,
+  buffer = NULL,
+  reference_grid = NULL,
+  output_directory,
+  fuel = TRUE,
+  ref_is_fuel = FALSE
+)
 }
 \arguments{
 \item{aoi_e}{Polygon or numeric coordinate pair ("longitude","latitude") for the area of interest to be intersected with the NTS grid layer. \emph{(Default: NULL)} If Default is used the full extent under the reference_grid will be returned.}
@@ -14,6 +21,10 @@ grid_grab(aoi_e = NULL, buffer = NULL, reference_grid, output_directory)
 \item{reference_grid}{This is a reference raster to provide a projection and a surface to assign values onto, this should be a grid that registers with the other grids you are using for your project. Can be either the location of the raster or a raster object.}
 
 \item{output_directory}{Output directory where your elevation and Wind Ninja elevation grids will be stored.}
+
+\item{fuel}{If you want the tool to process a fuel grid, set this to TRUE. \emph{(Default: TRUE)}}
+
+\item{ref_is_fuel}{If the reference grid is the fuel grid se this to TRUE. \emph{(Default: FALSE)}}
 }
 \value{
 SpatRast
@@ -46,6 +57,18 @@ test3 <- grid_grab(aoi_e = c(-110, 54),
                   reference_grid = ref_grid,
                   output_directory = output_directory)
 
+## use with a coordinate pair
+test4 <- grid_grab(reference_grid = ref_grid,
+                  output_directory = output_directory,
+                  ref_is_fuel=T)
+
+## If the reference grid is outside the location desired, it will return NAN
+## use with a coordinate pair
+test5 <- grid_grab(aoi_e = c(-110, 54),
+                  buffer = 50000,
+                  reference_grid = ref_grid,
+                  output_directory = output_directory,
+                  ref_is_fuel=T)
 
 unlink(temp_dir)
 }
